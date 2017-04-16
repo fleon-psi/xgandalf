@@ -1,0 +1,12 @@
+Use Eigen with MKL for speedup:
+https://eigen.tuxfamily.org/dox/TopicUsingIntelMKL.html
+
+Use Eigen parallelity:
+https://eigen.tuxfamily.org/dox/TopicMultiThreading.html
+
+disable hyperthreading might give a speedup
+
+
+
+Optimize for Eigens lazy evaluation:
+http://eigen.tuxfamily.org/dox/TopicWritingEfficientProductExpression.html
