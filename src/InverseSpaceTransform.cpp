@@ -6,7 +6,6 @@
  */
 
 #include <InverseSpaceTransform.h>
-#include "BadInputException.h"
 #include <assert.h>
 #include <iostream>
 
@@ -27,26 +26,19 @@ static inline void function8(const ArrayXXf& x, ArrayXXf& functionEvaluation, Ar
 static inline void function9(const ArrayXXf& x, ArrayXXf& functionEvaluation, ArrayXXf& slope, float optionalFunctionArgument);
 
 InverseSpaceTransform::InverseSpaceTransform() :
-        resultsUpToDate(false), functionSelection(0), optionalFunctionArgument(1), localTransform(false), radialWeighting(false), maxCloseToPeakDeviation(0.15)
+        functionSelection(0), optionalFunctionArgument(1), localTransform(false), radialWeighting(false), maxCloseToPeakDeviation(0.15), resultsUpToDate(false)
 {
 
 }
 
 InverseSpaceTransform::InverseSpaceTransform(float maxCloseToPeakDeviation) :
-        resultsUpToDate(false), functionSelection(0), optionalFunctionArgument(1), localTransform(false), radialWeighting(false),
-                maxCloseToPeakDeviation(maxCloseToPeakDeviation)
+        functionSelection(0), optionalFunctionArgument(1), localTransform(false), radialWeighting(false), maxCloseToPeakDeviation(maxCloseToPeakDeviation),
+                resultsUpToDate(false)
 {
 
 }
 
-void InverseSpaceTransform::performTransform(const Matrix3Xf& pointsToTransform, const Matrix3Xf& positionsToEvaluate)
-{
-    RowVectorXf pointsToTransformWeights = RowVectorXf::Ones(pointsToTransform.cols());
-    performTransform(pointsToTransform, positionsToEvaluate, pointsToTransformWeights);
-}
-
-void InverseSpaceTransform::performTransform(const Matrix3Xf& pointsToTransform, const Matrix3Xf& positionsToEvaluate,
-        RowVectorXf & pointsToTransformWeights)
+void InverseSpaceTransform::performTransform(const Matrix3Xf& positionsToEvaluate)
 {
     float pointsToTransformCount_inverse = 1 / (float) pointsToTransform.cols();
 
@@ -76,19 +68,12 @@ void InverseSpaceTransform::performTransform(const Matrix3Xf& pointsToTransform,
         closeToPeaksCount = closeToPeak.matrix().cast< uint16_t >().colwise().sum().cast< float >();
     }
 
-    cout << fullGradient << endl << endl;
     if (localTransform) {
 //        gradient = gradient.array().rowwise() / closeToPeaksCount.array();
 //        gradient = (gradient.array() == 0).select(fullGradient * pointsToTransformCount_inverse, gradient);
-//        for (int i = 0; i < closeToPeaksCount.size(); i++) {
-//            gradient.col(i) = (closeToPeaksCount(i) != 0) ? (gradient.col(i) / closeToPeaksCount(i)) : (fullGradient.col(i) * pointsToTransformCount_inverse);
-//        }
         for (int i = 0; i < closeToPeaksCount.size(); i++) {
-            if (closeToPeaksCount(i) != 0) {
-                gradient.col(i) = gradient.col(i) / closeToPeaksCount(i);
-            } else {
-                gradient.col(i) = fullGradient.col(i) * pointsToTransformCount_inverse;
-            }
+            gradient.col(i) =
+                    (closeToPeaksCount(i) != 0) ? (gradient.col(i) * (1.0f / closeToPeaksCount(i))) : (fullGradient.col(i) * pointsToTransformCount_inverse);
         }
     } else {
         gradient = gradient * pointsToTransformCount_inverse;
@@ -120,7 +105,7 @@ static inline void function1(const ArrayXXf& x, ArrayXXf& functionEvaluation, Ar
 static inline void function2(const ArrayXXf& x, ArrayXXf& functionEvaluation, ArrayXXf& slope)
 {
     functionEvaluation = (-4 * abs(x) + 1);
-    slope = (x < 0).select(ArrayXXf::Ones(x.rows(), x.cols()), -1); // -sign(x)
+    slope = -x.sign();
 }
 
 static inline void function3(const ArrayXXf& x, ArrayXXf& functionEvaluation, ArrayXXf& slope)
@@ -152,21 +137,25 @@ static inline void function6(const ArrayXXf& x, ArrayXXf& functionEvaluation, Ar
 
 static inline void function7(const ArrayXXf& x, ArrayXXf& functionEvaluation, ArrayXXf& slope, float optionalFunctionArgument)
 {
-    functionEvaluation = (abs(x) - optionalFunctionArgument / 2 < 0).select(ArrayXXf::Ones(x.rows(), x.cols()), -1); // -sign(x.abs() - optionalFunctionArgument / 2);
-    slope = (x < 0).select(ArrayXXf::Ones(x.rows(), x.cols()), -1) * (-functionEvaluation + 1) / 2; // -sign(x)*...
+    functionEvaluation = -(abs(x) - optionalFunctionArgument / 2).sign();
+    slope = -x.sign() * (-functionEvaluation + 1) / 2;
 }
 
 static inline void function8(const ArrayXXf& x, ArrayXXf& functionEvaluation, ArrayXXf& slope)
 {
     functionEvaluation = 8 * ((abs(x) - 0.5)).square() - 1;
-    auto sign_x = (0 < x).select(ArrayXXf::Ones(x.rows(), x.cols()), -1);
-    slope = 2 * (abs(x) - 0.5) * sign_x;
+    slope = 2 * (abs(x) - 0.5) * x.sign();
 }
 
 static inline void function9(const ArrayXXf& x, ArrayXXf& functionEvaluation, ArrayXXf& slope, float optionalFunctionArgument)
 {
-    functionEvaluation = pow((1 - abs(x)), optionalFunctionArgument) * 2 - 1;
-    slope = -x * pow((1 - abs(x)), (optionalFunctionArgument - 1)) / abs(x);
+    if (optionalFunctionArgument - round(optionalFunctionArgument) == 0) {
+        functionEvaluation = pow(1 - abs(x), (int) optionalFunctionArgument) * 2 - 1;
+        slope = -x * pow(1 - abs(x), (int) optionalFunctionArgument - 1) / abs(x);
+    } else {
+        functionEvaluation = pow(1 - abs(x), optionalFunctionArgument) * 2 - 1;
+        slope = -x * pow(1 - abs(x), optionalFunctionArgument - 1) / abs(x);
+    }
 }
 
 void InverseSpaceTransform::onePeriodicFunction(ArrayXXf& x)
@@ -207,6 +196,22 @@ void InverseSpaceTransform::onePeriodicFunction(ArrayXXf& x)
             errStream << "Selected function is not available.";
             throw BadInputException(errStream.str());
     }
+}
+
+void InverseSpaceTransform::setPointsToTransform(const Matrix3Xf& pointsToTransform)
+{
+    resultsUpToDate = false;
+    this->pointsToTransform = pointsToTransform;
+
+    if (pointsToTransform.cols() != pointsToTransformWeights.cols()) {
+        pointsToTransformWeights = RowVectorXf::Ones(pointsToTransform.cols());
+    }
+}
+
+void InverseSpaceTransform::setPointsToTransformWeights(const RowVectorXf pointsToTransformWeights)
+{
+    resultsUpToDate = false;
+    this->pointsToTransformWeights = pointsToTransformWeights;
 }
 
 void InverseSpaceTransform::setFunctionSelection(int functionSelection)
@@ -288,6 +293,27 @@ const Eigen::RowVectorXf InverseSpaceTransform::getCloseToPeaksCount()
     } else {
         stringstream errStream;
         errStream << "CloseToPeaksCount not up to date, call performTransform() first.";
+        throw BadInputException(errStream.str());
+    }
+}
+
+vector< vector< uint16_t > >& InverseSpaceTransform::getPeaksCloseToEvaluationPositions_indices()
+{
+    if (resultsUpToDate) {
+        peaksCloseToEvaluationPositions_indices.resize(closeToPeak.cols());
+
+        for (int evaluationPositionIndex = 0; evaluationPositionIndex < closeToPeak.cols(); evaluationPositionIndex++) {
+            for (int pointIndex = 0; pointIndex < closeToPeak.rows(); pointIndex++) {
+                if (closeToPeak(pointIndex, evaluationPositionIndex)) {
+                    peaksCloseToEvaluationPositions_indices[evaluationPositionIndex].push_back(pointIndex);
+                }
+            }
+        }
+
+        return peaksCloseToEvaluationPositions_indices;
+    } else {
+        stringstream errStream;
+        errStream << "closeToPeak not up to date, call performTransform() first.";
         throw BadInputException(errStream.str());
     }
 }

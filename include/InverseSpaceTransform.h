@@ -8,17 +8,20 @@
 #ifndef INVERSESPACETRANSFORM_H_
 #define INVERSESPACETRANSFORM_H_
 
-#include <assert.h>
 #include <Eigen/Dense>
+#include <ctype.h>
+#include <vector>
+#include "BadInputException.h"
 
 class InverseSpaceTransform {
 public:
     InverseSpaceTransform();
     InverseSpaceTransform(float maxCloseToPeakDeviation);
 
-    void performTransform(const Eigen::Matrix3Xf& pointsToTransform, const Eigen::Matrix3Xf& positionsToEvaluate);
-    void performTransform(const Eigen::Matrix3Xf& pointsToTransform, const Eigen::Matrix3Xf& positionsToEvaluate,
-            Eigen::RowVectorXf & pointsToTransformWeights);
+    void performTransform(const Eigen::Matrix3Xf& positionsToEvaluate);
+
+    void setPointsToTransform(const Eigen::Matrix3Xf& pointsToTransform);
+    void setPointsToTransformWeights(const Eigen::RowVectorXf pointsToTransformWeights);
 
     void setFunctionSelection(int functionSelection);
     void setOptionalFunctionArgument(float optionalFunctionArgument);
@@ -31,10 +34,16 @@ public:
     const Eigen::Matrix3Xf getGradient();
     const Eigen::RowVectorXf getInverseTransformEvaluation();
     const Eigen::RowVectorXf getCloseToPeaksCount();
-    public:
+
+    std::vector< std::vector< uint16_t > >& getPeaksCloseToEvaluationPositions_indices();
+
+private:
     void onePeriodicFunction(Eigen::ArrayXXf& x);
 
-    bool resultsUpToDate;
+    Eigen::Matrix3Xf pointsToTransform;
+    Eigen::RowVectorXf pointsToTransformWeights;
+
+    
 
     int functionSelection;
     float optionalFunctionArgument;
@@ -52,6 +61,14 @@ public:
     Eigen::ArrayXXf functionEvaluation;
     Eigen::ArrayXXf slope;
     Eigen::Array< bool, Eigen::Dynamic, Eigen::Dynamic > closeToPeak;
+    
+    std::vector< std::vector< uint16_t > > peaksCloseToEvaluationPositions_indices;
+
+    bool resultsUpToDate;
+    
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    ;
 };
 
 #endif /* INVERSESPACETRANSFORM_H_ */

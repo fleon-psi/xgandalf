@@ -52,8 +52,10 @@ private:
     Eigen::Matrix3f basis;
 
     bool minimal;
+
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    ;
 };
-
-
 
 #endif /* LATTICE_H_ */
