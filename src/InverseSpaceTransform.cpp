@@ -45,12 +45,6 @@ void InverseSpaceTransform::performTransform(const Matrix3Xf& positionsToEvaluat
     ArrayXXf x = pointsToTransform.transpose() * positionsToEvaluate;
     onePeriodicFunction(x);
 
-    if (radialWeighting) {
-        Array< float, 1, Dynamic > radialWeight = pointsToTransform.colwise().squaredNorm().array().rsqrt();
-        pointsToTransformWeights = (pointsToTransformWeights.array() * radialWeight).matrix();
-    }
-    float maxResult = pointsToTransformWeights.sum();
-
 //    cout << slope << endl << endl << pointsToTransform << endl << endl << pointsToTransformWeights << endl << endl;
     Matrix3Xf fullGradient;
     if (localTransform) {
@@ -58,15 +52,17 @@ void InverseSpaceTransform::performTransform(const Matrix3Xf& positionsToEvaluat
         functionEvaluation = functionEvaluation * closeToPeak.matrix().cast< float >().array();
         slope = slope * closeToPeak.matrix().cast< float >().array();
     }
+//    cout << slope << endl << endl << functionEvaluation << endl << endl << fullGradient << endl << endl;
 
     gradient = (pointsToTransform.array().rowwise() * pointsToTransformWeights.array()).matrix() * slope.matrix();
-    inverseTransformEvaluation = pointsToTransformWeights * functionEvaluation.matrix() * (1 / maxResult);
+    inverseTransformEvaluation = pointsToTransformWeights * functionEvaluation.matrix() * (1 / inverseTransformEvaluationScalingFactor);
 
     if (closeToPeak.rows() <= 255) {
         closeToPeaksCount = closeToPeak.matrix().cast< uint8_t >().colwise().sum().cast< float >();
     } else {
         closeToPeaksCount = closeToPeak.matrix().cast< uint16_t >().colwise().sum().cast< float >();
     }
+//    cout << gradient << endl << endl << inverseTransformEvaluation << endl << endl << closeToPeak << endl << endl;
 
     if (localTransform) {
 //        gradient = gradient.array().rowwise() / closeToPeaksCount.array();
@@ -160,7 +156,9 @@ static inline void function9(const ArrayXXf& x, ArrayXXf& functionEvaluation, Ar
 
 void InverseSpaceTransform::onePeriodicFunction(ArrayXXf& x)
 {
-    x = x - round(x);
+//    cout << x<<endl<<endl;
+    x = x - round(x);   //catastrophic cancellation possible
+//    cout << x << endl << endl;
     closeToPeak = abs(x) < maxCloseToPeakDeviation;
 
     switch (functionSelection) {
@@ -203,15 +201,28 @@ void InverseSpaceTransform::setPointsToTransform(const Matrix3Xf& pointsToTransf
     resultsUpToDate = false;
     this->pointsToTransform = pointsToTransform;
 
-    if (pointsToTransform.cols() != pointsToTransformWeights.cols()) {
-        pointsToTransformWeights = RowVectorXf::Ones(pointsToTransform.cols());
+    if (pointsToTransform.cols() != pointsToTransformWeights.cols()) {  // actually not a good choise... 
+        pointsToTransformWeights_userPreset = RowVectorXf::Ones(pointsToTransform.cols());
+        update_pointsToTransformWeights();
     }
 }
 
 void InverseSpaceTransform::setPointsToTransformWeights(const RowVectorXf pointsToTransformWeights)
 {
     resultsUpToDate = false;
-    this->pointsToTransformWeights = pointsToTransformWeights;
+    pointsToTransformWeights_userPreset = pointsToTransformWeights;
+    update_pointsToTransformWeights();
+}
+
+void InverseSpaceTransform::update_pointsToTransformWeights()
+{
+    if (radialWeighting) {
+        Array< float, 1, Dynamic > radialWeight = pointsToTransform.colwise().squaredNorm().array().rsqrt();
+        pointsToTransformWeights = (pointsToTransformWeights_userPreset.array() * radialWeight).matrix();
+    } else {
+        pointsToTransformWeights = pointsToTransformWeights_userPreset;
+    }
+    inverseTransformEvaluationScalingFactor = pointsToTransformWeights.sum();
 }
 
 void InverseSpaceTransform::setFunctionSelection(int functionSelection)
@@ -248,6 +259,8 @@ void InverseSpaceTransform::setRadialWeightingFlag()
         resultsUpToDate = false;
         radialWeighting = true;
     }
+    
+    update_pointsToTransformWeights();
 }
 void InverseSpaceTransform::clearRadialWeightingFlag()
 {
@@ -255,6 +268,8 @@ void InverseSpaceTransform::clearRadialWeightingFlag()
         resultsUpToDate = false;
         radialWeighting = false;
     }
+    
+    update_pointsToTransformWeights();
 }
 
 void InverseSpaceTransform::setMaxCloseToPeakDeviation(float maxCloseToPeakDeviation)
@@ -266,7 +281,7 @@ void InverseSpaceTransform::setMaxCloseToPeakDeviation(float maxCloseToPeakDevia
     }
 }
 
-const Eigen::Matrix3Xf InverseSpaceTransform::getGradient()
+Eigen::Matrix3Xf& InverseSpaceTransform::getGradient()
 {
     if (resultsUpToDate) {
         return gradient;
@@ -276,7 +291,7 @@ const Eigen::Matrix3Xf InverseSpaceTransform::getGradient()
         throw BadInputException(errStream.str());
     }
 }
-const Eigen::RowVectorXf InverseSpaceTransform::getInverseTransformEvaluation()
+Eigen::RowVectorXf& InverseSpaceTransform::getInverseTransformEvaluation()
 {
     if (resultsUpToDate) {
         return inverseTransformEvaluation;
@@ -286,7 +301,7 @@ const Eigen::RowVectorXf InverseSpaceTransform::getInverseTransformEvaluation()
         throw BadInputException(errStream.str());
     }
 }
-const Eigen::RowVectorXf InverseSpaceTransform::getCloseToPeaksCount()
+Eigen::RowVectorXf& InverseSpaceTransform::getCloseToPeaksCount()
 {
     if (resultsUpToDate) {
         return closeToPeaksCount;

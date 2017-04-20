@@ -6,7 +6,12 @@ https://eigen.tuxfamily.org/dox/TopicMultiThreading.html
 
 disable hyperthreading might give a speedup
 
+-freciprocal-math
 
 
 Optimize for Eigens lazy evaluation:
 http://eigen.tuxfamily.org/dox/TopicWritingEfficientProductExpression.html
+
+
+
+für closeToPeaks sollte weightening berücksichtigt werden

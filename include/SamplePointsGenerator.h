@@ -18,7 +18,7 @@ public:
     
     void getDenseGrid(Eigen::Matrix3Xf& samplePoints, float unitPitch, float minRadius, float maxRadius);
     
-    void getTightGrid(Eigen::Matrix3Xf& samplePoints, float unitPitch, float tolerance, Eigen::VectorXf radii);
+    void getTightGrid(Eigen::Matrix3Xf& samplePoints, float unitPitch, float tolerance, const Eigen::VectorXf radii);
     
 private:
     std::string precomputedSamplePointsPath;

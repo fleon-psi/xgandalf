@@ -23,27 +23,28 @@ public:
     void setPointsToTransform(const Eigen::Matrix3Xf& pointsToTransform);
     void setPointsToTransformWeights(const Eigen::RowVectorXf pointsToTransformWeights);
 
+    void setMaxCloseToPeakDeviation(float maxCloseToPeakDeviation);
     void setFunctionSelection(int functionSelection);
     void setOptionalFunctionArgument(float optionalFunctionArgument);
     void setLocalTransformFlag();
     void clearLocalTransformFlag();
     void setRadialWeightingFlag();
     void clearRadialWeightingFlag();
-    void setMaxCloseToPeakDeviation(float maxCloseToPeakDeviation);
 
-    const Eigen::Matrix3Xf getGradient();
-    const Eigen::RowVectorXf getInverseTransformEvaluation();
-    const Eigen::RowVectorXf getCloseToPeaksCount();
+    Eigen::Matrix3Xf& getGradient();
+    Eigen::RowVectorXf& getInverseTransformEvaluation();
+    Eigen::RowVectorXf& getCloseToPeaksCount();
 
     std::vector< std::vector< uint16_t > >& getPeaksCloseToEvaluationPositions_indices();
 
 private:
     void onePeriodicFunction(Eigen::ArrayXXf& x);
-
-    Eigen::Matrix3Xf pointsToTransform;
-    Eigen::RowVectorXf pointsToTransformWeights;
-
     
+    void update_pointsToTransformWeights();
+    
+    Eigen::Matrix3Xf pointsToTransform;
+    Eigen::RowVectorXf pointsToTransformWeights_userPreset;
+    Eigen::RowVectorXf pointsToTransformWeights;
 
     int functionSelection;
     float optionalFunctionArgument;
@@ -61,14 +62,16 @@ private:
     Eigen::ArrayXXf functionEvaluation;
     Eigen::ArrayXXf slope;
     Eigen::Array< bool, Eigen::Dynamic, Eigen::Dynamic > closeToPeak;
-    
-    std::vector< std::vector< uint16_t > > peaksCloseToEvaluationPositions_indices;
 
-    bool resultsUpToDate;
+    std::vector< std::vector< uint16_t > > peaksCloseToEvaluationPositions_indices;
     
+    float inverseTransformEvaluationScalingFactor;
+    
+    bool resultsUpToDate;
+
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    ;
+        ;
 };
 
 #endif /* INVERSESPACETRANSFORM_H_ */

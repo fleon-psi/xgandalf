@@ -15,32 +15,47 @@ class HillClimbingOptimizer {
 public:
     HillClimbingOptimizer();
 
+    void performOptimization(const Eigen::Matrix3Xf& pointsToTransform, Eigen::Matrix3Xf& positionsToOptimize);
+    Eigen::RowVectorXf& getLastInverseTransformEvaluation();
+
+    void setInverseSpaceTransformAccuracyConstants(int functionSelection, float optionalFunctionArgument, float maxCloseToPeakDeviationm);
+    void setHillClimbingStrategyAccuracyConstants(int initialIterationCount, int calmDownIterationCount, float calmDownFactor, int localFitIterationCount,
+            int localCalmDownIterationCount, float localCalmDownFactor);
+    void setStepComputationAccuracyConstants(float gamma, float minStep, float maxStep, float directionChangeFactor);
+    
+    //optional
+    void setPointsToTransformWeights(const Eigen::RowVectorXf pointsToTransformWeights);
+
+public:
     //watch out! gradient, closeToPeaksCount and inverseTransformEvaluation are changed in this function (for performance reasons)!
     void computeStep(Eigen::Matrix3Xf& gradient, Eigen::RowVectorXf& closeToPeaksCount, Eigen::RowVectorXf& inverseTransformEvaluation,
-            bool useStepOrthogonalizationFlag);
+            bool useStepOrthogonalization);
 
-private:
-    //accuracy constants
-    InverseSpaceTransform *transform;
+    void performOptimizationStep(Eigen::Matrix3Xf& positionsToOptimize, bool useStepOrthogonalization);
 
-    float gamma;
+    InverseSpaceTransform transform;
+
+    //HillClimbingStrategyAccuracyConstants
     int initialIterationCount;
-    float maxStep;
-    float minStep;
     int calmDownIterationCount;
     float calmDownFactor;
-    float directionChangeFactor;
     int localFitIterationCount;
     int localCalmDownIterationCount;
     float localCalmDownFactor;
 
+    //StepComputationAccuracyConstants
+    float gamma;
+    float maxStep;
+    float minStep;
+    float directionChangeFactor;
+
     // interna
-    Eigen::Matrix3Xf stepDirection;
-    Eigen::Array< float, 1, Eigen::Dynamic > stepLength;
     Eigen::Matrix3Xf step;
 
     Eigen::Matrix3Xf previousStepDirection;
     Eigen::Array< float, 1, Eigen::Dynamic > previousStepLength;
+
+    Eigen::RowVectorXf lastInverseTransformEvaluation;
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
