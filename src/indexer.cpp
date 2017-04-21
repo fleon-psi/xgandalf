@@ -31,10 +31,7 @@ int main()
     samplePointsGenerator.getTightGrid(positionsToOptimize, unitPitch, tolerance, radii);
     loadEigenMatrixFromDisk(pointsToTransform, "workfolder/positionsToTransform");
 
-//    positionsToOptimize = positionsToOptimize.col(0).eval();
-
-    std::ofstream ofs0("workfolder/positionsToOptimize_init", std::ofstream::out);
-    ofs0 << positionsToOptimize;
+    positionsToOptimize = positionsToOptimize.col(0).eval();
 
     HillClimbingOptimizer optimizer;
 
@@ -66,7 +63,58 @@ int main()
     std::ofstream ofs2("workfolder/lastInverseTransformEvaluation", std::ofstream::out);
     ofs2 << optimizer.getLastInverseTransformEvaluation().transpose().eval();
 
+    std::ofstream ofs3("workfolder/closeToPeaksCount", std::ofstream::out);
+    ofs3 << optimizer.getCloseToPeaksCount().transpose().eval();
+
     return 0;
+}
+
+void test_hillClimbing()
+{
+    Matrix3Xf pointsToTransform;
+    Matrix3Xf positionsToOptimize;
+
+    float unitPitch = 0.05;
+    float tolerance = 0.02;
+    VectorXf radii = (VectorXf(2) << 38.2457, 80.2551).finished();
+    SamplePointsGenerator samplePointsGenerator;
+    samplePointsGenerator.getTightGrid(positionsToOptimize, unitPitch, tolerance, radii);
+    loadEigenMatrixFromDisk(pointsToTransform, "workfolder/positionsToTransform");
+
+    positionsToOptimize = positionsToOptimize.col(0).eval();
+
+    HillClimbingOptimizer optimizer;
+
+    int functionSelection = 1;
+    float optionalFunctionArgument = 1;
+    float maxCloseToPeakDeviation = 0.15;
+    optimizer.setInverseSpaceTransformAccuracyConstants(functionSelection, optionalFunctionArgument, maxCloseToPeakDeviation);
+
+    int initialIterationCount = 40;
+    int calmDownIterationCount = 5;
+    float calmDownFactor = 0.8;
+    int localFitIterationCount = 8;
+    int localCalmDownIterationCount = 6;
+    float localCalmDownFactor = 0.8;
+    optimizer.setHillClimbingStrategyAccuracyConstants(initialIterationCount, calmDownIterationCount, calmDownFactor, localFitIterationCount,
+            localCalmDownIterationCount, localCalmDownFactor);
+
+    float directionChangeFactor = 2.500000000000000;
+    float minStep = 0.331259661674998;
+    float maxStep = 3.312596616749981;
+    float gamma = 0.650000000000000;
+    optimizer.setStepComputationAccuracyConstants(gamma, minStep, maxStep, directionChangeFactor);
+
+    optimizer.performOptimization(pointsToTransform, positionsToOptimize);
+
+    std::ofstream ofs("workfolder/optimizedPoints", std::ofstream::out);
+    ofs << positionsToOptimize.transpose().eval();
+
+    std::ofstream ofs2("workfolder/lastInverseTransformEvaluation", std::ofstream::out);
+    ofs2 << optimizer.getLastInverseTransformEvaluation().transpose().eval();
+
+    std::ofstream ofs3("workfolder/closeToPeaksCount", std::ofstream::out);
+    ofs3 << optimizer.getCloseToPeaksCount().transpose().eval();
 }
 
 void test_computeStep()

@@ -16,13 +16,15 @@ public:
     HillClimbingOptimizer();
 
     void performOptimization(const Eigen::Matrix3Xf& pointsToTransform, Eigen::Matrix3Xf& positionsToOptimize);
-    Eigen::RowVectorXf& getLastInverseTransformEvaluation();
+    const Eigen::RowVectorXf& getLastInverseTransformEvaluation();
+    const Eigen::RowVectorXf& getCloseToPeaksCount();
+    std::vector< std::vector< uint16_t > >& getPeaksCloseToEvaluationPositions_indices();
 
     void setInverseSpaceTransformAccuracyConstants(int functionSelection, float optionalFunctionArgument, float maxCloseToPeakDeviationm);
     void setHillClimbingStrategyAccuracyConstants(int initialIterationCount, int calmDownIterationCount, float calmDownFactor, int localFitIterationCount,
             int localCalmDownIterationCount, float localCalmDownFactor);
     void setStepComputationAccuracyConstants(float gamma, float minStep, float maxStep, float directionChangeFactor);
-    
+
     //optional
     void setPointsToTransformWeights(const Eigen::RowVectorXf pointsToTransformWeights);
 

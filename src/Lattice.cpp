@@ -87,7 +87,7 @@ static inline void getMinA(Matrix3f& basis, Vector3f& minA, float& minALengthSqu
     float y2 = -(b232 - b122 * b131) / (1 - b121 * b122);
     float y1 = -(b131 - b121 * b232) / (1 - b121 * b122);
 
-    minALengthSquared = numeric_limits< float >::infinity();
+    minALengthSquared = numeric_limits< float >::max();
     for (float i_1 = -1; i_1 <= 1; i_1++) {
         for (float i_2 = -1; i_2 <= 1; i_2++) {
             float x1 = round(y1 + i_1);

@@ -14,13 +14,16 @@ using namespace Eigen;
 using namespace std;
 
 HillClimbingOptimizer::HillClimbingOptimizer() :
-        transform(), initialIterationCount(0), calmDownIterationCount(0), calmDownFactor(0), localFitIterationCount(0), localCalmDownIterationCount(0),
-                localCalmDownFactor(0), gamma(0), maxStep(0), minStep(0), directionChangeFactor(0)
+        transform(), initialIterationCount(0), calmDownIterationCount(0), calmDownFactor(0), localFitIterationCount(0),
+                localCalmDownIterationCount(0), localCalmDownFactor(0), gamma(0), maxStep(0), minStep(0), directionChangeFactor(0)
 {
 }
 
 void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransform, Matrix3Xf& positionsToOptimize)
 {
+//    std::ofstream ofs("workfolder/tmp", std::ofstream::out);
+//    ofs << positionsToOptimize.transpose().eval() << endl;
+
     transform.setPointsToTransform(pointsToTransform);
 
     float gamma_initial = this->gamma;
@@ -36,6 +39,7 @@ void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransfo
         bool useStepOrthogonalization = true;
 
         performOptimizationStep(positionsToOptimize, useStepOrthogonalization);
+//        ofs << positionsToOptimize.transpose().eval() << endl;
     }
 
     for (int i = 0; i < calmDownIterationCount; i++) {
@@ -48,6 +52,7 @@ void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransfo
         gamma = gamma * calmDownFactor;
 
         performOptimizationStep(positionsToOptimize, useStepOrthogonalization);
+//        ofs << positionsToOptimize.transpose().eval() << endl;
     }
 
     for (int i = 0; i < initialIterationCount; i++) {
@@ -56,6 +61,7 @@ void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransfo
         bool useStepOrthogonalization = true;
 
         performOptimizationStep(positionsToOptimize, useStepOrthogonalization);
+//        ofs << positionsToOptimize.transpose().eval() << endl;
     }
 
     for (int i = 0; i < calmDownIterationCount; i++) {
@@ -68,19 +74,16 @@ void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransfo
         gamma = gamma * localCalmDownFactor;
 
         performOptimizationStep(positionsToOptimize, useStepOrthogonalization);
+//        ofs << positionsToOptimize.transpose().eval() << endl;
     }
 
     this->gamma = gamma_initial;
     this->maxStep = maxStep_initial;
     this->minStep = minStep_initial;
 
-    // can be optimized! Does not need to compute slope, closeToPeaks and gradient
+    // can be optimized! Does not always need to compute slope, closeToPeaks and gradient
     transform.performTransform(positionsToOptimize);
     lastInverseTransformEvaluation = transform.getInverseTransformEvaluation();
-
-    std::ofstream ofs("workfolder/closeToPeaksCount", std::ofstream::out);
-    ofs << transform.getCloseToPeaksCount().transpose().eval();
-
 }
 
 void HillClimbingOptimizer::performOptimizationStep(Matrix3Xf& positionsToOptimize, bool useStepOrthogonalization)
@@ -100,9 +103,19 @@ void HillClimbingOptimizer::setPointsToTransformWeights(const Eigen::RowVectorXf
     transform.setPointsToTransformWeights(pointsToTransformWeights);
 }
 
-RowVectorXf& HillClimbingOptimizer::getLastInverseTransformEvaluation()
+const RowVectorXf& HillClimbingOptimizer::getLastInverseTransformEvaluation()
 {
     return lastInverseTransformEvaluation;
+}
+
+const RowVectorXf& HillClimbingOptimizer::getCloseToPeaksCount()
+{
+    return transform.getCloseToPeaksCount();
+}
+
+vector< vector< uint16_t > >& HillClimbingOptimizer::getPeaksCloseToEvaluationPositions_indices()
+{
+    return transform.getPeaksCloseToEvaluationPositions_indices();
 }
 
 void HillClimbingOptimizer::computeStep(Matrix3Xf& gradient, RowVectorXf& closeToPeaksCount, RowVectorXf& inverseTransformEvaluation,
