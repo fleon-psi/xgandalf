@@ -26,14 +26,15 @@ static inline void function8(const ArrayXXf& x, ArrayXXf& functionEvaluation, Ar
 static inline void function9(const ArrayXXf& x, ArrayXXf& functionEvaluation, ArrayXXf& slope, float optionalFunctionArgument);
 
 InverseSpaceTransform::InverseSpaceTransform() :
-        functionSelection(0), optionalFunctionArgument(1), localTransform(false), radialWeighting(false), maxCloseToPeakDeviation(0.15), resultsUpToDate(false)
+        functionSelection(0), optionalFunctionArgument(1), localTransform(false), radialWeighting(false), maxCloseToPeakDeviation(0.15),
+                inverseTransformEvaluationScalingFactor(0), resultsUpToDate(false)
 {
 
 }
 
 InverseSpaceTransform::InverseSpaceTransform(float maxCloseToPeakDeviation) :
         functionSelection(0), optionalFunctionArgument(1), localTransform(false), radialWeighting(false), maxCloseToPeakDeviation(maxCloseToPeakDeviation),
-                resultsUpToDate(false)
+                inverseTransformEvaluationScalingFactor(0), resultsUpToDate(false)
 {
 
 }
@@ -49,33 +50,33 @@ void InverseSpaceTransform::performTransform(const Matrix3Xf& positionsToEvaluat
     Matrix3Xf fullGradient;
     if (localTransform) {
         fullGradient = (pointsToTransform.array().rowwise() * pointsToTransformWeights.array()).matrix() * slope.matrix();
-        functionEvaluation = functionEvaluation * closeToPeak.matrix().cast< float >().array();
-        slope = slope * closeToPeak.matrix().cast< float >().array();
+        functionEvaluation = functionEvaluation * closeToPoint.matrix().cast< float >().array();
+        slope = slope * closeToPoint.matrix().cast< float >().array();
     }
 //    cout << slope << endl << endl << functionEvaluation << endl << endl << fullGradient << endl << endl;
 
     gradient = (pointsToTransform.array().rowwise() * pointsToTransformWeights.array()).matrix() * slope.matrix();
     inverseTransformEvaluation = pointsToTransformWeights * functionEvaluation.matrix() * (1 / inverseTransformEvaluationScalingFactor);
 
-    if (closeToPeak.rows() <= 255) {
-        closeToPeaksCount = closeToPeak.matrix().cast< uint8_t >().colwise().sum().cast< float >();
+    if (closeToPoint.rows() <= 255) {
+        closeToPointsCount = closeToPoint.matrix().cast< uint8_t >().colwise().sum().cast< float >();
     } else {
-        closeToPeaksCount = closeToPeak.matrix().cast< uint16_t >().colwise().sum().cast< float >();
+        closeToPointsCount = closeToPoint.matrix().cast< uint16_t >().colwise().sum().cast< float >();
     }
 //    cout << gradient << endl << endl << inverseTransformEvaluation << endl << endl << closeToPeak << endl << endl;
 
     if (localTransform) {
 //        gradient = gradient.array().rowwise() / closeToPeaksCount.array();
 //        gradient = (gradient.array() == 0).select(fullGradient * pointsToTransformCount_inverse, gradient);
-        for (int i = 0; i < closeToPeaksCount.size(); i++) {
+        for (int i = 0; i < closeToPointsCount.size(); i++) {
             gradient.col(i) =
-                    (closeToPeaksCount(i) != 0) ? (gradient.col(i) * (1.0f / closeToPeaksCount(i))) : (fullGradient.col(i) * pointsToTransformCount_inverse);
+                    (closeToPointsCount(i) != 0) ? (gradient.col(i) * (1.0f / closeToPointsCount(i))) : (fullGradient.col(i) * pointsToTransformCount_inverse);
         }
     } else {
         gradient = gradient * pointsToTransformCount_inverse;
     }
 
-    closeToPeaksCount = closeToPeaksCount * pointsToTransformCount_inverse;
+    closeToPointsCount = closeToPointsCount * pointsToTransformCount_inverse;
 
     resultsUpToDate = true;
 }
@@ -159,7 +160,7 @@ void InverseSpaceTransform::onePeriodicFunction(ArrayXXf& x)
 //    cout << x<<endl<<endl;
     x = x - round(x);   //catastrophic cancellation possible
 //    cout << x << endl << endl;
-    closeToPeak = abs(x) < maxCloseToPeakDeviation;
+    closeToPoint = abs(x) < maxCloseToPeakDeviation;
 
     switch (functionSelection) {
         case 1:
@@ -259,7 +260,7 @@ void InverseSpaceTransform::setRadialWeightingFlag()
         resultsUpToDate = false;
         radialWeighting = true;
     }
-    
+
     update_pointsToTransformWeights();
 }
 void InverseSpaceTransform::clearRadialWeightingFlag()
@@ -268,7 +269,7 @@ void InverseSpaceTransform::clearRadialWeightingFlag()
         resultsUpToDate = false;
         radialWeighting = false;
     }
-    
+
     update_pointsToTransformWeights();
 }
 
@@ -301,10 +302,10 @@ Eigen::RowVectorXf& InverseSpaceTransform::getInverseTransformEvaluation()
         throw BadInputException(errStream.str());
     }
 }
-Eigen::RowVectorXf& InverseSpaceTransform::getCloseToPeaksCount()
+Eigen::RowVectorXf& InverseSpaceTransform::getCloseToPointsCount()
 {
     if (resultsUpToDate) {
-        return closeToPeaksCount;
+        return closeToPointsCount;
     } else {
         stringstream errStream;
         errStream << "CloseToPeaksCount not up to date, call performTransform() first.";
@@ -312,20 +313,23 @@ Eigen::RowVectorXf& InverseSpaceTransform::getCloseToPeaksCount()
     }
 }
 
-vector< vector< uint16_t > >& InverseSpaceTransform::getPeaksCloseToEvaluationPositions_indices()
+vector< vector< uint16_t > >& InverseSpaceTransform::getPointsCloseToEvaluationPositions_indices()
 {
-    if (resultsUpToDate) {
-        peaksCloseToEvaluationPositions_indices.resize(closeToPeak.cols());
+    const int typicalMaxClosePointsCount = 100;
+    pointsCloseToEvaluationPositions_indices.resize(closeToPoint.cols(), vector< uint16_t >(typicalMaxClosePointsCount));
+    for_each(pointsCloseToEvaluationPositions_indices.begin(), pointsCloseToEvaluationPositions_indices.end(), [](vector< uint16_t >& v) {v.clear();});
 
-        for (int evaluationPositionIndex = 0; evaluationPositionIndex < closeToPeak.cols(); evaluationPositionIndex++) {
-            for (int pointIndex = 0; pointIndex < closeToPeak.rows(); pointIndex++) {
-                if (closeToPeak(pointIndex, evaluationPositionIndex)) {
-                    peaksCloseToEvaluationPositions_indices[evaluationPositionIndex].push_back(pointIndex);
+    if (resultsUpToDate) {
+
+        for (int pointIndex = 0; pointIndex < closeToPoint.rows(); pointIndex++) {
+            for (int evaluationPositionIndex = 0; evaluationPositionIndex < closeToPoint.cols(); evaluationPositionIndex++) {
+                if (closeToPoint(pointIndex, evaluationPositionIndex)) {
+                    pointsCloseToEvaluationPositions_indices[evaluationPositionIndex].push_back(pointIndex);
                 }
             }
         }
 
-        return peaksCloseToEvaluationPositions_indices;
+        return pointsCloseToEvaluationPositions_indices;
     } else {
         stringstream errStream;
         errStream << "closeToPeak not up to date, call performTransform() first.";

@@ -8,65 +8,76 @@
 
 #include <iostream>
 #include <fstream> 
+#include <chrono>
 #include <Eigen/Dense>
+#include <sstream>
+#include <string>
 #include "Lattice.h"
 #include "SamplePointsGenerator.h"
 #include "InverseSpaceTransform.h"
 #include "HillClimbingOptimizer.h"
 #include "eigenDiskImport.h"
+#include "SparsePeakFinder.h"
 
 using namespace std;
 using namespace Eigen;
 
 int main()
 {
+    vector< Lattice > l;
+    l.reserve(2520);
 
-    Matrix3Xf pointsToTransform;
-    Matrix3Xf positionsToOptimize;
+    for (int i = 1; i < 2520; ++i) {
+        stringstream ss;
+        ss << "workfolder/basis" << i;
 
-    float unitPitch = 0.05;
-    float tolerance = 0.02;
-    VectorXf radii = (VectorXf(2) << 38.2457, 80.2551).finished();
-    SamplePointsGenerator samplePointsGenerator;
-    samplePointsGenerator.getTightGrid(positionsToOptimize, unitPitch, tolerance, radii);
-    loadEigenMatrixFromDisk(pointsToTransform, "workfolder/positionsToTransform");
+        Matrix3f m;
+        loadEigenMatrixFromDisk(m, ss.str());
+        l.emplace_back(m);
+    }
 
-    positionsToOptimize = positionsToOptimize.col(0).eval();
-
-    HillClimbingOptimizer optimizer;
-
-    int functionSelection = 1;
-    float optionalFunctionArgument = 1;
-    float maxCloseToPeakDeviation = 0.15;
-    optimizer.setInverseSpaceTransformAccuracyConstants(functionSelection, optionalFunctionArgument, maxCloseToPeakDeviation);
-
-    int initialIterationCount = 40;
-    int calmDownIterationCount = 5;
-    float calmDownFactor = 0.8;
-    int localFitIterationCount = 8;
-    int localCalmDownIterationCount = 6;
-    float localCalmDownFactor = 0.8;
-    optimizer.setHillClimbingStrategyAccuracyConstants(initialIterationCount, calmDownIterationCount, calmDownFactor, localFitIterationCount,
-            localCalmDownIterationCount, localCalmDownFactor);
-
-    float directionChangeFactor = 2.500000000000000;
-    float minStep = 0.331259661674998;
-    float maxStep = 3.312596616749981;
-    float gamma = 0.650000000000000;
-    optimizer.setStepComputationAccuracyConstants(gamma, minStep, maxStep, directionChangeFactor);
-
-    optimizer.performOptimization(pointsToTransform, positionsToOptimize);
-
-    std::ofstream ofs("workfolder/optimizedPoints", std::ofstream::out);
-    ofs << positionsToOptimize.transpose().eval();
-
-    std::ofstream ofs2("workfolder/lastInverseTransformEvaluation", std::ofstream::out);
-    ofs2 << optimizer.getLastInverseTransformEvaluation().transpose().eval();
-
-    std::ofstream ofs3("workfolder/closeToPeaksCount", std::ofstream::out);
-    ofs3 << optimizer.getCloseToPeaksCount().transpose().eval();
+    chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
+    for (int i = 1; i < 2520; ++i) {
+        l[i - 1].minimize();
+    }
+    chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+    cout << "duration: " << duration << "ms" << endl;
 
     return 0;
+}
+
+void test_sparsePeakFinder()
+{
+    Matrix3Xf peakPositions;
+    RowVectorXf peakValues;
+    Matrix3Xf pointPositions;
+    RowVectorXf pointValues;
+
+    loadEigenMatrixFromDisk(pointPositions, "workfolder/pointPositions");
+    loadEigenMatrixFromDisk(pointValues, "workfolder/pointValues");
+
+    float minDistanceBetweenRealPeaks = 25;
+    float maxPossiblePointNorm = 50;
+    SparsePeakFinder sparsePeakFinder(minDistanceBetweenRealPeaks, maxPossiblePointNorm);
+
+    chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
+    sparsePeakFinder.findPeaks_fast(peakPositions, peakValues, pointPositions, pointValues);
+    chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+    cout << "duration: " << duration << "ms" << endl;
+
+    std::ofstream ofs("workfolder/peakPositions", std::ofstream::out);
+    ofs << peakPositions.transpose().eval();
+
+    std::ofstream ofs1("workfolder/peakValues", std::ofstream::out);
+    ofs1 << peakValues.transpose().eval();
+
+    std::ofstream ofs2("workfolder/pointValues_cpp", std::ofstream::out);
+    ofs2 << pointValues.transpose().eval();
+
+    std::ofstream ofs3("workfolder/pointPositions_cpp", std::ofstream::out);
+    ofs3 << pointPositions.transpose().eval();
 }
 
 void test_hillClimbing()
@@ -149,7 +160,7 @@ void test_computeStep()
 
     bool useStepOrthogonalization = true;
 
-    h.computeStep(t.getGradient(), t.getCloseToPeaksCount(), t.getInverseTransformEvaluation(), useStepOrthogonalization);
+    h.computeStep(t.getGradient(), t.getCloseToPointsCount(), t.getInverseTransformEvaluation(), useStepOrthogonalization);
 
     cout << h.step << endl << endl;
 }
@@ -173,9 +184,9 @@ void test_InverseSpaceTransform()
 
     t.performTransform(positionsToEvaluate);
 
-    cout << t.getInverseTransformEvaluation() << endl << endl << t.getGradient() << endl << endl << t.getCloseToPeaksCount() << endl;
+    cout << t.getInverseTransformEvaluation() << endl << endl << t.getGradient() << endl << endl << t.getCloseToPointsCount() << endl;
 
-    std::vector< std::vector< uint16_t > >& peaksCloseToEvaluationPositions_indices = t.getPeaksCloseToEvaluationPositions_indices();
+    std::vector< std::vector< uint16_t > >& peaksCloseToEvaluationPositions_indices = t.getPointsCloseToEvaluationPositions_indices();
     for (uint32_t i = 0; i < peaksCloseToEvaluationPositions_indices.size(); i++) {
         cout << endl << i << ": ";
         for (uint32_t j = 0; j < peaksCloseToEvaluationPositions_indices[i].size(); j++) {

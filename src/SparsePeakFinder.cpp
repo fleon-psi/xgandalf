@@ -18,35 +18,88 @@ SparsePeakFinder::SparsePeakFinder(float minDistanceBetweenRealPeaks, float maxP
     this->minDistanceBetweenRealPeaks = minDistanceBetweenRealPeaks;
     this->maxPossiblePointNorm = maxPossiblePointNorm;
 
-    binWidth = sqrt(pow(minDistanceBetweenRealPeaks, 2) / 3);   //minDistanceBetweenRealPeaks is diagonal of the cube
-    reciprocalBinWidth = 1 / binWidth;
+    this->minDistanceBetweenRealPeaks_squared = pow(minDistanceBetweenRealPeaks, 2);
 
-    binsPerDimension = 2 * ceil(maxPossiblePointNorm / binWidth) + 1;
+    binWidth = sqrt(pow(minDistanceBetweenRealPeaks, 2) / 3);   //minDistanceBetweenRealPeaks is diagonal of the cube
+    binWidth_reciprocal = 1 / binWidth;
+
+    binsPerDimension = 2 * ceil(maxPossiblePointNorm / binWidth) + 2 + 1; //+2 for one extra border bin, where nothing should be inside.
     binCountMinus1 = pow(binsPerDimension, 3) - 1;
-    bin1Position.setConstant(-1 * (binsPerDimension - 1) / 2 * binWidth);
+    bin1Position.setConstant(-1.0f * binsPerDimension / 2 * binWidth);
     strides << 1, binsPerDimension, pow(binsPerDimension, 2);
 
     discretizationVolume.resize(binCountMinus1 + 1);
 
-    if (binsPerDimension > 200) {   //pow(2^23,1/3) == 200
+    int neighboursIndex = 0;
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            for (int z = -1; z <= 1; z++) {
+                if (!(x == 0 && y == 0 && z == 0)) {
+                    neighbourBinIndexOffsets[neighboursIndex] = x + y * strides.y() + z * strides.z();
+                    neighboursIndex++;
+                }
+            }
+        }
+    }
+
+    if (binsPerDimension > 200) {   //pow(2^23,1/3) == 200  (float 23 bit matissa)
         stringstream errStream;
-        errStream << "Created discretizationVolume is too big. Function getIndex() will not work (because of the late casting of the float value).";
+        errStream << "Created discretizationVolume is too big. Function getIndex() will not work (because of the late casting of float to uint32 in getIndex).";
         throw BadInputException(errStream.str());
     }
 
 }
 
-void SparsePeakFinder::findPeaks_weak(Matrix3Xf& peakPositions, const Matrix3Xf& pointPositions, const RowVectorXf& pointValues)
+void SparsePeakFinder::findPeaks_fast(Matrix3Xf& peakPositions, RowVectorXf& peakValues, const Matrix3Xf& pointPositions, const RowVectorXf& pointValues)
 {
     fill(discretizationVolume.begin(), discretizationVolume.end(), bin_t( { -1, numeric_limits< float >::lowest() }));  //possibly with 0 faster
 
     for (int pointIndex = 0; pointIndex < pointPositions.cols(); pointIndex++) {
-        uint32_t volumeIndex = getIndex(pointPositions.col(pointIndex));
-        if (pointValues[pointIndex] > discretizationVolume[volumeIndex].value) {
-            discretizationVolume[volumeIndex].value = pointValues[pointIndex];
-            discretizationVolume[volumeIndex].pointIndex = pointIndex;
+        uint32_t index = getIndex(pointPositions.col(pointIndex));
+        bin_t& currentBin = discretizationVolume[index];
+        if (pointValues[pointIndex] > currentBin.value) {
+            currentBin.value = pointValues[pointIndex];
+            currentBin.pointIndex = pointIndex;
         }
     }
-    
-    //check for every filled bin whether its point is a peak. Watch out for bins on the border! Possible treating: create one more bin on the border and do not check it. Problem: cannot just go linearly through array.
+
+    int peakCount = 0;
+    int innerBinCount = pow(binsPerDimension, 3);
+    peakPositions.resize(NoChange, min(innerBinCount, (int) pointPositions.cols()));
+    peakValues.resize(min(innerBinCount, (int) pointPositions.cols()));
+
+    //For not checking whether index is out of borders, an extra border bin is added. Only inner borders are checked for peaks 
+    uint32_t binsPerDimensionMinus1 = binsPerDimension - 1;
+    for (uint32_t y = 1; y < binsPerDimensionMinus1; y++) {
+        for (uint32_t z = 1; z < binsPerDimensionMinus1; z++) {
+            int lineStartIndex = y * strides.y() + z * strides.z();
+            for (uint32_t x = 1; x < binsPerDimensionMinus1; x++) {
+                int binIndex = lineStartIndex + x;
+                if (discretizationVolume[binIndex].value > numeric_limits< float >::lowest()) {   //something inside bin
+                    bin_t& currentBin = discretizationVolume[binIndex];
+                    bool isPeak = true;
+                    for (int neighbourBinIndexOffset : neighbourBinIndexOffsets) {
+                        bin_t& neighbourBin = discretizationVolume[binIndex + neighbourBinIndexOffset];
+                        if (neighbourBin.value > currentBin.value &&
+                                (pointPositions.col(neighbourBin.pointIndex) - pointPositions.col(currentBin.pointIndex)).squaredNorm()
+                                        < minDistanceBetweenRealPeaks_squared) {
+                            isPeak = false;
+                            break;
+                        }
+                    }
+
+                    if (isPeak) {
+                        peakPositions.col(peakCount) = pointPositions.col(currentBin.pointIndex);
+                        peakValues[peakCount] = pointValues[currentBin.pointIndex];
+                        peakCount++;
+                    }
+                }
+
+            }
+        }
+    }
+
+    peakPositions.conservativeResize(NoChange, peakCount);
+    peakValues.conservativeResize(peakCount);
+
 }

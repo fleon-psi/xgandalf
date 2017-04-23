@@ -33,9 +33,9 @@ public:
 
     Eigen::Matrix3Xf& getGradient();
     Eigen::RowVectorXf& getInverseTransformEvaluation();
-    Eigen::RowVectorXf& getCloseToPeaksCount();
+    Eigen::RowVectorXf& getCloseToPointsCount();
 
-    std::vector< std::vector< uint16_t > >& getPeaksCloseToEvaluationPositions_indices();
+    std::vector< std::vector< uint16_t > >& getPointsCloseToEvaluationPositions_indices();
 
 private:
     void onePeriodicFunction(Eigen::ArrayXXf& x);
@@ -56,14 +56,14 @@ private:
     //output 
     Eigen::Matrix3Xf gradient;
     Eigen::RowVectorXf inverseTransformEvaluation;
-    Eigen::RowVectorXf closeToPeaksCount;
+    Eigen::RowVectorXf closeToPointsCount;
 
     // interna
     Eigen::ArrayXXf functionEvaluation;
     Eigen::ArrayXXf slope;
-    Eigen::Array< bool, Eigen::Dynamic, Eigen::Dynamic > closeToPeak;
+    Eigen::Array< bool, Eigen::Dynamic, Eigen::Dynamic > closeToPoint;
 
-    std::vector< std::vector< uint16_t > > peaksCloseToEvaluationPositions_indices;
+    std::vector< std::vector< uint16_t > > pointsCloseToEvaluationPositions_indices;
     
     float inverseTransformEvaluationScalingFactor;
     

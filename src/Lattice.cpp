@@ -28,7 +28,7 @@ Lattice::Lattice() :
 Lattice::Lattice(const Matrix3f& basis) :
         basis(basis), minimal(false)
 {
-    assert(basis.determinant() >= 50 * numeric_limits< float >::epsilon());  // nonsingular
+    assert(abs(basis.determinant()) >= 50 * numeric_limits< float >::epsilon());  // nonsingular
 
 }
 Lattice::Lattice(const Vector3f& a, const Vector3f& b, const Vector3f& c) :
@@ -113,14 +113,13 @@ Lattice& Lattice::minimize()
         return *this;
     }
 
+    Vector3f minA(0, 0, 0); //initialization not required, but if not done, compiler issues warning
+
     bool terminationFlag = false;
     while (terminationFlag == false) {
         sortColumnsByNorm_ascending(basis);
 
         minimize2DLattice(basis);
-
-        VectorXf x1, x2;
-        Vector3f minA;
 
         float minALengthSquared;
         getMinA(basis, minA, minALengthSquared);

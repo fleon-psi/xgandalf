@@ -90,7 +90,7 @@ void HillClimbingOptimizer::performOptimizationStep(Matrix3Xf& positionsToOptimi
 {
     transform.performTransform(positionsToOptimize);
     Matrix3Xf& gradient = transform.getGradient();
-    RowVectorXf& closeToPeaksCount = transform.getCloseToPeaksCount();
+    RowVectorXf& closeToPeaksCount = transform.getCloseToPointsCount();
     RowVectorXf& inverseTransformEvaluation = transform.getInverseTransformEvaluation();
     computeStep(gradient, closeToPeaksCount, inverseTransformEvaluation, useStepOrthogonalization);
 //    cout << "step: " << endl << step << endl << endl;
@@ -110,12 +110,12 @@ const RowVectorXf& HillClimbingOptimizer::getLastInverseTransformEvaluation()
 
 const RowVectorXf& HillClimbingOptimizer::getCloseToPeaksCount()
 {
-    return transform.getCloseToPeaksCount();
+    return transform.getCloseToPointsCount();
 }
 
 vector< vector< uint16_t > >& HillClimbingOptimizer::getPeaksCloseToEvaluationPositions_indices()
 {
-    return transform.getPeaksCloseToEvaluationPositions_indices();
+    return transform.getPointsCloseToEvaluationPositions_indices();
 }
 
 void HillClimbingOptimizer::computeStep(Matrix3Xf& gradient, RowVectorXf& closeToPeaksCount, RowVectorXf& inverseTransformEvaluation,
