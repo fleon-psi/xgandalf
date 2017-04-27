@@ -26,17 +26,23 @@ static inline void function8(const ArrayXXf& x, ArrayXXf& functionEvaluation, Ar
 static inline void function9(const ArrayXXf& x, ArrayXXf& functionEvaluation, ArrayXXf& slope, float optionalFunctionArgument);
 
 InverseSpaceTransform::InverseSpaceTransform() :
-        functionSelection(0), optionalFunctionArgument(1), localTransform(false), radialWeighting(false), maxCloseToPeakDeviation(0.15),
-                inverseTransformEvaluationScalingFactor(0), resultsUpToDate(false)
+        inverseTransformEvaluationScalingFactor(0), resultsUpToDate(false)
 {
-
+    accuracyConstants.functionSelection = 0;
+    accuracyConstants.optionalFunctionArgument = 1;
+    accuracyConstants.localTransform = false;
+    accuracyConstants.radialWeighting = false;
+    accuracyConstants.maxCloseToPeakDeviation = 0.15;
 }
 
 InverseSpaceTransform::InverseSpaceTransform(float maxCloseToPeakDeviation) :
-        functionSelection(0), optionalFunctionArgument(1), localTransform(false), radialWeighting(false), maxCloseToPeakDeviation(maxCloseToPeakDeviation),
-                inverseTransformEvaluationScalingFactor(0), resultsUpToDate(false)
+        inverseTransformEvaluationScalingFactor(0), resultsUpToDate(false)
 {
-
+    accuracyConstants.functionSelection = 0;
+    accuracyConstants.optionalFunctionArgument = 1;
+    accuracyConstants.localTransform = false;
+    accuracyConstants.radialWeighting = false;
+    accuracyConstants.maxCloseToPeakDeviation = maxCloseToPeakDeviation;
 }
 
 void InverseSpaceTransform::performTransform(const Matrix3Xf& positionsToEvaluate)
@@ -48,7 +54,7 @@ void InverseSpaceTransform::performTransform(const Matrix3Xf& positionsToEvaluat
 
 //    cout << slope << endl << endl << pointsToTransform << endl << endl << pointsToTransformWeights << endl << endl;
     Matrix3Xf fullGradient;
-    if (localTransform) {
+    if (accuracyConstants.localTransform) {
         fullGradient = (pointsToTransform.array().rowwise() * pointsToTransformWeights.array()).matrix() * slope.matrix();
         functionEvaluation = functionEvaluation * closeToPoint.matrix().cast< float >().array();
         slope = slope * closeToPoint.matrix().cast< float >().array();
@@ -65,7 +71,7 @@ void InverseSpaceTransform::performTransform(const Matrix3Xf& positionsToEvaluat
     }
 //    cout << gradient << endl << endl << inverseTransformEvaluation << endl << endl << closeToPeak << endl << endl;
 
-    if (localTransform) {
+    if (accuracyConstants.localTransform) {
 //        gradient = gradient.array().rowwise() / closeToPeaksCount.array();
 //        gradient = (gradient.array() == 0).select(fullGradient * pointsToTransformCount_inverse, gradient);
         for (int i = 0; i < closeToPointsCount.size(); i++) {
@@ -160,11 +166,11 @@ void InverseSpaceTransform::onePeriodicFunction(ArrayXXf& x)
 //    cout << x<<endl<<endl;
     x = x - round(x);   //catastrophic cancellation possible
 //    cout << x << endl << endl;
-    closeToPoint = abs(x) < maxCloseToPeakDeviation;
+    closeToPoint = abs(x) < accuracyConstants.maxCloseToPeakDeviation;
 
-    switch (functionSelection) {
+    switch (accuracyConstants.functionSelection) {
         case 1:
-            function1(x, functionEvaluation, slope, optionalFunctionArgument);
+            function1(x, functionEvaluation, slope, accuracyConstants.optionalFunctionArgument);
             break;
         case 2:
             function2(x, functionEvaluation, slope);
@@ -182,13 +188,13 @@ void InverseSpaceTransform::onePeriodicFunction(ArrayXXf& x)
             function6(x, functionEvaluation, slope);
             break;
         case 7:
-            function7(x, functionEvaluation, slope, optionalFunctionArgument);
+            function7(x, functionEvaluation, slope, accuracyConstants.optionalFunctionArgument);
             break;
         case 8:
             function8(x, functionEvaluation, slope);
             break;
         case 9:
-            function9(x, functionEvaluation, slope, optionalFunctionArgument);
+            function9(x, functionEvaluation, slope, accuracyConstants.optionalFunctionArgument);
             break;
         default:
             stringstream errStream;
@@ -217,7 +223,7 @@ void InverseSpaceTransform::setPointsToTransformWeights(const RowVectorXf points
 
 void InverseSpaceTransform::update_pointsToTransformWeights()
 {
-    if (radialWeighting) {
+    if (accuracyConstants.radialWeighting) {
         Array< float, 1, Dynamic > radialWeight = pointsToTransform.colwise().squaredNorm().array().rsqrt();
         pointsToTransformWeights = (pointsToTransformWeights_userPreset.array() * radialWeight).matrix();
     } else {
@@ -228,46 +234,46 @@ void InverseSpaceTransform::update_pointsToTransformWeights()
 
 void InverseSpaceTransform::setFunctionSelection(int functionSelection)
 {
-    if (this->functionSelection != functionSelection) {
+    if (accuracyConstants.functionSelection != functionSelection) {
         resultsUpToDate = false;
-        this->functionSelection = functionSelection;
+        accuracyConstants.functionSelection = functionSelection;
     }
 }
 void InverseSpaceTransform::setOptionalFunctionArgument(float optionalFunctionArgument)
 {
-    if (this->optionalFunctionArgument != optionalFunctionArgument) {
+    if (accuracyConstants.optionalFunctionArgument != optionalFunctionArgument) {
         resultsUpToDate = false;
-        this->optionalFunctionArgument = optionalFunctionArgument;
+        accuracyConstants.optionalFunctionArgument = optionalFunctionArgument;
     }
 }
 void InverseSpaceTransform::setLocalTransformFlag()
 {
-    if (localTransform == false) {
+    if (accuracyConstants.localTransform == false) {
         resultsUpToDate = false;
-        localTransform = true;
+        accuracyConstants.localTransform = true;
     }
 }
 void InverseSpaceTransform::clearLocalTransformFlag()
 {
-    if (localTransform == true) {
+    if (accuracyConstants.localTransform == true) {
         resultsUpToDate = false;
-        localTransform = false;
+        accuracyConstants.localTransform = false;
     }
 }
 void InverseSpaceTransform::setRadialWeightingFlag()
 {
-    if (radialWeighting == false) {
+    if (accuracyConstants.radialWeighting == false) {
         resultsUpToDate = false;
-        radialWeighting = true;
+        accuracyConstants.radialWeighting = true;
     }
 
     update_pointsToTransformWeights();
 }
 void InverseSpaceTransform::clearRadialWeightingFlag()
 {
-    if (radialWeighting == true) {
+    if (accuracyConstants.radialWeighting == true) {
         resultsUpToDate = false;
-        radialWeighting = false;
+        accuracyConstants.radialWeighting = false;
     }
 
     update_pointsToTransformWeights();
@@ -276,9 +282,9 @@ void InverseSpaceTransform::clearRadialWeightingFlag()
 void InverseSpaceTransform::setMaxCloseToPeakDeviation(float maxCloseToPeakDeviation)
 {
     assert(maxCloseToPeakDeviation < 0.5);
-    if (this->maxCloseToPeakDeviation != maxCloseToPeakDeviation) {
+    if (accuracyConstants.maxCloseToPeakDeviation != maxCloseToPeakDeviation) {
         resultsUpToDate = false;
-        this->maxCloseToPeakDeviation = maxCloseToPeakDeviation;
+        accuracyConstants.maxCloseToPeakDeviation = maxCloseToPeakDeviation;
     }
 }
 

@@ -20,19 +20,17 @@ static inline void sortTwoColumns_ascending(Matrix3f& basis, Vector3f& squaredNo
 static inline void sortColumnsByNorm_ascending(Matrix3f& basis);
 static inline void getMinA(Matrix3f& basis, Vector3f& minA, float& minALengthSquared);
 
-Lattice::Lattice() :
-        minimal(false)
+Lattice::Lattice()
 {
 }
 
 Lattice::Lattice(const Matrix3f& basis) :
-        basis(basis), minimal(false)
+        basis(basis)
 {
     assert(abs(basis.determinant()) >= 50 * numeric_limits< float >::epsilon());  // nonsingular
 
 }
-Lattice::Lattice(const Vector3f& a, const Vector3f& b, const Vector3f& c) :
-        minimal(false)
+Lattice::Lattice(const Vector3f& a, const Vector3f& b, const Vector3f& c)
 {
     basis << a, b, c;
     assert(basis.determinant() < 50 * numeric_limits< float >::epsilon());  // nonsingular
@@ -66,7 +64,7 @@ static inline void sortTwoColumns_ascending(Matrix3f& basis, Vector3f& squaredNo
 
 static inline void sortColumnsByNorm_ascending(Matrix3f& basis)
 {
-    //simple bubble sort implementation
+//simple bubble sort implementation
     Vector3f squaredNorms = basis.colwise().squaredNorm();
     sortTwoColumns_ascending(basis, squaredNorms, 0, 1);
     sortTwoColumns_ascending(basis, squaredNorms, 1, 2);
@@ -109,10 +107,6 @@ static inline void getMinA(Matrix3f& basis, Vector3f& minA, float& minALengthSqu
 // algorithm implemented after http://www.csie.nuk.edu.tw/~cychen/Lattices/A%203-Dimensional%20Lattice%20Reduction%20Algorithm.pdf
 Lattice& Lattice::minimize()
 {
-    if (isMinimal()) {
-        return *this;
-    }
-
     Vector3f minA(0, 0, 0); //initialization not required, but if not done, compiler issues warning
 
     bool terminationFlag = false;
@@ -134,7 +128,6 @@ Lattice& Lattice::minimize()
 
     sortColumnsByNorm_ascending(basis);
 
-    minimal = true;
     return *this;
 }
 

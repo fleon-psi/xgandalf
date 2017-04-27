@@ -13,6 +13,19 @@
 
 class HillClimbingOptimizer {
 public:
+    typedef struct {
+        int initialIterationCount;
+        int calmDownIterationCount;
+        float calmDownFactor;
+        int localFitIterationCount;
+        int localCalmDownIterationCount;
+        float localCalmDownFactor;
+        
+        int functionSelection;
+        float optionalFunctionArgument;
+        float maxCloseToPeakDeviation;
+    } accuracyConstants_t;
+
     HillClimbingOptimizer();
 
     void performOptimization(const Eigen::Matrix3Xf& pointsToTransform, Eigen::Matrix3Xf& positionsToOptimize);
@@ -20,9 +33,7 @@ public:
     const Eigen::RowVectorXf& getCloseToPeaksCount();
     std::vector< std::vector< uint16_t > >& getPeaksCloseToEvaluationPositions_indices();
 
-    void setInverseSpaceTransformAccuracyConstants(int functionSelection, float optionalFunctionArgument, float maxCloseToPeakDeviationm);
-    void setHillClimbingStrategyAccuracyConstants(int initialIterationCount, int calmDownIterationCount, float calmDownFactor, int localFitIterationCount,
-            int localCalmDownIterationCount, float localCalmDownFactor);
+    void setAccuracyConstants(accuracyConstants_t accuracyConstants);
     void setStepComputationAccuracyConstants(float gamma, float minStep, float maxStep, float directionChangeFactor);
 
     //optional
@@ -37,7 +48,6 @@ public:
 
     InverseSpaceTransform transform;
 
-    //HillClimbingStrategyAccuracyConstants
     int initialIterationCount;
     int calmDownIterationCount;
     float calmDownFactor;

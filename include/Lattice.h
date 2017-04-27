@@ -19,29 +19,24 @@ public:
 
     Lattice& minimize();
 
-    bool isMinimal() const
-    {
-        return minimal;
-    }
-
-    float det() const
+    inline float det() const
     {
         return basis.determinant();
     }
 
-    const Eigen::Matrix3f& getBasis() const
+    inline const Eigen::Matrix3f& getBasis() const
     {
         return basis;
     }
 
-    Eigen::Vector3f getBasisVectorNorms() const
+    inline Eigen::Vector3f getBasisVectorNorms() const
     {
         return basis.colwise().norm();
     }
 
     Eigen::Vector3f getBasisVectorAngles() const;
 
-    Lattice getReciprocalLattice() const
+    inline Lattice getReciprocalLattice() const
     {
         return Lattice(basis.transpose().inverse().eval());
     }
@@ -51,11 +46,9 @@ public:
 private:
     Eigen::Matrix3f basis;
 
-    bool minimal;
-
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    ;
+        ;
 };
 
 #endif /* LATTICE_H_ */

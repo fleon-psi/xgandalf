@@ -157,17 +157,6 @@ void HillClimbingOptimizer::computeStep(Matrix3Xf& gradient, RowVectorXf& closeT
     step = stepDirection.array().rowwise() * stepLength;
 }
 
-void HillClimbingOptimizer::setHillClimbingStrategyAccuracyConstants(int initialIterationCount, int calmDownIterationCount, float calmDownFactor,
-        int localFitIterationCount, int localCalmDownIterationCount, float localCalmDownFactor)
-{
-    this->initialIterationCount = initialIterationCount;
-    this->calmDownIterationCount = calmDownIterationCount;
-    this->calmDownFactor = calmDownFactor;
-    this->localFitIterationCount = localFitIterationCount;
-    this->localCalmDownIterationCount = localCalmDownIterationCount;
-    this->localCalmDownFactor = localCalmDownFactor;
-
-}
 void HillClimbingOptimizer::setStepComputationAccuracyConstants(float gamma, float minStep, float maxStep, float directionChangeFactor)
 {
     this->gamma = gamma;
@@ -176,9 +165,9 @@ void HillClimbingOptimizer::setStepComputationAccuracyConstants(float gamma, flo
     this->directionChangeFactor = directionChangeFactor;
 }
 
-void HillClimbingOptimizer::setInverseSpaceTransformAccuracyConstants(int functionSelection, float optionalFunctionArgument, float maxCloseToPeakDeviation)
+void HillClimbingOptimizer::setAccuracyConstants(accuracyConstants_t accuracyConstants)
 {
-    transform.setFunctionSelection(functionSelection);
-    transform.setOptionalFunctionArgument(optionalFunctionArgument);
-    transform.setMaxCloseToPeakDeviation(maxCloseToPeakDeviation);
+    transform.setFunctionSelection(accuracyConstants.functionSelection);
+    transform.setOptionalFunctionArgument(accuracyConstants.optionalFunctionArgument);
+    transform.setMaxCloseToPeakDeviation(accuracyConstants.maxCloseToPeakDeviation);
 }

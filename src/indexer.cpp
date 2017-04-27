@@ -18,31 +18,13 @@
 #include "HillClimbingOptimizer.h"
 #include "eigenDiskImport.h"
 #include "SparsePeakFinder.h"
+#include "LatticeAssembler.h"
 
 using namespace std;
 using namespace Eigen;
 
 int main()
 {
-    vector< Lattice > l;
-    l.reserve(2520);
-
-    for (int i = 1; i < 2520; ++i) {
-        stringstream ss;
-        ss << "workfolder/basis" << i;
-
-        Matrix3f m;
-        loadEigenMatrixFromDisk(m, ss.str());
-        l.emplace_back(m);
-    }
-
-    chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-    for (int i = 1; i < 2520; ++i) {
-        l[i - 1].minimize();
-    }
-    chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
-    cout << "duration: " << duration << "ms" << endl;
 
     return 0;
 }
@@ -96,19 +78,19 @@ void test_hillClimbing()
 
     HillClimbingOptimizer optimizer;
 
-    int functionSelection = 1;
-    float optionalFunctionArgument = 1;
-    float maxCloseToPeakDeviation = 0.15;
-    optimizer.setInverseSpaceTransformAccuracyConstants(functionSelection, optionalFunctionArgument, maxCloseToPeakDeviation);
+    HillClimbingOptimizer::accuracyConstants_t hillClimbingOptimizer_accuracyConstants;
 
-    int initialIterationCount = 40;
-    int calmDownIterationCount = 5;
-    float calmDownFactor = 0.8;
-    int localFitIterationCount = 8;
-    int localCalmDownIterationCount = 6;
-    float localCalmDownFactor = 0.8;
-    optimizer.setHillClimbingStrategyAccuracyConstants(initialIterationCount, calmDownIterationCount, calmDownFactor, localFitIterationCount,
-            localCalmDownIterationCount, localCalmDownFactor);
+    hillClimbingOptimizer_accuracyConstants.functionSelection = 1;
+    hillClimbingOptimizer_accuracyConstants.optionalFunctionArgument = 1;
+    hillClimbingOptimizer_accuracyConstants.maxCloseToPeakDeviation = 0.15;
+
+    hillClimbingOptimizer_accuracyConstants.initialIterationCount = 40;
+    hillClimbingOptimizer_accuracyConstants.calmDownIterationCount = 5;
+    hillClimbingOptimizer_accuracyConstants.calmDownFactor = 0.8;
+    hillClimbingOptimizer_accuracyConstants.localFitIterationCount = 8;
+    hillClimbingOptimizer_accuracyConstants.localCalmDownIterationCount = 6;
+    hillClimbingOptimizer_accuracyConstants.localCalmDownFactor = 0.8;
+    optimizer.setAccuracyConstants(hillClimbingOptimizer_accuracyConstants);
 
     float directionChangeFactor = 2.500000000000000;
     float minStep = 0.331259661674998;
