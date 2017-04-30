@@ -26,23 +26,23 @@ public:
         uint32_t maxCountGlobalPassingWeightFilter;
         uint32_t maxCountLocalPassingWeightFilter;
         uint32_t maxCountPassingRelativeDefectFilter;
+        uint16_t minPointsOnLattice;
     } accuracyConstants_t;
 
-    LatticeAssembler(Eigen::Vector2f& determinantRange, int minNodesOnBasis);
-    LatticeAssembler(Eigen::Vector2f& determinantRange, int minNodesOnBasis, accuracyConstants_t accuracyConstants);
+    LatticeAssembler(Eigen::Vector2f& determinantRange);
+    LatticeAssembler(Eigen::Vector2f& determinantRange, accuracyConstants_t accuracyConstants);
+
     void assembleLattices(std::vector< Lattice >& assembledLattices, Eigen::Matrix3Xf& candidateVectors, Eigen::RowVectorXf& candidateVectorWeights,
-            std::vector< std::vector< uint16_t > >& pointIndicesOnVector);
+            std::vector< std::vector< uint16_t > >& pointIndicesOnVector, Eigen::Matrix3Xf& pointsToFitInReciprocalSpace);
     void assembleLattices(std::vector< Lattice >& assembledLattices, std::vector< assembledLatticeStatistics_t >& assembledLatticesStatistics,
-            Eigen::Matrix3Xf& candidateVectors, Eigen::RowVectorXf& candidateVectorWeights, std::vector< std::vector< uint16_t > >& pointIndicesOnVector);
+            Eigen::Matrix3Xf& candidateVectors, Eigen::RowVectorXf& candidateVectorWeights, std::vector< std::vector< uint16_t > >& pointIndicesOnVector,
+            Eigen::Matrix3Xf& pointsToFitInReciprocalSpace);
 
 private:
     //input
     Eigen::Vector2f determinantRange;
-    uint16_t minPointsOnLattice;
 
     //output
-    Eigen::Matrix3Xf pointsToFitInInverseSpace;
-    std::vector< Lattice > validLattices;
 
     //accuracy constants
     accuracyConstants_t accuracyConstants;
@@ -62,14 +62,16 @@ private:
     std::vector< candidateLattice_t > candidateLattices;
     void computeCandidateLattices(Eigen::Matrix3Xf candidateVectors, Eigen::RowVectorXf candidateVectorWeights,
             std::vector< std::vector< uint16_t > > pointIndicesOnVector);
-    void computeAssembledLatticeStatistics(candidateLattice_t& candidateLattice);
-    void selectBestLattices(std::vector< Lattice >& assembledLattices, std::list< candidateLattice_t >& finalCandidateLattices);
+    void computeAssembledLatticeStatistics(candidateLattice_t& candidateLattice, const Eigen::Matrix3Xf& pointsToFitInReciprocalSpace);
+    void selectBestLattices(std::vector< Lattice >& assembledLattices, std::vector< assembledLatticeStatistics_t >& assembledLatticesStatistics,
+            std::list< candidateLattice_t >& finalCandidateLattices);
 
-    std::vector< uint16_t > sortIndices;  //to avoid frequent reallocation
+    std::vector< uint32_t > sortIndices;  //to avoid frequent reallocation
+    std::vector< Lattice > validLattices;
 
     uint16_t countUniqueColumns(const Eigen::Matrix3Xf& millerIndices);
 
-    void filterCandidateBasesByWeight(uint32_t maxToTake);
+    void filterCandidateLatticesByWeight(uint32_t maxToTake);
     void filterCandidateBasesByMeanRelativeDefect(uint32_t maxToTake);
     public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

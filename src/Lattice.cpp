@@ -27,13 +27,10 @@ Lattice::Lattice()
 Lattice::Lattice(const Matrix3f& basis) :
         basis(basis)
 {
-    assert(abs(basis.determinant()) >= 50 * numeric_limits< float >::epsilon());  // nonsingular
-
 }
 Lattice::Lattice(const Vector3f& a, const Vector3f& b, const Vector3f& c)
 {
     basis << a, b, c;
-    assert(basis.determinant() < 50 * numeric_limits< float >::epsilon());  // nonsingular
 }
 
 static inline void minimize2DLattice(Matrix3f& basis)
@@ -107,6 +104,8 @@ static inline void getMinA(Matrix3f& basis, Vector3f& minA, float& minALengthSqu
 // algorithm implemented after http://www.csie.nuk.edu.tw/~cychen/Lattices/A%203-Dimensional%20Lattice%20Reduction%20Algorithm.pdf
 Lattice& Lattice::minimize()
 {
+    assert(abs(basis.determinant()) >= 50 * numeric_limits< float >::epsilon());  // nonsingular
+
     Vector3f minA(0, 0, 0); //initialization not required, but if not done, compiler issues warning
 
     bool terminationFlag = false;

@@ -29,6 +29,56 @@ int main()
     return 0;
 }
 
+void test_latticeAssembler()
+{
+    LatticeAssembler::accuracyConstants_t accuracyConstants_LatticeAssembler;
+
+    accuracyConstants_LatticeAssembler.maxCountGlobalPassingWeightFilter = 500;
+    accuracyConstants_LatticeAssembler.maxCountLocalPassingWeightFilter = 15;
+    accuracyConstants_LatticeAssembler.maxCountPassingRelativeDefectFilter = 50;
+    accuracyConstants_LatticeAssembler.minPointsOnLattice = 5;
+
+    Vector2f determinantRange(196748.751775786, 295123.127663679);
+
+    LatticeAssembler latticeAssembler(determinantRange, accuracyConstants_LatticeAssembler);
+
+    Matrix3Xf candidateVectors;
+    RowVectorXf candidateVectorWeights;
+    vector< std::vector< uint16_t > > pointIndicesOnVectors;
+    Matrix3Xf pointsToFitInReciprocalSpace;
+
+    loadEigenMatrixFromDisk(candidateVectors, "workfolder/candidateVectors");
+    loadEigenMatrixFromDisk(candidateVectorWeights, "workfolder/candidateVectorWeights");
+    pointIndicesOnVectors.reserve(candidateVectorWeights.size());
+    for (uint16_t i = 0; i < candidateVectorWeights.size(); ++i) {
+        stringstream pathStream;
+        pathStream << "workfolder/pointIndicesOnVector" << i;
+        ifstream file(pathStream.str());
+        istream_iterator< uint16_t > startFile(file), end;
+        pointIndicesOnVectors.emplace_back(startFile, end);
+    }
+    loadEigenMatrixFromDisk(pointsToFitInReciprocalSpace, "workfolder/pointsToFitInReciprocalSpace");
+
+    chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
+
+    vector< Lattice > assembledLattices;
+    vector< LatticeAssembler::assembledLatticeStatistics_t > assembledLatticesStatistics;
+    latticeAssembler.assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors, candidateVectorWeights, pointIndicesOnVectors,
+            pointsToFitInReciprocalSpace);
+
+    chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+    cout << "duration: " << duration << "ms" << endl << endl;
+
+    for (uint16_t i = 0; i < assembledLattices.size(); ++i) {
+        cout << assembledLattices[i] << endl << endl;
+
+        cout << "meanDefect: " << assembledLatticesStatistics[i].meanDefect << endl <<
+                "meanRelativeDefect: " << assembledLatticesStatistics[i].meanRelativeDefect << endl <<
+                "occupiedLatticePointsCount: " << assembledLatticesStatistics[i].occupiedLatticePointsCount << endl << endl;
+    }
+}
+
 void test_sparsePeakFinder()
 {
     Matrix3Xf peakPositions;
