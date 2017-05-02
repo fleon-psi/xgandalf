@@ -29,8 +29,13 @@ public:
         uint16_t minPointsOnLattice;
     } accuracyConstants_t;
 
+    LatticeAssembler();
     LatticeAssembler(Eigen::Vector2f& determinantRange);
-    LatticeAssembler(Eigen::Vector2f& determinantRange, accuracyConstants_t accuracyConstants);
+    LatticeAssembler(Eigen::Vector2f& determinantRange, accuracyConstants_t& accuracyConstants);
+
+    void setAccuracyConstants(const accuracyConstants_t& accuracyConstants);
+    void setDeterminantRange(const Eigen::Vector2f& determinantRange);
+    void setDeterminantRange(float min, float max);
 
     void assembleLattices(std::vector< Lattice >& assembledLattices, Eigen::Matrix3Xf& candidateVectors, Eigen::RowVectorXf& candidateVectorWeights,
             std::vector< std::vector< uint16_t > >& pointIndicesOnVector, Eigen::Matrix3Xf& pointsToFitInReciprocalSpace);
@@ -42,9 +47,6 @@ private:
     //input
     Eigen::Vector2f determinantRange;
 
-    //output
-
-    //accuracy constants
     accuracyConstants_t accuracyConstants;
 
     //internal
@@ -73,7 +75,9 @@ private:
 
     void filterCandidateLatticesByWeight(uint32_t maxToTakeCount);
     void filterCandidateBasesByMeanRelativeDefect(uint32_t maxToTakeCount);
-    public:
+
+public:
+
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         ;
 };

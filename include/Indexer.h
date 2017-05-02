@@ -41,7 +41,11 @@ private:
 
     Eigen::Matrix3Xf samplePoints_standard;
     SparsePeakFinder sparsePeakFinder_standard;
+    InverseSpaceTransform inverseSpaceTransform_standard;
     
+    LatticeAssembler latticeAssembler;
+    
+    //just for less reallocation
     std::vector< uint32_t > sortIndices;  //to avoid frequent reallocation
 
 public:

@@ -11,11 +11,23 @@
 #include <numeric>
 #include <functional>
 #include <iterator>
+#include <limits>
 
 #include <iostream>
 
 using namespace Eigen;
 using namespace std;
+
+LatticeAssembler::LatticeAssembler()
+{
+    determinantRange << 0, numeric_limits< float >::max();
+
+    accuracyConstants.maxCountGlobalPassingWeightFilter = 500;
+    accuracyConstants.maxCountLocalPassingWeightFilter = 15;
+    accuracyConstants.maxCountPassingRelativeDefectFilter = 50;
+
+    accuracyConstants.minPointsOnLattice = 5;
+}
 
 LatticeAssembler::LatticeAssembler(Vector2f& determinantRange) :
         determinantRange(determinantRange)
@@ -27,7 +39,7 @@ LatticeAssembler::LatticeAssembler(Vector2f& determinantRange) :
     accuracyConstants.minPointsOnLattice = 5;
 }
 
-LatticeAssembler::LatticeAssembler(Vector2f& determinantRange, accuracyConstants_t accuracyConstants) :
+LatticeAssembler::LatticeAssembler(Vector2f& determinantRange, accuracyConstants_t& accuracyConstants) :
         determinantRange(determinantRange), accuracyConstants(accuracyConstants)
 {
 }
@@ -315,4 +327,19 @@ void LatticeAssembler::filterCandidateBasesByMeanRelativeDefect(uint32_t maxToTa
     }
 
     candidateLattices.swap(candidateLatticesFiltered);
+}
+
+void LatticeAssembler::setAccuracyConstants(const accuracyConstants_t& accuracyConstants)
+{
+    this->accuracyConstants = accuracyConstants;
+}
+
+void LatticeAssembler::setDeterminantRange(const Eigen::Vector2f& determinantRange)
+{
+    this->determinantRange = determinantRange;
+}
+
+void LatticeAssembler::setDeterminantRange(float min, float max)
+{
+    this->determinantRange = Vector2f(min, max);
 }
