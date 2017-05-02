@@ -12,16 +12,19 @@
 #include <Eigen/Dense>
 #include <vector>
 #include <algorithm>
+#include "WrongUsageException.h"
 
 class SparsePeakFinder {
 public:
+    SparsePeakFinder();
     SparsePeakFinder(float minDistanceBetweenRealPeaks, float maxPossiblePointNorm);
+    void precompute(float minDistanceBetweenRealPeaks, float maxPossiblePointNorm);
 
     //the only warranty this function makes is, that peaks that are separated by more than minDistanceBetweenRealPeaks are found. Additionally some peaks might be found that are not real peaks
-    void findPeaks_fast(Eigen::Matrix3Xf& peakPositions, Eigen::RowVectorXf& peakValues, const Eigen::Matrix3Xf& pointPositions,
-            const Eigen::RowVectorXf& pointValues);
+    void findPeaks_fast(Eigen::Matrix3Xf& pointPositions, Eigen::RowVectorXf& pointValues);
 
 private:
+
     //fast, but insecure: if point lies out of scope, it gets relocated somewhere inside the scope. Maximum bins per direction is 200;
     inline uint32_t getIndex(Eigen::Vector3f position)
     {
@@ -46,7 +49,10 @@ private:
 
     std::vector< bin_t > discretizationVolume;
     int32_t neighbourBinIndexOffsets[26];
-    public:
+
+    bool precomputed;
+
+public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         ;
 };

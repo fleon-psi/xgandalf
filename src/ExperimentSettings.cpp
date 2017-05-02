@@ -27,6 +27,10 @@ ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float bea
     maxReciprocalLatticeVectorLength_1A = 1 / minRealLatticeVectorLength_A;
     minReciprocalLatticeDeterminant_1A3 = 1 / maxRealLatticeDeterminant_A3;
     maxReciprocalLatticeDeterminant_1A3 = 1 / minRealLatticeDeterminant_A3;
+
+    differentRealLatticeVectorLengths_A.resize(2);
+    differentRealLatticeVectorLengths_A[0] = minRealLatticeVectorLength_A;
+    differentRealLatticeVectorLengths_A[1] = maxRealLatticeVectorLength_A;
 }
 
 ExperimentSettings::ExperimentSettings(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
@@ -42,6 +46,10 @@ ExperimentSettings::ExperimentSettings(float detectorDistance_m, float detectorR
     maxReciprocalLatticeVectorLength_1A = 1 / minRealLatticeVectorLength_A;
     minReciprocalLatticeDeterminant_1A3 = 1 / maxRealLatticeDeterminant_A3;
     maxReciprocalLatticeDeterminant_1A3 = 1 / minRealLatticeDeterminant_A3;
+
+    differentRealLatticeVectorLengths_A.resize(2);
+    differentRealLatticeVectorLengths_A[0] = minRealLatticeVectorLength_A;
+    differentRealLatticeVectorLengths_A[1] = maxRealLatticeVectorLength_A;
 }
 
 ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
@@ -56,6 +64,10 @@ ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float bea
     maxReciprocalLatticeVectorLength_1A = 1 / minRealLatticeVectorLength_A;
     minReciprocalLatticeDeterminant_1A3 = 1 / maxRealLatticeDeterminant_A3;
     maxReciprocalLatticeDeterminant_1A3 = 1 / minRealLatticeDeterminant_A3;
+
+    differentRealLatticeVectorLengths_A.resize(2);
+    differentRealLatticeVectorLengths_A[0] = minRealLatticeVectorLength_A;
+    differentRealLatticeVectorLengths_A[1] = maxRealLatticeVectorLength_A;
 }
 
 ExperimentSettings::ExperimentSettings(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
@@ -69,6 +81,10 @@ ExperimentSettings::ExperimentSettings(float detectorDistance_m, float detectorR
     maxReciprocalLatticeVectorLength_1A = 1 / minRealLatticeVectorLength_A;
     minReciprocalLatticeDeterminant_1A3 = 1 / maxRealLatticeDeterminant_A3;
     maxReciprocalLatticeDeterminant_1A3 = 1 / minRealLatticeDeterminant_A3;
+
+    differentRealLatticeVectorLengths_A.resize(2);
+    differentRealLatticeVectorLengths_A[0] = minRealLatticeVectorLength_A;
+    differentRealLatticeVectorLengths_A[1] = maxRealLatticeVectorLength_A;
 }
 
 ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
@@ -94,34 +110,34 @@ void ExperimentSettings::deduceValuesFromSampleReciprocalLattice()
 
     sampleRealLattice_A = this->sampleReciprocalLattice_1A.getReciprocalLattice().minimize();
 
-    realLatticeVectorNorms_A = sampleRealLattice_A.getBasisVectorNorms();
+    realLatticeVectorLengths_A = sampleRealLattice_A.getBasisVectorNorms();
     realLatticeVectorAngles_rad = sampleRealLattice_A.getBasisVectorAngles();
     realLatticeDeterminant_A3 = sampleRealLattice_A.det();
-    reciprocalLatticeVectorNorms_1A = this->sampleReciprocalLattice_1A.getBasisVectorNorms();
+    reciprocalLatticeVectorLengths_1A = this->sampleReciprocalLattice_1A.getBasisVectorNorms();
     reciprocalLatticeVectorAngles_rad = this->sampleReciprocalLattice_1A.getBasisVectorAngles();
     reciprocalLatticeDeterminant_1A3 = this->sampleReciprocalLattice_1A.det();
 
     //norms are ordered due to minimization of matrix
-    assert(reciprocalLatticeVectorNorms_1A[0] <= reciprocalLatticeVectorNorms_1A[1]
-            && reciprocalLatticeVectorNorms_1A[1] <= reciprocalLatticeVectorNorms_1A[2]);
-    assert(realLatticeVectorNorms_A[0] <= realLatticeVectorNorms_A[1] && realLatticeVectorNorms_A[1] <= realLatticeVectorNorms_A[2]);
+    assert(reciprocalLatticeVectorLengths_1A[0] <= reciprocalLatticeVectorLengths_1A[1]
+            && reciprocalLatticeVectorLengths_1A[1] <= reciprocalLatticeVectorLengths_1A[2]);
+    assert(realLatticeVectorLengths_A[0] <= realLatticeVectorLengths_A[1] && realLatticeVectorLengths_A[1] <= realLatticeVectorLengths_A[2]);
 
     float minSimilarityFactor = 0.96;
-    if (reciprocalLatticeVectorNorms_1A[0] / reciprocalLatticeVectorNorms_1A[1] > minSimilarityFactor) {
-        if (reciprocalLatticeVectorNorms_1A[1] / reciprocalLatticeVectorNorms_1A[2] > minSimilarityFactor) {
-            differentRealLatticeVectorNorms_A.resize(1);
-            differentRealLatticeVectorNorms_A[0] = reciprocalLatticeVectorNorms_1A.mean();
+    if (reciprocalLatticeVectorLengths_1A[0] / reciprocalLatticeVectorLengths_1A[1] > minSimilarityFactor) {
+        if (reciprocalLatticeVectorLengths_1A[1] / reciprocalLatticeVectorLengths_1A[2] > minSimilarityFactor) {
+            differentRealLatticeVectorLengths_A.resize(1);
+            differentRealLatticeVectorLengths_A[0] = reciprocalLatticeVectorLengths_1A.mean();
         } else {
-            differentRealLatticeVectorNorms_A.resize(2);
-            differentRealLatticeVectorNorms_A[0] = reciprocalLatticeVectorNorms_1A.head(2).mean();
-            differentRealLatticeVectorNorms_A[1] = reciprocalLatticeVectorNorms_1A[2];
+            differentRealLatticeVectorLengths_A.resize(2);
+            differentRealLatticeVectorLengths_A[0] = reciprocalLatticeVectorLengths_1A.head(2).mean();
+            differentRealLatticeVectorLengths_A[1] = reciprocalLatticeVectorLengths_1A[2];
         }
-    } else if (reciprocalLatticeVectorNorms_1A[1] / reciprocalLatticeVectorNorms_1A[2] > minSimilarityFactor) {
-        differentRealLatticeVectorNorms_A.resize(2);
-        differentRealLatticeVectorNorms_A[0] = reciprocalLatticeVectorNorms_1A[0];
-        differentRealLatticeVectorNorms_A[1] = reciprocalLatticeVectorNorms_1A.tail(2).mean();
+    } else if (reciprocalLatticeVectorLengths_1A[1] / reciprocalLatticeVectorLengths_1A[2] > minSimilarityFactor) {
+        differentRealLatticeVectorLengths_A.resize(2);
+        differentRealLatticeVectorLengths_A[0] = reciprocalLatticeVectorLengths_1A[0];
+        differentRealLatticeVectorLengths_A[1] = reciprocalLatticeVectorLengths_1A.tail(2).mean();
     } else {
-        differentRealLatticeVectorNorms_A = reciprocalLatticeVectorNorms_1A;
+        differentRealLatticeVectorLengths_A = reciprocalLatticeVectorLengths_1A;
     }
 }
 
@@ -165,9 +181,9 @@ float ExperimentSettings::getDetectorRadius_m() const
     return detectorRadius_m;
 }
 
-const Eigen::VectorXf& ExperimentSettings::getDifferentRealLatticeVectorNorms_A() const
+const Eigen::VectorXf& ExperimentSettings::getDifferentRealLatticeVectorLengths_A() const
 {
-    return differentRealLatticeVectorNorms_A;
+    return differentRealLatticeVectorLengths_A;
 }
 
 float ExperimentSettings::getDivergenceAngle_rad() const
@@ -255,9 +271,9 @@ const Eigen::Vector3f& ExperimentSettings::getRealLatticeVectorAngles_rad() cons
     return realLatticeVectorAngles_rad;
 }
 
-const Eigen::Vector3f& ExperimentSettings::getRealLatticeVectorNorms_A() const
+const Eigen::Vector3f& ExperimentSettings::getRealLatticeVectorLengths_A() const
 {
-    return realLatticeVectorNorms_A;
+    return realLatticeVectorLengths_A;
 }
 
 float ExperimentSettings::getReciprocalLambda_1A() const
@@ -285,9 +301,9 @@ const Eigen::Vector3f& ExperimentSettings::getReciprocalLatticeVectorAngles_rad(
     return reciprocalLatticeVectorAngles_rad;
 }
 
-const Eigen::Vector3f& ExperimentSettings::getReciprocalLatticeVectorNorms_1A() const
+const Eigen::Vector3f& ExperimentSettings::getReciprocalLatticeVectorLengths_1A() const
 {
-    return reciprocalLatticeVectorNorms_1A;
+    return reciprocalLatticeVectorLengths_1A;
 }
 
 const Lattice& ExperimentSettings::getSampleRealLattice_A() const

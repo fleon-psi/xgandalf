@@ -71,8 +71,8 @@ private:
 
     uint16_t countUniqueColumns(const Eigen::Matrix3Xf& millerIndices);
 
-    void filterCandidateLatticesByWeight(uint32_t maxToTake);
-    void filterCandidateBasesByMeanRelativeDefect(uint32_t maxToTake);
+    void filterCandidateLatticesByWeight(uint32_t maxToTakeCount);
+    void filterCandidateBasesByMeanRelativeDefect(uint32_t maxToTakeCount);
     public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         ;

@@ -44,11 +44,10 @@ public:
 
     const Lattice& getSampleRealLattice_A() const;
     const Lattice& getSampleReciprocalLattice_1A() const;
-    const Eigen::Vector3f& getRealLatticeVectorNorms_A() const;
+    const Eigen::Vector3f& getRealLatticeVectorLengths_A() const;
     const Eigen::Vector3f& getRealLatticeVectorAngles_rad() const;
-    const Eigen::VectorXf& getDifferentRealLatticeVectorNorms_A() const;
     float getRealLatticeDeterminant_A3() const;
-    const Eigen::Vector3f& getReciprocalLatticeVectorNorms_1A() const;
+    const Eigen::Vector3f& getReciprocalLatticeVectorLengths_1A() const;
     const Eigen::Vector3f& getReciprocalLatticeVectorAngles_rad() const;
     float getReciprocalLatticeDeterminant_1A3() const;
 
@@ -61,6 +60,8 @@ public:
     float getMinReciprocalLatticeDeterminant_1A3() const;
     float getMinReciprocalLatticeVectorLength_1A() const;
 
+    const Eigen::VectorXf& getDifferentRealLatticeVectorLengths_A() const;
+    
 private:
     void constructFromGeometryFileValues(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
             float pixelLength_m, float detectorRadius_pixel);
@@ -81,11 +82,10 @@ private:
     //if latticeParametersKnown
     Lattice sampleRealLattice_A;
     Lattice sampleReciprocalLattice_1A;
-    Eigen::Vector3f realLatticeVectorNorms_A;
+    Eigen::Vector3f realLatticeVectorLengths_A;
     Eigen::Vector3f realLatticeVectorAngles_rad;
-    Eigen::VectorXf differentRealLatticeVectorNorms_A;
     float realLatticeDeterminant_A3;
-    Eigen::Vector3f reciprocalLatticeVectorNorms_1A;
+    Eigen::Vector3f reciprocalLatticeVectorLengths_1A;
     Eigen::Vector3f reciprocalLatticeVectorAngles_rad;
     float reciprocalLatticeDeterminant_1A3;
 
@@ -98,7 +98,9 @@ private:
     float maxReciprocalLatticeVectorLength_1A;
     float minReciprocalLatticeDeterminant_1A3;
     float maxReciprocalLatticeDeterminant_1A3;
-
+    
+    //if latticeParametersKnown, trivial. if not, set to min and max vector length 
+    Eigen::VectorXf differentRealLatticeVectorLengths_A;
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         ;

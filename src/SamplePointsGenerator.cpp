@@ -55,49 +55,6 @@ void SamplePointsGenerator::loadPrecomputedSamplePoints(Matrix3Xf& samplePoints,
     MatrixX3f samplePoints_T;
     loadEigenMatrixFromDisk(samplePoints_T, fullPath.str());
     samplePoints = samplePoints_T.transpose();  //workaround, because sample points are stored in a better human readable way
-
-    //old
-//    stringstream fullPath;
-//    fullPath << precomputedSamplePointsPath << "/pitches";
-//    ifstream pitchesFile(fullPath.str());
-//    if (!pitchesFile.is_open()) {
-//        stringstream errStream;
-//        errStream << "Precomputed file " << fullPath.str() << " not found.";
-//        throw BadInputException(errStream.str());
-//    }
-//    istream_iterator< float > startPitchesFile(pitchesFile), end;
-//    vector< float > numbers(startPitchesFile, end);
-//    pitches = Map< ArrayXf >(&numbers[0], numbers.size());
-//
-//    fullPath.str(string());
-//    numbers.clear();
-//    fullPath << precomputedSamplePointsPath << "/tolerances";
-//    ifstream tolerancesFile(fullPath.str());
-//    if (!tolerancesFile.is_open()) {
-//        stringstream errStream;
-//        errStream << "Precomputed file " << fullPath.str() << " not found.";
-//        throw BadInputException(errStream.str());
-//    }
-//    istream_iterator< float > startTolerancesFile(tolerancesFile);
-//    numbers.assign(startTolerancesFile, end);
-//    tolerances = Map< ArrayXf >(&numbers[0], numbers.size());
-//
-//    fullPath.str(string());
-//    numbers.clear();
-//    fullPath << precomputedSamplePointsPath <<
-//            "/pitch" << getClosestArrayElement(pitches, unitPitch) <<
-//            "_tolerance" << getClosestArrayElement(tolerances, tolerance);
-//    ifstream samplePointsFile(fullPath.str());
-//    if (!samplePointsFile.is_open()) {
-//        stringstream errStream;
-//        errStream << "Precomputed file " << fullPath.str() << " not found.";
-//        throw BadInputException(errStream.str());
-//    }
-//    istream_iterator< float > startSamplePointsFile(samplePointsFile);
-//    numbers.assign(startSamplePointsFile, end);
-//    samplePoints = Map< Matrix3Xf >(&numbers[0], 3, numbers.size() / 3); //copy
-
-//    cout << "loading file " << fullPath.str() << endl;
 }
 
 void SamplePointsGenerator::getDenseGrid(Matrix3Xf& samplePoints, float unitPitch, float minRadius, float maxRadius)

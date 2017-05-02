@@ -14,8 +14,7 @@ using namespace Eigen;
 using namespace std;
 
 HillClimbingOptimizer::HillClimbingOptimizer() :
-        transform(), initialIterationCount(0), calmDownIterationCount(0), calmDownFactor(0), localFitIterationCount(0),
-                localCalmDownIterationCount(0), localCalmDownFactor(0), gamma(0), maxStep(0), minStep(0), directionChangeFactor(0)
+        transform(), hillClimbingAccuracyConstants()
 {
 }
 
@@ -26,9 +25,20 @@ void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransfo
 
     transform.setPointsToTransform(pointsToTransform);
 
-    float gamma_initial = this->gamma;
-    float maxStep_initial = this->maxStep;
-    float minStep_initial = this->minStep;
+    float& gamma = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.gamma;
+    float& maxStep = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.maxStep;
+    float& minStep = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.minStep;
+
+    float gamma_initial = gamma;
+    float maxStep_initial = maxStep;
+    float minStep_initial = minStep;
+
+    const int initialIterationCount = hillClimbingAccuracyConstants.initialIterationCount;
+    const int calmDownIterationCount = hillClimbingAccuracyConstants.calmDownIterationCount;
+    const float calmDownFactor = hillClimbingAccuracyConstants.calmDownFactor;
+    const int localFitIterationCount = hillClimbingAccuracyConstants.localFitIterationCount;
+    const int localCalmDownIterationCount = hillClimbingAccuracyConstants.localCalmDownIterationCount;
+    const float localCalmDownFactor = hillClimbingAccuracyConstants.localCalmDownFactor;
 
     previousStepDirection = Matrix3Xf::Zero(3, positionsToOptimize.cols());
     previousStepLength = Array< float, 1, Eigen::Dynamic >::Constant(1, positionsToOptimize.cols(), minStep + (maxStep - minStep) / 4);
@@ -55,7 +65,7 @@ void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransfo
 //        ofs << positionsToOptimize.transpose().eval() << endl;
     }
 
-    for (int i = 0; i < initialIterationCount; i++) {
+    for (int i = 0; i < localFitIterationCount; i++) {
         transform.setLocalTransformFlag();
         transform.clearRadialWeightingFlag();
         bool useStepOrthogonalization = true;
@@ -64,7 +74,7 @@ void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransfo
 //        ofs << positionsToOptimize.transpose().eval() << endl;
     }
 
-    for (int i = 0; i < calmDownIterationCount; i++) {
+    for (int i = 0; i < localCalmDownIterationCount; i++) {
         transform.setLocalTransformFlag();
         transform.clearRadialWeightingFlag();
         bool useStepOrthogonalization = false;
@@ -77,13 +87,13 @@ void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransfo
 //        ofs << positionsToOptimize.transpose().eval() << endl;
     }
 
-    this->gamma = gamma_initial;
-    this->maxStep = maxStep_initial;
-    this->minStep = minStep_initial;
-
     // can be optimized! Does not always need to compute slope, closeToPeaks and gradient
     transform.performTransform(positionsToOptimize);
     lastInverseTransformEvaluation = transform.getInverseTransformEvaluation();
+
+    gamma = gamma_initial;
+    maxStep = maxStep_initial;
+    minStep = minStep_initial;
 }
 
 void HillClimbingOptimizer::performOptimizationStep(Matrix3Xf& positionsToOptimize, bool useStepOrthogonalization)
@@ -103,12 +113,12 @@ void HillClimbingOptimizer::setPointsToTransformWeights(const Eigen::RowVectorXf
     transform.setPointsToTransformWeights(pointsToTransformWeights);
 }
 
-const RowVectorXf& HillClimbingOptimizer::getLastInverseTransformEvaluation()
+RowVectorXf& HillClimbingOptimizer::getLastInverseTransformEvaluation()
 {
     return lastInverseTransformEvaluation;
 }
 
-const RowVectorXf& HillClimbingOptimizer::getCloseToPeaksCount()
+RowVectorXf& HillClimbingOptimizer::getCloseToPeaksCount()
 {
     return transform.getCloseToPointsCount();
 }
@@ -142,13 +152,17 @@ void HillClimbingOptimizer::computeStep(Matrix3Xf& gradient, RowVectorXf& closeT
         for (int i = 0; i < closeToPeaksCount.size(); i++) {
             if (directionChange(i) < -0.4) {
                 stepDirection.col(i) = (stepDirection.col(i) + previousStepDirection.col(i)).normalized();
-                stepDirectionFactor(i) = directionChangeFactor;
+                stepDirectionFactor(i) = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.directionChangeFactor;
             }
         }
     }
 //    cout << "stepDirection " << endl << stepDirection << endl << endl;
 
     previousStepDirection = stepDirection;
+
+    const float minStep = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.minStep;
+    const float maxStep = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.maxStep;
+    const float gamma = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.gamma;
 
     Array< float, 1, Eigen::Dynamic >& stepLength = previousStepLength;  //reuse memory
     stepLength = ((0.5 * (minStep + (maxStep - minStep) * gamma) + 0.5 * previousStepLength)
@@ -157,16 +171,15 @@ void HillClimbingOptimizer::computeStep(Matrix3Xf& gradient, RowVectorXf& closeT
     step = stepDirection.array().rowwise() * stepLength;
 }
 
-void HillClimbingOptimizer::setStepComputationAccuracyConstants(float gamma, float minStep, float maxStep, float directionChangeFactor)
+void HillClimbingOptimizer::setStepComputationAccuracyConstants(stepComputationAccuracyConstants_t stepComputationAccuracyConstants)
 {
-    this->gamma = gamma;
-    this->minStep = minStep;
-    this->maxStep = maxStep;
-    this->directionChangeFactor = directionChangeFactor;
+    hillClimbingAccuracyConstants.stepComputationAccuracyConstants = stepComputationAccuracyConstants;
 }
 
-void HillClimbingOptimizer::setAccuracyConstants(accuracyConstants_t accuracyConstants)
+void HillClimbingOptimizer::setHillClimbingAccuracyConstants(hillClimbingAccuracyConstants_t accuracyConstants)
 {
+    hillClimbingAccuracyConstants = accuracyConstants;
+
     transform.setFunctionSelection(accuracyConstants.functionSelection);
     transform.setOptionalFunctionArgument(accuracyConstants.optionalFunctionArgument);
     transform.setMaxCloseToPeakDeviation(accuracyConstants.maxCloseToPeakDeviation);

@@ -1,19 +1,19 @@
 /*
- * ReciprocalSpaceTranslation.h
+ * DetectorToReciprocalSpaceTransform.h
  *
  *  Created on: 01.05.2017
  *      Author: Yaro
  */
 
-#ifndef RECIPROCALSPACETRANSLATION_H_
-#define RECIPROCALSPACETRANSLATION_H_
+#ifndef DETECTORTORECIPROCALSPACETRANSFORM_H_
+#define DETECTORTORECIPROCALSPACETRANSFORM_H_
 
 #include <Eigen/Dense>
 #include <ExperimentSettings.h>
 
-class ReciprocalSpaceTranslation {
+class DetectorToReciprocalSpaceTransform {
 public:
-    ReciprocalSpaceTranslation(const ExperimentSettings& experimentSettings);
+    DetectorToReciprocalSpaceTransform(const ExperimentSettings& experimentSettings);
         
     //coordinate system same as reciprocal x-z
     void computeReciprocalPeaksFromDetectorPeaks(Eigen::Matrix3Xf& reciprocalPeaks_A, const Eigen::Matrix2Xf& detectorPeaks_m );
@@ -23,4 +23,4 @@ private:
     float detectorDistance_m;
 };
 
-#endif /* RECIPROCALSPACETRANSLATION_H_ */
+#endif /* DETECTORTORECIPROCALSPACETRANSFORM_H_ */

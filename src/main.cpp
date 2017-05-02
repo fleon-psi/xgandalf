@@ -92,8 +92,14 @@ void test_sparsePeakFinder()
     float maxPossiblePointNorm = 50;
     SparsePeakFinder sparsePeakFinder(minDistanceBetweenRealPeaks, maxPossiblePointNorm);
 
+    std::ofstream ofs2("workfolder/pointValues_cpp", std::ofstream::out);
+    ofs2 << pointValues.transpose().eval();
+
+    std::ofstream ofs3("workfolder/pointPositions_cpp", std::ofstream::out);
+    ofs3 << pointPositions.transpose().eval();
+
     chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-    sparsePeakFinder.findPeaks_fast(peakPositions, peakValues, pointPositions, pointValues);
+    sparsePeakFinder.findPeaks_fast(pointPositions, pointValues);
     chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
     cout << "duration: " << duration << "ms" << endl;
@@ -104,11 +110,6 @@ void test_sparsePeakFinder()
     std::ofstream ofs1("workfolder/peakValues", std::ofstream::out);
     ofs1 << peakValues.transpose().eval();
 
-    std::ofstream ofs2("workfolder/pointValues_cpp", std::ofstream::out);
-    ofs2 << pointValues.transpose().eval();
-
-    std::ofstream ofs3("workfolder/pointPositions_cpp", std::ofstream::out);
-    ofs3 << pointPositions.transpose().eval();
 }
 
 void test_hillClimbing()
@@ -127,7 +128,7 @@ void test_hillClimbing()
 
     HillClimbingOptimizer optimizer;
 
-    HillClimbingOptimizer::accuracyConstants_t hillClimbingOptimizer_accuracyConstants;
+    HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbingOptimizer_accuracyConstants;
 
     hillClimbingOptimizer_accuracyConstants.functionSelection = 1;
     hillClimbingOptimizer_accuracyConstants.optionalFunctionArgument = 1;
@@ -139,13 +140,12 @@ void test_hillClimbing()
     hillClimbingOptimizer_accuracyConstants.localFitIterationCount = 8;
     hillClimbingOptimizer_accuracyConstants.localCalmDownIterationCount = 6;
     hillClimbingOptimizer_accuracyConstants.localCalmDownFactor = 0.8;
-    optimizer.setAccuracyConstants(hillClimbingOptimizer_accuracyConstants);
 
-    float directionChangeFactor = 2.500000000000000;
-    float minStep = 0.331259661674998;
-    float maxStep = 3.312596616749981;
-    float gamma = 0.650000000000000;
-    optimizer.setStepComputationAccuracyConstants(gamma, minStep, maxStep, directionChangeFactor);
+    hillClimbingOptimizer_accuracyConstants.stepComputationAccuracyConstants.directionChangeFactor = 2.500000000000000;
+    hillClimbingOptimizer_accuracyConstants.stepComputationAccuracyConstants.minStep = 0.331259661674998;
+    hillClimbingOptimizer_accuracyConstants.stepComputationAccuracyConstants.maxStep = 3.312596616749981;
+    hillClimbingOptimizer_accuracyConstants.stepComputationAccuracyConstants.gamma = 0.650000000000000;
+    optimizer.setHillClimbingAccuracyConstants(hillClimbingOptimizer_accuracyConstants);
 
     optimizer.performOptimization(pointsToTransform, positionsToOptimize);
 
@@ -183,11 +183,13 @@ void test_computeStep()
     HillClimbingOptimizer h;
     h.previousStepDirection = (Matrix3Xf(3, 4) << 0.5789, 0.6826, 0.3688, 0.6340, 0.4493, 0.0735, 0.8089, 0.3796, 0.6804, 0.7271, 0.4578, 0.6737).finished();
     h.previousStepLength = (Array< float, 1, Eigen::Dynamic >(1, 4) << 0.1, 3, 2, 4).finished();
-    float gamma = 0.2;
-    float minStep = 0.5;
-    float maxStep = 55;
-    float directionChangeFactor = 3;
-    h.setStepComputationAccuracyConstants(gamma, minStep, maxStep, directionChangeFactor);
+
+    HillClimbingOptimizer::stepComputationAccuracyConstants_t stepComputationAccuracyConstants;
+    stepComputationAccuracyConstants.directionChangeFactor = 3;
+    stepComputationAccuracyConstants.minStep = 0.5;
+    stepComputationAccuracyConstants.maxStep = 55;
+    stepComputationAccuracyConstants.gamma = 0.2;
+    h.setStepComputationAccuracyConstants(stepComputationAccuracyConstants);
 
     bool useStepOrthogonalization = true;
 

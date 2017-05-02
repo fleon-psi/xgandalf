@@ -13,7 +13,17 @@
 using namespace std;
 using namespace Eigen;
 
+SparsePeakFinder::SparsePeakFinder()
+{
+    precomputed = false;
+}
+
 SparsePeakFinder::SparsePeakFinder(float minDistanceBetweenRealPeaks, float maxPossiblePointNorm)
+{
+    precompute(minDistanceBetweenRealPeaks, maxPossiblePointNorm);
+}
+
+void SparsePeakFinder::precompute(float minDistanceBetweenRealPeaks, float maxPossiblePointNorm)
 {
     this->minDistanceBetweenRealPeaks = minDistanceBetweenRealPeaks;
     this->maxPossiblePointNorm = maxPossiblePointNorm;
@@ -48,10 +58,17 @@ SparsePeakFinder::SparsePeakFinder(float minDistanceBetweenRealPeaks, float maxP
         throw BadInputException(errStream.str());
     }
 
+    precomputed = true;
 }
 
-void SparsePeakFinder::findPeaks_fast(Matrix3Xf& peakPositions, RowVectorXf& peakValues, const Matrix3Xf& pointPositions, const RowVectorXf& pointValues)
+void SparsePeakFinder::findPeaks_fast(Matrix3Xf& pointPositions,  RowVectorXf& pointValues)
 {
+    if (!precomputed) {
+        stringstream errStream;
+        errStream << "The sparsePeakFinder is used without precomputation!" << endl;
+        throw WrongUsageException(errStream.str());
+    }
+
     fill(discretizationVolume.begin(), discretizationVolume.end(), bin_t( { -1, numeric_limits< float >::lowest() }));  //possibly with 0 faster
 
     for (int pointIndex = 0; pointIndex < pointPositions.cols(); pointIndex++) {
@@ -65,8 +82,8 @@ void SparsePeakFinder::findPeaks_fast(Matrix3Xf& peakPositions, RowVectorXf& pea
 
     int peakCount = 0;
     int innerBinCount = pow(binsPerDimension, 3);
-    peakPositions.resize(NoChange, min(innerBinCount, (int) pointPositions.cols()));
-    peakValues.resize(min(innerBinCount, (int) pointPositions.cols()));
+    Matrix3Xf& peakPositions = pointPositions;
+    RowVectorXf& peakValues = pointValues;
 
     //For not checking whether index is out of borders, an extra border bin is added. Only inner borders are checked for peaks 
     uint32_t binsPerDimensionMinus1 = binsPerDimension - 1;

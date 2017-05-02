@@ -5,18 +5,18 @@
  *      Author: Yaro
  */
 
-#include <ReciprocalSpaceTranslation.h>
+#include <DetectorToReciprocalSpaceTransform.h>
 
 using namespace Eigen;
 using namespace std;
 
-ReciprocalSpaceTranslation::ReciprocalSpaceTranslation(const ExperimentSettings& experimentSettings)
+DetectorToReciprocalSpaceTransform::DetectorToReciprocalSpaceTransform(const ExperimentSettings& experimentSettings)
 {
     reciprocal_lambda_1A = experimentSettings.getReciprocalLambda_1A();
     detectorDistance_m = experimentSettings.getDetectorDistance_m();
 }
 
-void ReciprocalSpaceTranslation::computeReciprocalPeaksFromDetectorPeaks(Eigen::Matrix3Xf& reciprocalPeaks_A, const Eigen::Matrix2Xf& detectorPeaks_m)
+void DetectorToReciprocalSpaceTransform::computeReciprocalPeaksFromDetectorPeaks(Matrix3Xf& reciprocalPeaks_A, const Matrix2Xf& detectorPeaks_m)
 {
     Matrix3Xf backprojectionDirectionVectors(3, reciprocalPeaks_A.cols());
     backprojectionDirectionVectors.row(0).setConstant(detectorDistance_m);
