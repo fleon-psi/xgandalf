@@ -70,7 +70,7 @@ void LatticeAssembler::assembleLattices(vector< Lattice >& assembledLattices, ve
     };
 
     finalCandidateLattices.insert(finalCandidateLattices.end(), candidateLattices.begin(),
-            candidateLattices.begin() + accuracyConstants.maxCountLocalPassingWeightFilter); // assume that candidateVectors is sorted descending for weight!
+            candidateLattices.begin() + min((uint32_t) candidateLattices.size(), accuracyConstants.maxCountLocalPassingWeightFilter)); // assume that candidateVectors is sorted descending for weight!
 
     filterCandidateBasesByMeanRelativeDefect(accuracyConstants.maxCountPassingRelativeDefectFilter);
 
@@ -189,8 +189,8 @@ uint16_t LatticeAssembler::countUniqueColumns(const Matrix3Xf& millerIndices)
     return count;
 }
 
-void LatticeAssembler::computeCandidateLattices(Matrix3Xf candidateVectors, RowVectorXf candidateVectorWeights,
-        vector< vector< uint16_t > > pointIndicesOnVector)
+void LatticeAssembler::computeCandidateLattices(Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights,
+        vector< vector< uint16_t > >& pointIndicesOnVector)
 {
 //hand-crafted remove-if for three variables. Delete
     for (int i = candidateVectors.cols() - 1; i >= 0; i--) {

@@ -13,7 +13,9 @@
 using namespace std;
 using namespace Eigen;
 
-SparsePeakFinder::SparsePeakFinder()
+SparsePeakFinder::SparsePeakFinder() :
+        minDistanceBetweenRealPeaks(0), maxPossiblePointNorm(0), minDistanceBetweenRealPeaks_squared(0), binWidth(0),
+                binWidth_reciprocal(0), binsPerDimension(0), binCountMinus1(0)
 {
     precomputed = false;
 }
@@ -61,7 +63,7 @@ void SparsePeakFinder::precompute(float minDistanceBetweenRealPeaks, float maxPo
     precomputed = true;
 }
 
-void SparsePeakFinder::findPeaks_fast(Matrix3Xf& pointPositions,  RowVectorXf& pointValues)
+void SparsePeakFinder::findPeaks_fast(Matrix3Xf& pointPositions, RowVectorXf& pointValues)
 {
     if (!precomputed) {
         stringstream errStream;
@@ -81,7 +83,6 @@ void SparsePeakFinder::findPeaks_fast(Matrix3Xf& pointPositions,  RowVectorXf& p
     }
 
     int peakCount = 0;
-    int innerBinCount = pow(binsPerDimension, 3);
     Matrix3Xf& peakPositions = pointPositions;
     RowVectorXf& peakValues = pointValues;
 

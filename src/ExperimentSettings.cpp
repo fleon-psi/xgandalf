@@ -108,14 +108,14 @@ void ExperimentSettings::deduceValuesFromSampleReciprocalLattice()
 {
     sampleReciprocalLattice_1A.minimize();
 
-    sampleRealLattice_A = this->sampleReciprocalLattice_1A.getReciprocalLattice().minimize();
+    sampleRealLattice_A = sampleReciprocalLattice_1A.getReciprocalLattice().minimize();
 
     realLatticeVectorLengths_A = sampleRealLattice_A.getBasisVectorNorms();
     realLatticeVectorAngles_rad = sampleRealLattice_A.getBasisVectorAngles();
-    realLatticeDeterminant_A3 = sampleRealLattice_A.det();
-    reciprocalLatticeVectorLengths_1A = this->sampleReciprocalLattice_1A.getBasisVectorNorms();
-    reciprocalLatticeVectorAngles_rad = this->sampleReciprocalLattice_1A.getBasisVectorAngles();
-    reciprocalLatticeDeterminant_1A3 = this->sampleReciprocalLattice_1A.det();
+    realLatticeDeterminant_A3 = abs(sampleRealLattice_A.det());
+    reciprocalLatticeVectorLengths_1A = sampleReciprocalLattice_1A.getBasisVectorNorms();
+    reciprocalLatticeVectorAngles_rad = sampleReciprocalLattice_1A.getBasisVectorAngles();
+    reciprocalLatticeDeterminant_1A3 = abs(sampleReciprocalLattice_1A.det());
 
     //norms are ordered due to minimization of matrix
     assert(reciprocalLatticeVectorLengths_1A[0] <= reciprocalLatticeVectorLengths_1A[1]
@@ -123,21 +123,21 @@ void ExperimentSettings::deduceValuesFromSampleReciprocalLattice()
     assert(realLatticeVectorLengths_A[0] <= realLatticeVectorLengths_A[1] && realLatticeVectorLengths_A[1] <= realLatticeVectorLengths_A[2]);
 
     float minSimilarityFactor = 0.96;
-    if (reciprocalLatticeVectorLengths_1A[0] / reciprocalLatticeVectorLengths_1A[1] > minSimilarityFactor) {
-        if (reciprocalLatticeVectorLengths_1A[1] / reciprocalLatticeVectorLengths_1A[2] > minSimilarityFactor) {
+    if (realLatticeVectorLengths_A[0] / realLatticeVectorLengths_A[1] > minSimilarityFactor) {
+        if (realLatticeVectorLengths_A[1] / realLatticeVectorLengths_A[2] > minSimilarityFactor) {
             differentRealLatticeVectorLengths_A.resize(1);
-            differentRealLatticeVectorLengths_A[0] = reciprocalLatticeVectorLengths_1A.mean();
+            differentRealLatticeVectorLengths_A[0] = realLatticeVectorLengths_A.mean();
         } else {
             differentRealLatticeVectorLengths_A.resize(2);
-            differentRealLatticeVectorLengths_A[0] = reciprocalLatticeVectorLengths_1A.head(2).mean();
-            differentRealLatticeVectorLengths_A[1] = reciprocalLatticeVectorLengths_1A[2];
+            differentRealLatticeVectorLengths_A[0] = realLatticeVectorLengths_A.head(2).mean();
+            differentRealLatticeVectorLengths_A[1] = realLatticeVectorLengths_A[2];
         }
-    } else if (reciprocalLatticeVectorLengths_1A[1] / reciprocalLatticeVectorLengths_1A[2] > minSimilarityFactor) {
+    } else if (realLatticeVectorLengths_A[1] / realLatticeVectorLengths_A[2] > minSimilarityFactor) {
         differentRealLatticeVectorLengths_A.resize(2);
-        differentRealLatticeVectorLengths_A[0] = reciprocalLatticeVectorLengths_1A[0];
-        differentRealLatticeVectorLengths_A[1] = reciprocalLatticeVectorLengths_1A.tail(2).mean();
+        differentRealLatticeVectorLengths_A[0] = realLatticeVectorLengths_A[0];
+        differentRealLatticeVectorLengths_A[1] = realLatticeVectorLengths_A.tail(2).mean();
     } else {
-        differentRealLatticeVectorLengths_A = reciprocalLatticeVectorLengths_1A;
+        differentRealLatticeVectorLengths_A = realLatticeVectorLengths_A;
     }
 }
 

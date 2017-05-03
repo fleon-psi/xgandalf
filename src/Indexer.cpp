@@ -129,7 +129,12 @@ void Indexer::index_standard(vector< Lattice >& assembledLattices, const Matrix2
     accuracyConstants_LatticeAssembler.maxCountPassingRelativeDefectFilter = 50;
     accuracyConstants_LatticeAssembler.minPointsOnLattice = 5;
 
-    latticeAssembler.setDeterminantRange(experimentSettings.getMinRealLatticeDeterminant_A3(), experimentSettings.getMaxRealLatticeDeterminant_A3());
+    if (experimentSettings.isLatticeParametersKnown()) {    //TODO: bad design! put tolerance in experiment settings and compute getMinRealLatticeDeterminant_A3 from that!!!
+        latticeAssembler.setDeterminantRange(experimentSettings.getRealLatticeDeterminant_A3() * 0.8, experimentSettings.getRealLatticeDeterminant_A3() * 1.2);
+    } else {
+        latticeAssembler.setDeterminantRange(experimentSettings.getMinRealLatticeDeterminant_A3(), experimentSettings.getMaxRealLatticeDeterminant_A3());
+    }
+
     latticeAssembler.setAccuracyConstants(accuracyConstants_LatticeAssembler);
 
     vector< LatticeAssembler::assembledLatticeStatistics_t > assembledLatticesStatistics;

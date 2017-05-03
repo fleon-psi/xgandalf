@@ -5,3 +5,5 @@ Release/
 cmakeBuild/
 
 .cproject
+
+workfolder/

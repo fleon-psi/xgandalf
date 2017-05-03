@@ -5,12 +5,12 @@
  *      Author: Yaro
  */
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include <InverseSpaceTransform.h>
 #include <assert.h>
 #include <iostream>
-
-#define _USE_MATH_DEFINES
-#include <cmath>
 
 using namespace Eigen;
 using namespace std;
@@ -97,7 +97,7 @@ static inline void function1(const ArrayXXf& x, ArrayXXf& functionEvaluation, Ar
         functionEvaluation = cos(2 * M_PI * x);
         slope = -sin(2 * M_PI * x);
     } else {
-        functionEvaluation = pow(cos(2 * M_PI * x), (int) optionalFunctionArgument);
+        functionEvaluation = pow(cos(2 * M_PI * x), (int) optionalFunctionArgument);    //can be faster using manual pow for integer exponent!
         float n = optionalFunctionArgument;
         float scaling = pow(n, n / 2) / pow((n - 1), (int) (n - 1) / 2);
         slope = -scaling * sin(2 * M_PI * x) * pow(cos(2 * M_PI * x), (int) (n - 1));
@@ -153,11 +153,68 @@ static inline void function8(const ArrayXXf& x, ArrayXXf& functionEvaluation, Ar
 static inline void function9(const ArrayXXf& x, ArrayXXf& functionEvaluation, ArrayXXf& slope, float optionalFunctionArgument)
 {
     if (optionalFunctionArgument - round(optionalFunctionArgument) == 0) {
-        functionEvaluation = pow(1 - abs(x), (int) optionalFunctionArgument) * 2 - 1;
-        slope = -x * pow(1 - abs(x), (int) optionalFunctionArgument - 1) / abs(x);
+//        functionEvaluation = pow(1 - abs(x), (int) optionalFunctionArgument) * 2 - 1;
+//        slope = -x * pow(1 - abs(x), (int) optionalFunctionArgument - 1) / (abs(x) + 0.0001);
+        int exponent = (int) optionalFunctionArgument;
+
+        ArrayXXf base = 1 - abs(x); //TODO: auto may be faster or slower... check!
+        switch (exponent) { //just for performance, in case the compiler does not recognize the integer exponent
+            case 1:
+                functionEvaluation = base * 2 - 1;
+                slope = -1 * x.sign();
+                break;
+            case 2:
+                functionEvaluation = base.square() * 2 - 1;
+                slope = -x * base / (abs(x) + 0.0001);
+                break;
+            case 3:
+                functionEvaluation = base.cube() * 2 - 1;
+                slope = -x * base.square() / (abs(x) + 0.0001);
+                break;
+            case 4:
+                functionEvaluation = base.square().square() * 2 - 1;
+                slope = -x * base.cube() / (abs(x) + 0.0001);
+                break;
+            case 5:
+                functionEvaluation = base.cube() * base.square() * 2 - 1;
+                slope = -x * base.square().square() / (abs(x) + 0.0001);
+                break;
+            case 6:
+                functionEvaluation = base.cube().square() * 2 - 1;
+                slope = -x * base.cube() * base.square() / (abs(x) + 0.0001);
+                break;
+            case 7:
+                functionEvaluation = base.cube() * base.square().square() * 2 - 1;
+                slope = -x * base.cube().square() / (abs(x) + 0.0001);
+                break;
+            case 8:
+                functionEvaluation = base.square().square().square() * 2 - 1;
+                slope = -x * base.cube() * base.square().square() / (abs(x) + 0.0001);
+                break;
+            case 9:
+                functionEvaluation = base.cube().cube() * 2 - 1;
+                slope = -x * base.square().square().square() / (abs(x) + 0.0001);
+                break;
+            case 10:
+                functionEvaluation = base.cube().cube() * base * 2 - 1;
+                slope = -x * base.cube().cube() / (abs(x) + 0.0001);
+                break;
+            case 11:
+                functionEvaluation = base.cube().cube() * base.square() * 2 - 1;
+                slope = -x * base.cube().cube() * base / (abs(x) + 0.0001);
+                break;
+            case 12:
+                functionEvaluation = base.cube().square().square() * 2 - 1;
+                slope = -x * base.cube().cube() * base.square() / (abs(x) + 0.0001);
+                break;
+            default:
+                functionEvaluation = pow(base, exponent) * 2 - 1;
+                slope = -x * pow(base, exponent - 1) / (abs(x) + 0.0001);
+        }
+
     } else {
         functionEvaluation = pow(1 - abs(x), optionalFunctionArgument) * 2 - 1;
-        slope = -x * pow(1 - abs(x), optionalFunctionArgument - 1) / abs(x);
+        slope = -x * pow(1 - abs(x), optionalFunctionArgument - 1) / (abs(x) + 0.0001);
     }
 }
 

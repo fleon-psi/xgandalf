@@ -62,8 +62,8 @@ private:
     } candidateLattice_t;
 
     std::vector< candidateLattice_t > candidateLattices;
-    void computeCandidateLattices(Eigen::Matrix3Xf candidateVectors, Eigen::RowVectorXf candidateVectorWeights,
-            std::vector< std::vector< uint16_t > > pointIndicesOnVector);
+    void computeCandidateLattices(Eigen::Matrix3Xf& candidateVectors, Eigen::RowVectorXf& candidateVectorWeights,
+            std::vector< std::vector< uint16_t > >& pointIndicesOnVector);
     void computeAssembledLatticeStatistics(candidateLattice_t& candidateLattice, const Eigen::Matrix3Xf& pointsToFitInReciprocalSpace);
     void selectBestLattices(std::vector< Lattice >& assembledLattices, std::vector< assembledLatticeStatistics_t >& assembledLatticesStatistics,
             std::list< candidateLattice_t >& finalCandidateLattices);
