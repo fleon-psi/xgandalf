@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include <algorithm>
 #include <numeric> 
+#include <fstream>
 
 using namespace Eigen;
 using namespace std;
@@ -28,10 +29,11 @@ Indexer::Indexer(const ExperimentSettings& experimentSettings, const string& pre
 
 void Indexer::construct()
 {
-    precomputeIndexingStrategy_standard();
+    precomputeIndexingStrategy_balanced();
 }
 
-void Indexer::precomputeSamplePoints_standard()
+void Indexer::precomputeSamplePoints_balanced()
+
 {
     if (experimentSettings.isLatticeParametersKnown()) {
         float unitPitch = 0.05;
@@ -47,9 +49,9 @@ void Indexer::precomputeSamplePoints_standard()
     }
 }
 
-void Indexer::precomputeIndexingStrategy_standard()
+void Indexer::precomputeIndexingStrategy_balanced()
 {
-    precomputeSamplePoints_standard();
+    precomputeSamplePoints_balanced();
 
     float minSpacingBetweenPeaks = experimentSettings.getDifferentRealLatticeVectorLengths_A().minCoeff() * 0.2;
     float maxPossiblePointNorm = experimentSettings.getDifferentRealLatticeVectorLengths_A().maxCoeff() * 1.2;
@@ -59,7 +61,7 @@ void Indexer::precomputeIndexingStrategy_standard()
 void Indexer::index_standard(vector< Lattice >& assembledLattices, const Matrix2Xf& detectorPeaks_m)
 {
     if (samplePoints_standard.size() == 0) {
-        precomputeSamplePoints_standard();
+        precomputeSamplePoints_balanced();
     }
 
     Matrix3Xf samplePoints = samplePoints_standard;
@@ -89,7 +91,10 @@ void Indexer::index_standard(vector< Lattice >& assembledLattices, const Matrix2
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_global);
     hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, samplePoints);
 
-    /////// keep only big values 
+//    ofstream ofs("workfolder/samplePoints", ofstream::out);
+//    ofs << samplePoints.transpose().eval();
+
+/////// keep only big values 
     float minFunctionEvaluation = 0.65; // TODO: can be much lower, since C++ peak finder is much faster than Matlab peak finder. especially needed for multiple lattices
     RowVectorXf& samplePointsEvaluation = hillClimbingOptimizer.getLastInverseTransformEvaluation();
     clearSamplePointsWithLowInverseFunctionEvaluation(samplePoints, samplePointsEvaluation, minFunctionEvaluation);
@@ -97,6 +102,12 @@ void Indexer::index_standard(vector< Lattice >& assembledLattices, const Matrix2
     /////// find peaks
     uint32_t maxPeaksToTakeCount = 50;
     sparsePeakFinder_standard.findPeaks_fast(samplePoints, hillClimbingOptimizer.getLastInverseTransformEvaluation());
+
+    ofstream ofs("workfolder/samplePoints", ofstream::out);
+    ofs << samplePoints.transpose().eval();
+
+    ofstream ofs2("workfolder/weights", ofstream::out);
+    ofs2 << hillClimbingOptimizer.getLastInverseTransformEvaluation().transpose().eval();
 
     filterSamplePointsForInverseFunctionEvaluation(samplePoints, hillClimbingOptimizer.getLastInverseTransformEvaluation(), maxPeaksToTakeCount);
 
@@ -122,14 +133,19 @@ void Indexer::index_standard(vector< Lattice >& assembledLattices, const Matrix2
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_peaks);
     hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, samplePoints);
 
+//    ofstream ofs("workfolder/samplePoints", ofstream::out);
+//    ofs << samplePoints.transpose().eval();
+
     /////// assemble lattices
+    latticeAssembler.reset();
+
     LatticeAssembler::accuracyConstants_t accuracyConstants_LatticeAssembler;
     accuracyConstants_LatticeAssembler.maxCountGlobalPassingWeightFilter = 500;
     accuracyConstants_LatticeAssembler.maxCountLocalPassingWeightFilter = 15;
     accuracyConstants_LatticeAssembler.maxCountPassingRelativeDefectFilter = 50;
     accuracyConstants_LatticeAssembler.minPointsOnLattice = 5;
 
-    if (experimentSettings.isLatticeParametersKnown()) {    //TODO: bad design! put tolerance in experiment settings and compute getMinRealLatticeDeterminant_A3 from that!!!
+    if (experimentSettings.isLatticeParametersKnown()) { //TODO: bad design! put tolerance in experiment settings and compute getMinRealLatticeDeterminant_A3 from that!!!
         latticeAssembler.setDeterminantRange(experimentSettings.getRealLatticeDeterminant_A3() * 0.8, experimentSettings.getRealLatticeDeterminant_A3() * 1.2);
     } else {
         latticeAssembler.setDeterminantRange(experimentSettings.getMinRealLatticeDeterminant_A3(), experimentSettings.getMaxRealLatticeDeterminant_A3());
@@ -143,6 +159,10 @@ void Indexer::index_standard(vector< Lattice >& assembledLattices, const Matrix2
     vector< vector< uint16_t > >& pointIndicesOnVector = hillClimbingOptimizer.getPeaksCloseToEvaluationPositions_indices();
     latticeAssembler.assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors,
             candidateVectorWeights, pointIndicesOnVector, reciprocalPeaks_A);
+
+    cout << assembledLatticesStatistics[0].meanDefect << " " << assembledLatticesStatistics[0].meanRelativeDefect << " "
+            << assembledLatticesStatistics[0].occupiedLatticePointsCount << " " << assembledLatticesStatistics.size() << endl << assembledLattices[0].det()
+            << endl;
 }
 
 void Indexer::clearSamplePointsWithLowInverseFunctionEvaluation(Matrix3Xf& samplePoints, RowVectorXf& samplePointsEvaluation, float minFunctionEvaluation)
@@ -166,16 +186,16 @@ void Indexer::filterSamplePointsForInverseFunctionEvaluation(Eigen::Matrix3Xf& s
     sortIndices.resize(samplePointsEvaluation.size());
     iota(sortIndices.begin(), sortIndices.end(), 0);
     nth_element(sortIndices.begin(), sortIndices.begin() + toTakeCount - 1, sortIndices.end(),
-            [&](uint32_t i, uint32_t j) {return samplePointsEvaluation[i]> samplePointsEvaluation[j];});
+            [&](uint32_t i, uint32_t j) {return samplePointsEvaluation[i] > samplePointsEvaluation[j];});
 
     sortIndices.resize(toTakeCount);
     sort(sortIndices.begin(), sortIndices.end(),
-            [&](uint32_t i, uint32_t j) {return samplePointsEvaluation[i]> samplePointsEvaluation[j];});
+            [&](uint32_t i, uint32_t j) {return samplePointsEvaluation[i] > samplePointsEvaluation[j];});
 
     Matrix3Xf samplePoints_filtered(3, toTakeCount);
     RowVectorXf samplePointsEvaluation_filtered(toTakeCount);
     for (uint32_t i = 0; i < toTakeCount; ++i) {
-        samplePoints_filtered.col(i) = samplePoints.col(i);
+        samplePoints_filtered.col(i) = samplePoints.col(sortIndices[i]);
         samplePointsEvaluation_filtered[i] = samplePointsEvaluation[sortIndices[i]];
     }
 

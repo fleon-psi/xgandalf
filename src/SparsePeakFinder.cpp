@@ -30,15 +30,15 @@ void SparsePeakFinder::precompute(float minDistanceBetweenRealPeaks, float maxPo
     this->minDistanceBetweenRealPeaks = minDistanceBetweenRealPeaks;
     this->maxPossiblePointNorm = maxPossiblePointNorm;
 
-    this->minDistanceBetweenRealPeaks_squared = pow(minDistanceBetweenRealPeaks, 2);
+    this->minDistanceBetweenRealPeaks_squared = minDistanceBetweenRealPeaks * minDistanceBetweenRealPeaks;
 
-    binWidth = sqrt(pow(minDistanceBetweenRealPeaks, 2) / 3);   //minDistanceBetweenRealPeaks is diagonal of the cube
+    binWidth = sqrt(minDistanceBetweenRealPeaks * minDistanceBetweenRealPeaks / 3);   //minDistanceBetweenRealPeaks is diagonal of the cube
     binWidth_reciprocal = 1 / binWidth;
 
     binsPerDimension = 2 * ceil(maxPossiblePointNorm / binWidth) + 2 + 1; //+2 for one extra border bin, where nothing should be inside.
-    binCountMinus1 = pow(binsPerDimension, 3) - 1;
+    binCountMinus1 = binsPerDimension * binsPerDimension * binsPerDimension - 1;
     bin1Position.setConstant(-1.0f * binsPerDimension / 2 * binWidth);
-    strides << 1, binsPerDimension, pow(binsPerDimension, 2);
+    strides << 1, binsPerDimension, binsPerDimension * binsPerDimension;
 
     discretizationVolume.resize(binCountMinus1 + 1);
 

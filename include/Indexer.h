@@ -27,8 +27,8 @@ public:
 private:
     void construct();
 
-    void precomputeIndexingStrategy_standard();
-    void precomputeSamplePoints_standard();
+    void precomputeIndexingStrategy_balanced();
+    void precomputeSamplePoints_balanced();
 
     void clearSamplePointsWithLowInverseFunctionEvaluation(Eigen::Matrix3Xf& samplePoints, Eigen::RowVectorXf& samplePointsEvaluation,
             float minFunctionEvaluation);

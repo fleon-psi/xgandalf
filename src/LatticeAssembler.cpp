@@ -343,3 +343,9 @@ void LatticeAssembler::setDeterminantRange(float min, float max)
 {
     this->determinantRange = Vector2f(min, max);
 }
+
+void LatticeAssembler::reset()
+{
+    candidateLattices.clear();
+    validLattices.clear();
+}

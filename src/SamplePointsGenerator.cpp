@@ -64,8 +64,8 @@ void SamplePointsGenerator::getDenseGrid(Matrix3Xf& samplePoints, float unitPitc
     VectorXf xSamples, ySamples, zSamples;
 
     int samplesPerRadius = 1 / unitPitch;
-    float minRadiusSquared = pow(minRadius, 2);
-    float maxRadiusSquared = pow(maxRadius, 2);
+    float minRadiusSquared = minRadius * minRadius;
+    float maxRadiusSquared = maxRadius * maxRadius;
 
     xSamples.setLinSpaced(samplesPerRadius * 2, -maxRadius, maxRadius);
     ySamples.setLinSpaced(samplesPerRadius * 2, -maxRadius, maxRadius);
