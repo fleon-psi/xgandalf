@@ -22,7 +22,7 @@ public:
     Indexer(const ExperimentSettings& experimentSettings);
     Indexer(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath);
 
-    void index_standard(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m);
+    void index_balanced(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m);
 
 private:
     void construct();
@@ -39,7 +39,7 @@ private:
     DetectorToReciprocalSpaceTransform detectorToReciprocalSpaceTransform;
     HillClimbingOptimizer hillClimbingOptimizer;
 
-    Eigen::Matrix3Xf samplePoints_standard;
+    Eigen::Matrix3Xf samplePoints_balanced;
     SparsePeakFinder sparsePeakFinder_standard;
     InverseSpaceTransform inverseSpaceTransform_standard;
     

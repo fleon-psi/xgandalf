@@ -39,13 +39,13 @@ void Indexer::precomputeSamplePoints_balanced()
         float unitPitch = 0.05;
         float tolerance = 0.02;
 
-        samplePointsGenerator.getTightGrid(samplePoints_standard, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
+        samplePointsGenerator.getTightGrid(samplePoints_balanced, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
     } else {
         float unitPitch = 0.05;
         float minRadius = experimentSettings.getMinRealLatticeVectorLength_A() * 0.98;
         float maxRadius = experimentSettings.getMaxRealLatticeVectorLength_A() * 1.02;
 
-        samplePointsGenerator.getDenseGrid(samplePoints_standard, unitPitch, minRadius, maxRadius);
+        samplePointsGenerator.getDenseGrid(samplePoints_balanced, unitPitch, minRadius, maxRadius);
     }
 }
 
@@ -58,13 +58,13 @@ void Indexer::precomputeIndexingStrategy_balanced()
     sparsePeakFinder_standard.precompute(minSpacingBetweenPeaks, maxPossiblePointNorm);
 }
 
-void Indexer::index_standard(vector< Lattice >& assembledLattices, const Matrix2Xf& detectorPeaks_m)
+void Indexer::index_balanced(vector< Lattice >& assembledLattices, const Matrix2Xf& detectorPeaks_m)
 {
-    if (samplePoints_standard.size() == 0) {
+    if (samplePoints_balanced.size() == 0) {
         precomputeSamplePoints_balanced();
     }
 
-    Matrix3Xf samplePoints = samplePoints_standard;
+    Matrix3Xf samplePoints = samplePoints_balanced;
 
     Matrix3Xf reciprocalPeaks_A;
     detectorToReciprocalSpaceTransform.computeReciprocalPeaksFromDetectorPeaks(reciprocalPeaks_A, detectorPeaks_m);
@@ -86,10 +86,13 @@ void Indexer::index_standard(vector< Lattice >& assembledLattices, const Matrix2
     hillClimbing_accuracyConstants_global.stepComputationAccuracyConstants.gamma = 0.65;
     hillClimbing_accuracyConstants_global.stepComputationAccuracyConstants.maxStep = experimentSettings.getDifferentRealLatticeVectorLengths_A().mean() / 20;
     hillClimbing_accuracyConstants_global.stepComputationAccuracyConstants.minStep = experimentSettings.getDifferentRealLatticeVectorLengths_A().mean() / 200;
-    hillClimbing_accuracyConstants_global.stepComputationAccuracyConstants.directionChangeFactor = 2.5;
+    hillClimbing_accuracyConstants_global.stepComputationAccuracyConstants.directionChangeFactor = 1.5;
 
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_global);
     hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, samplePoints);
+
+//    ofstream ofs0("workfolder/weights0", ofstream::out);
+//    ofs0 << hillClimbingOptimizer.getLastInverseTransformEvaluation().transpose().eval();
 
 //    ofstream ofs("workfolder/samplePoints", ofstream::out);
 //    ofs << samplePoints.transpose().eval();
@@ -103,11 +106,8 @@ void Indexer::index_standard(vector< Lattice >& assembledLattices, const Matrix2
     uint32_t maxPeaksToTakeCount = 50;
     sparsePeakFinder_standard.findPeaks_fast(samplePoints, hillClimbingOptimizer.getLastInverseTransformEvaluation());
 
-    ofstream ofs("workfolder/samplePoints", ofstream::out);
-    ofs << samplePoints.transpose().eval();
-
-    ofstream ofs2("workfolder/weights", ofstream::out);
-    ofs2 << hillClimbingOptimizer.getLastInverseTransformEvaluation().transpose().eval();
+//    ofstream ofs("workfolder/samplePoints", ofstream::out);
+//    ofs << samplePoints.transpose().eval();
 
     filterSamplePointsForInverseFunctionEvaluation(samplePoints, hillClimbingOptimizer.getLastInverseTransformEvaluation(), maxPeaksToTakeCount);
 
@@ -132,9 +132,12 @@ void Indexer::index_standard(vector< Lattice >& assembledLattices, const Matrix2
 
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_peaks);
     hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, samplePoints);
-
+    
 //    ofstream ofs("workfolder/samplePoints", ofstream::out);
 //    ofs << samplePoints.transpose().eval();
+
+//    ofstream ofs("workfolder/weights1", ofstream::out);
+//    ofs << hillClimbingOptimizer.getLastInverseTransformEvaluation().transpose().eval();
 
     /////// assemble lattices
     latticeAssembler.reset();
@@ -160,9 +163,9 @@ void Indexer::index_standard(vector< Lattice >& assembledLattices, const Matrix2
     latticeAssembler.assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors,
             candidateVectorWeights, pointIndicesOnVector, reciprocalPeaks_A);
 
-    cout << assembledLatticesStatistics[0].meanDefect << " " << assembledLatticesStatistics[0].meanRelativeDefect << " "
-            << assembledLatticesStatistics[0].occupiedLatticePointsCount << " " << assembledLatticesStatistics.size() << endl << assembledLattices[0].det()
-            << endl;
+//    cout << assembledLatticesStatistics[0].meanDefect << " " << assembledLatticesStatistics[0].meanRelativeDefect << " "
+//            << assembledLatticesStatistics[0].occupiedLatticePointsCount << " " << assembledLatticesStatistics.size() << endl << assembledLattices[0].det()
+//            << endl;
 }
 
 void Indexer::clearSamplePointsWithLowInverseFunctionEvaluation(Matrix3Xf& samplePoints, RowVectorXf& samplePointsEvaluation, float minFunctionEvaluation)

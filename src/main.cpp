@@ -51,10 +51,10 @@ int main()
             vector< Lattice > assembledLattices;
 
             chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-            indexer.index_standard(assembledLattices, detectorPeaks_m);
+            indexer.index_balanced(assembledLattices, detectorPeaks_m);
             chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
             auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
-//            cout << "duration: " << duration << "ms" << endl << endl;
+            cout << "duration: " << duration << "ms" << endl << endl;
 
             ss.str("");
             ss.clear();
