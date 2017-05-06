@@ -8,6 +8,7 @@
 #ifndef TESTS_H_
 #define TESTS_H_
 
+void test_pointAutocorrelation();
 void test_latticeAssembler();
 void test_sparsePeakFinder();
 void test_hillClimbing();

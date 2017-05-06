@@ -22,9 +22,35 @@
 #include "SparsePeakFinder.h"
 #include "LatticeAssembler.h"
 #include "Indexer.h"
+#include "pointAutocorrelation.h"
 
 using namespace std;
 using namespace Eigen;
+
+void test_pointAutocorrelation()
+{
+    Matrix3Xf autocorrelationPoints;
+    VectorXf centerPointIndices;
+    VectorXf shiftedPointIndices;
+    Matrix3Xf points;
+    float maxNormInAutocorrelation = 0.05;
+
+    loadEigenMatrixFromDisk(points, "workfolder/points");
+
+    chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
+    //    getPointAutocorrelation(autocorrelationPoints, points, maxNormInAutocorrelation);
+    getPointAutocorrelation(autocorrelationPoints, centerPointIndices, shiftedPointIndices, points, maxNormInAutocorrelation);
+    chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+    cout << "duration: " << duration << "ms" << endl << endl;
+
+    ofstream out1("workfolder/autocorrelationPoints");
+    out1 << autocorrelationPoints;
+    ofstream out2("workfolder/centerPointIndices");
+    out2 << centerPointIndices;
+    ofstream out3("workfolder/shiftedPointIndices");
+    out3 << shiftedPointIndices;
+}
 
 void test_latticeAssembler()
 {
