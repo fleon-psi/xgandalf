@@ -192,7 +192,7 @@ uint16_t LatticeAssembler::countUniqueColumns(const Matrix3Xf& millerIndices)
 void LatticeAssembler::computeCandidateLattices(Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights,
         vector< vector< uint16_t > >& pointIndicesOnVector)
 {
-//hand-crafted remove-if for three variables. Delete
+    //hand-crafted remove-if for three variables. 
     for (int i = candidateVectors.cols() - 1; i >= 0; i--) {
         if (pointIndicesOnVector[i].size() < accuracyConstants.minPointsOnLattice) {
             pointIndicesOnVector[i] = pointIndicesOnVector.back();
@@ -213,10 +213,6 @@ void LatticeAssembler::computeCandidateLattices(Matrix3Xf& candidateVectors, Row
     for (uint16_t i = 0; i < candidateVectorsCount - 2; ++i) {
         for (uint16_t j = (i + 1); j < candidateVectorsCount - 1; ++j) {
             for (uint16_t k = (j + 1); k < candidateVectorsCount; ++k) {
-                if (i == 14 && j == 21 && k == 49) {  //DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    continue;
-                }
-
                 Lattice latticeToCheck(candidateVectors.col(i), candidateVectors.col(j), candidateVectors.col(k));
 
                 float absDet = abs(latticeToCheck.det());
