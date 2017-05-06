@@ -34,12 +34,13 @@ void test_pointAutocorrelation()
     VectorXf shiftedPointIndices;
     Matrix3Xf points;
     float maxNormInAutocorrelation = 0.05;
+    float minNormInAutocorrelation = 0.02;
 
     loadEigenMatrixFromDisk(points, "workfolder/points");
 
     chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
     //    getPointAutocorrelation(autocorrelationPoints, points, maxNormInAutocorrelation);
-    getPointAutocorrelation(autocorrelationPoints, centerPointIndices, shiftedPointIndices, points, maxNormInAutocorrelation);
+    getPointAutocorrelation(autocorrelationPoints, centerPointIndices, shiftedPointIndices, points, minNormInAutocorrelation, maxNormInAutocorrelation);
     chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
     cout << "duration: " << duration << "ms" << endl << endl;

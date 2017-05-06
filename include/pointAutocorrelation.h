@@ -14,9 +14,9 @@
 // all autocorrelation results will have only half of the possible points, since symmetric points (at x < 0) will be removed
 
 void getPointAutocorrelation(Eigen::Matrix3Xf& autocorrelationPoints, const Eigen::Matrix3Xf& points,
-        float maxNormInAutocorrelation = std::numeric_limits< float >::max());
+        float minNormInAutocorrelation, float maxNormInAutocorrelation);
 
 void getPointAutocorrelation(Eigen::Matrix3Xf& autocorrelationPoints, Eigen::VectorXf& centerPointIndices, Eigen::VectorXf& shiftedPointIndices,
-        const Eigen::Matrix3Xf& points, float maxNormInAutocorrelation = std::numeric_limits< float >::max());
+        const Eigen::Matrix3Xf& points, float minNormInAutocorrelation, float maxNormInAutocorrelation);
 
 #endif /* POINTAUTOCORRELATION_H_ */

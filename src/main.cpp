@@ -33,8 +33,6 @@ ExperimentSettings getExperimentSettingLys();
 
 int main()
 {
-
-
     ExperimentSettings experimentSettings = getExperimentSettingLys();
 
     Indexer indexer(experimentSettings);
