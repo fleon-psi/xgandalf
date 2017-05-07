@@ -40,8 +40,8 @@ private:
     HillClimbingOptimizer hillClimbingOptimizer;
 
     Eigen::Matrix3Xf samplePoints_balanced;
-    SparsePeakFinder sparsePeakFinder_standard;
-    InverseSpaceTransform inverseSpaceTransform_standard;
+    SparsePeakFinder sparsePeakFinder_balanced;
+    InverseSpaceTransform inverseSpaceTransform_balanced;
     
     LatticeAssembler latticeAssembler;
     

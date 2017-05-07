@@ -30,7 +30,7 @@ void getPointAutocorrelation(Matrix3Xf& autocorrelationPoints, const Matrix3Xf& 
         autocorrelationPoints.block(0, autocorrelationPointsCount, 3, addedNodesInIteration) = points.block(0, i + 1, 3, N - i - 1).colwise() - points.col(i);
 
         for (uint32_t j = autocorrelationPointsCount, k = i + 1; j < autocorrelationPointsCount + addedNodesInIteration; ++j, ++k) {
-            if (autocorrelationPoints(0, j) < 0) {
+            if (autocorrelationPoints(2, j) < 0) {
                 autocorrelationPoints.col(j) *= -1;
             }
         }
@@ -70,7 +70,7 @@ void getPointAutocorrelation(Matrix3Xf& autocorrelationPoints, VectorXf& centerP
         autocorrelationPoints.block(0, autocorrelationPointsCount, 3, addedNodesInIteration) = points.block(0, i + 1, 3, N - i - 1).colwise() - points.col(i);
 
         for (uint32_t j = autocorrelationPointsCount, k = i + 1; j < autocorrelationPointsCount + addedNodesInIteration; ++j, ++k) {
-            if (autocorrelationPoints(0, j) >= 0) {
+            if (autocorrelationPoints(2, j) >= 0) {
                 centerPointIndices[j] = i;
                 shiftedPointIndices[j] = k;
             } else {

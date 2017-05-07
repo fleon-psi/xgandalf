@@ -26,9 +26,9 @@ public:
 private:
 
     //fast, but insecure: if point lies out of scope, it gets relocated somewhere inside the scope. Maximum bins per direction is 200;
-    inline uint32_t getIndex(Eigen::Vector3f position)
+    inline uint32_t getIndex(const Eigen::Vector3f& position) const
     {
-        return std::min((uint32_t) ((position - bin1Position) * binWidth_reciprocal).array().floor().matrix().dot(strides), binCountMinus1); //implementation with floor might be faster (bin1Position would have to move by half a bin with)
+        return std::min((uint32_t) ((position - bin1Position) * binWidth_reciprocal).array().floor().matrix().dot(strides), binCountMinus1); //min could be avoided for the price of unsafety
     }
 
     typedef struct {
@@ -37,7 +37,6 @@ private:
     } bin_t;
 
     float minDistanceBetweenRealPeaks;
-    float maxPossiblePointNorm;
 
     float minDistanceBetweenRealPeaks_squared;
 

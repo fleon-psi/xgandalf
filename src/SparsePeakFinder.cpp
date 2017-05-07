@@ -14,7 +14,7 @@ using namespace std;
 using namespace Eigen;
 
 SparsePeakFinder::SparsePeakFinder() :
-        minDistanceBetweenRealPeaks(0), maxPossiblePointNorm(0), minDistanceBetweenRealPeaks_squared(0), binWidth(0),
+        minDistanceBetweenRealPeaks(0), minDistanceBetweenRealPeaks_squared(0), binWidth(0),
                 binWidth_reciprocal(0), binsPerDimension(0), binCountMinus1(0)
 {
     precomputed = false;
@@ -28,7 +28,6 @@ SparsePeakFinder::SparsePeakFinder(float minDistanceBetweenRealPeaks, float maxP
 void SparsePeakFinder::precompute(float minDistanceBetweenRealPeaks, float maxPossiblePointNorm)
 {
     this->minDistanceBetweenRealPeaks = minDistanceBetweenRealPeaks;
-    this->maxPossiblePointNorm = maxPossiblePointNorm;
 
     this->minDistanceBetweenRealPeaks_squared = minDistanceBetweenRealPeaks * minDistanceBetweenRealPeaks;
 

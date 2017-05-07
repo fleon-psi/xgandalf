@@ -11,7 +11,7 @@
 #include <Eigen/Dense> 
 #include <limits>
 
-// all autocorrelation results will have only half of the possible points, since symmetric points (at x < 0) will be removed
+// all autocorrelation results will have only half of the possible points, since symmetric points (at z < 0) will be removed
 
 void getPointAutocorrelation(Eigen::Matrix3Xf& autocorrelationPoints, const Eigen::Matrix3Xf& points,
         float minNormInAutocorrelation, float maxNormInAutocorrelation);

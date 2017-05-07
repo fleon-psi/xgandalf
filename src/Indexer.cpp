@@ -55,7 +55,7 @@ void Indexer::precomputeIndexingStrategy_balanced()
 
     float minSpacingBetweenPeaks = experimentSettings.getDifferentRealLatticeVectorLengths_A().minCoeff() * 0.2;
     float maxPossiblePointNorm = experimentSettings.getDifferentRealLatticeVectorLengths_A().maxCoeff() * 1.2;
-    sparsePeakFinder_standard.precompute(minSpacingBetweenPeaks, maxPossiblePointNorm);
+    sparsePeakFinder_balanced.precompute(minSpacingBetweenPeaks, maxPossiblePointNorm);
 }
 
 void Indexer::index_balanced(vector< Lattice >& assembledLattices, const Matrix2Xf& detectorPeaks_m)
@@ -104,7 +104,7 @@ void Indexer::index_balanced(vector< Lattice >& assembledLattices, const Matrix2
 
     /////// find peaks
     uint32_t maxPeaksToTakeCount = 50;
-    sparsePeakFinder_standard.findPeaks_fast(samplePoints, hillClimbingOptimizer.getLastInverseTransformEvaluation());
+    sparsePeakFinder_balanced.findPeaks_fast(samplePoints, hillClimbingOptimizer.getLastInverseTransformEvaluation());
 
 //    ofstream ofs("workfolder/samplePoints", ofstream::out);
 //    ofs << samplePoints.transpose().eval();
