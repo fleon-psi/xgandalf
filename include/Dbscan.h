@@ -19,6 +19,12 @@ class Dbscan {
 public:
     typedef std::vector< uint32_t > cluster_t;
 
+    //maxEpsilon defines performance. Best performance for maxEpsilon == epsilon. Too small maxEpsilon means very big discretizationVolume
+    Dbscan(float maxEpsilon, float maxPossiblePointNorm);
+
+    void computeClusters(std::vector< cluster_t > clusters, const Eigen::Matrix3Xf points, uint16_t minPoints, float epsilon);
+
+private:
     typedef struct {
         EigenSTL::vector_Vector4f points;  //padded for being fixed size vectorizable
         std::vector< uint32_t > pointIndices;
@@ -29,24 +35,63 @@ public:
         std::vector< bool > visitedAndMemberOfCluster;
     } bin_t;
 
-    //maxEpsilon defines performance. Best performance for maxEpsilon == epsilon. Too small maxEpsilon means very big discretizationVolume
-    Dbscan(float maxEpsilon, float maxPossiblePointNorm);
+    class Neighbour {
+    public:
+        Neighbour(bin_t* bin, uint32_t indexInBin) :
+                bin(bin), indexInBin(indexInBin)
+        {
+        }
 
-    void computeClusters(std::vector< cluster_t > clusters, const Eigen::Matrix3Xf points, uint16_t minPoints, float epsilon);
+        bin_t* bin;
+        uint32_t indexInBin;
 
-private:
+        inline bool isVisited() const
+        {
+            return bin->visited[indexInBin];
+        }
+        inline bool isMemberOfCluster() const
+        {
+            return bin->isMemberOfCluster[indexInBin];
+        }
+        inline uint32_t pointIndex() const
+        {
+            return bin->pointIndices[indexInBin];
+        }
+        inline Eigen::Vector4f point() const
+        {
+            return bin->points[indexInBin];
+        }
+        inline void markVisited()
+        {
+            bin->visited[indexInBin] = true;
+            if (bin->isMemberOfCluster[indexInBin]) {
+                bin->visitedAndMemberOfCluster[indexInBin] = true;
+            }
+        }
+        inline void markIsMemberOfCluster()
+        {
+            bin->isMemberOfCluster[indexInBin] = true;
+            if (bin->visited[indexInBin]) {
+                bin->visitedAndMemberOfCluster[indexInBin] = true;
+            }
+        }
+    };
 
-    void expandCluster(uint32_t point, cluster_t& cluster);
-    uint32_t regionQuery(uint32_t point); //returns neighbours count. Visited neighbours that are members of a cluster are not included in neighbourhood, but counted
+    void expandCluster(cluster_t& cluster, std::vector< Neighbour >& neighbourhood, Neighbour& currentPoint, uint16_t minPoints);
+    uint32_t regionQuery(std::vector< Neighbour >& nieghbourhood, const Neighbour& currentPoint); //returns neighbours count. Visited neighbours that are members of a cluster are not included in neighbourhood, but counted
+
+    float squaredEpsilon;
 
     // for less reallocation
-    std::vector< bin_t* > neighbourhood;
+    std::vector< Neighbour > mainNeighbourhood;
+    std::vector< Neighbour > neighbourNeighbourhood;
 
     //stuff for dicretizationVolume
     float maxEpsilon;
 
     std::vector< bin_t > discretizationVolume;
     std::unordered_set< bin_t* > usedBins;
+    //    std::vector< uint32_t > discretizationVolumeIndex;
 
     int32_t neighbourBinIndexOffsets[27];
 
@@ -57,6 +102,7 @@ private:
     Eigen::Vector3d strides;
 
     void fillDiscretizationVolume(const Eigen::Matrix3Xf& points);
+    void cleanUpDiscretizationVolume();
 
     //fast, but insecure: if point lies out of scope, it gets relocated somewhere inside the scope. 
     inline uint32_t getIndex(const Eigen::Vector3f& position) const

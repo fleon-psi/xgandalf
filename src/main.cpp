@@ -26,6 +26,7 @@
 #include "tests.h"
 #include "pointAutocorrelation.h"
 
+
 using namespace std;
 using namespace Eigen;
 
@@ -33,44 +34,46 @@ ExperimentSettings getExperimentSettingLys();
 
 int main()
 {
-    ExperimentSettings experimentSettings = getExperimentSettingLys();
-
-    Indexer indexer(experimentSettings);
-
-    stringstream ss;
-    int runNumber = 0;
-    try {
-        while (1) {
-            runNumber++;
-
-            Matrix2Xf detectorPeaks_m;
-            ss.str("");
-            ss.clear();
-            ss << "workfolder/detectorPeaks_m__run" << runNumber;
-            loadEigenMatrixFromDisk(detectorPeaks_m, ss.str());
-
-            vector< Lattice > assembledLattices;
-
-            chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-            indexer.index_balanced(assembledLattices, detectorPeaks_m);
-            chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-            auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
-            cout << "duration: " << duration << "ms" << endl << endl;
-
-            ss.str("");
-            ss.clear();
-            ss << "workfolder/lattices__run" << runNumber;
-            ofstream outfile(ss.str());
-            for (uint16_t i = 0; i < assembledLattices.size(); ++i) {
-                outfile << assembledLattices[i] << endl << endl;
-            }
-            outfile.close();
-
-            cout << "runNumber " << runNumber << endl;
-        }
-    } catch (...) {
-        cout << "no more files left";
-    }
+    test_dbscan();
+    
+//    ExperimentSettings experimentSettings = getExperimentSettingLys();
+//
+//    Indexer indexer(experimentSettings);
+//
+//    stringstream ss;
+//    int runNumber = 0;
+//    try {
+//        while (1) {
+//            runNumber++;
+//
+//            Matrix2Xf detectorPeaks_m;
+//            ss.str("");
+//            ss.clear();
+//            ss << "workfolder/detectorPeaks_m__run" << runNumber;
+//            loadEigenMatrixFromDisk(detectorPeaks_m, ss.str());
+//
+//            vector< Lattice > assembledLattices;
+//
+//            chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
+//            indexer.index_balanced(assembledLattices, detectorPeaks_m);
+//            chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+//            auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+//            cout << "duration: " << duration << "ms" << endl << endl;
+//
+//            ss.str("");
+//            ss.clear();
+//            ss << "workfolder/lattices__run" << runNumber;
+//            ofstream outfile(ss.str());
+//            for (uint16_t i = 0; i < assembledLattices.size(); ++i) {
+//                outfile << assembledLattices[i] << endl << endl;
+//            }
+//            outfile.close();
+//
+//            cout << "runNumber " << runNumber << endl;
+//        }
+//    } catch (...) {
+//        cout << "no more files left";
+//    }
 
     return 0;
 }

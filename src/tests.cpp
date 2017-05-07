@@ -27,6 +27,11 @@
 using namespace std;
 using namespace Eigen;
 
+
+void test_dbscan(){
+    
+}
+
 void test_pointAutocorrelation()
 {
     Matrix3Xf autocorrelationPoints;
