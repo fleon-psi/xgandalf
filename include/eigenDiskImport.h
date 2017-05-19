@@ -58,7 +58,7 @@ void loadEigenMatrixFromDisk(Eigen::DenseBase< T >& matrix, std::string path)
     }
 
     Eigen::Array< typename T::RealScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor >
-    tmp = Eigen::Map< Eigen::Array< typename T::RealScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor > >(&numbers[0], rows, cols);
+    tmp = Eigen::Map< Eigen::Array< typename T::RealScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor > >(numbers.data(), rows, cols);
     matrix = tmp;
 }
 
