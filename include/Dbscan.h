@@ -11,7 +11,7 @@
 #include <Eigen/Dense>
 #include <vector>
 #include <ctype.h>
-#include <unordered_set>
+#include <set>
 #include "eigenSTLContainers.h"
 #include "WrongUsageException.h"
 
@@ -26,14 +26,19 @@ public:
 
 private:
     typedef struct {
-        EigenSTL::vector_Vector4f points;  //padded for being fixed size vectorizable
-        std::vector< uint32_t > pointIndices;
+        Eigen::Vector4f point;
+        uint32_t pointIndex;
 
-        //maybe better std::vector< uint8_t >
-        std::vector< bool > visited;
-        std::vector< bool > isMemberOfCluster;
-        std::vector< bool > visitedAndMemberOfCluster;
-    } bin_t;
+        bool visited;
+        bool isMemberOfCluster;
+        bool visitedAndMemberOfCluster;
+
+    public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+                ;
+    } binEntry_t;
+
+    typedef  std::vector< binEntry_t > bin_t;
 
     class Neighbour {
     public:
@@ -47,32 +52,32 @@ private:
 
         inline bool isVisited() const
         {
-            return bin->visited[indexInBin];
+            return (*bin)[indexInBin].visited;
         }
         inline bool isMemberOfCluster() const
         {
-            return bin->isMemberOfCluster[indexInBin];
+            return (*bin)[indexInBin].isMemberOfCluster;
         }
         inline uint32_t pointIndex() const
         {
-            return bin->pointIndices[indexInBin];
+            return (*bin)[indexInBin].pointIndex;
         }
         inline Eigen::Vector4f point() const
         {
-            return bin->points[indexInBin];
+            return (*bin)[indexInBin].point;
         }
         inline void markVisited()
         {
-            bin->visited[indexInBin] = true;
-            if (bin->isMemberOfCluster[indexInBin]) {
-                bin->visitedAndMemberOfCluster[indexInBin] = true;
+            (*bin)[indexInBin].visited = true;
+            if ((*bin)[indexInBin].isMemberOfCluster) {
+                (*bin)[indexInBin].visitedAndMemberOfCluster = true;
             }
         }
         inline void markIsMemberOfCluster()
         {
-            bin->isMemberOfCluster[indexInBin] = true;
-            if (bin->visited[indexInBin]) {
-                bin->visitedAndMemberOfCluster[indexInBin] = true;
+            (*bin)[indexInBin].isMemberOfCluster = true;
+            if ((*bin)[indexInBin].visited) {
+                (*bin)[indexInBin].visitedAndMemberOfCluster = true;
             }
         }
     };
@@ -90,8 +95,7 @@ private:
     float maxEpsilon;
 
     std::vector< bin_t > discretizationVolume;
-    std::unordered_set< bin_t* > usedBins;
-    //    std::vector< uint32_t > discretizationVolumeIndex;
+    std::set< bin_t* > usedBins;
 
     int32_t neighbourBinIndexOffsets[27];
 

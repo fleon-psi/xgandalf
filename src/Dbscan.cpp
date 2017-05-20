@@ -30,17 +30,11 @@ Dbscan::Dbscan(float maxEpsilon, float maxPossiblePointNorm) :
     bin1Position.setConstant(-1.0f * binsPerDimension / 2 * binWidth);
     strides << 1, binsPerDimension, binsPerDimension * binsPerDimension;
 
-    usedBins.reserve(binCount);
-
     discretizationVolume.resize(binCount);
 
     const uint32_t typicalMaxPointsPerBin = 50;
     for (auto& bin : discretizationVolume) {
-        bin.points.reserve(typicalMaxPointsPerBin);
-        bin.pointIndices.reserve(typicalMaxPointsPerBin);
-        bin.visited.reserve(typicalMaxPointsPerBin);
-        bin.isMemberOfCluster.reserve(typicalMaxPointsPerBin);
-        bin.visitedAndMemberOfCluster.reserve(typicalMaxPointsPerBin);
+        bin.reserve(typicalMaxPointsPerBin);
     }
 
     neighbourBinIndexOffsets[0] = 0;
@@ -76,8 +70,8 @@ void Dbscan::computeClusters(vector< cluster_t >& clusters, const Matrix3Xf& poi
 
     for (bin_t* bin_p : usedBins) {
         bin_t& bin = *bin_p;
-        for (uint32_t i = 0; i < bin.points.size(); ++i) {
-            if (bin.visited[i]) {
+        for (uint32_t i = 0; i < bin.size(); ++i) {
+            if (bin[i].visited) {
                 continue;
             }
 
@@ -126,11 +120,11 @@ uint32_t Dbscan::regionQuery(std::vector< Neighbour >& nieghbourhood, const Neig
     const Vector4f& currentPointPos = currentPoint.point();
     for (int neighbourBinIndexOffset : neighbourBinIndexOffsets) {
         bin_t& neighbourBin = *(currentPoint.bin + neighbourBinIndexOffset);
-        for (uint32_t i = 0; i < neighbourBin.points.size(); ++i) {
-            const Vector4f& neighbourPos = neighbourBin.points[i];
+        for (uint32_t i = 0; i < neighbourBin.size(); ++i) {
+            const Vector4f& neighbourPos = neighbourBin[i].point;
             if ((currentPointPos - neighbourPos).squaredNorm() <= squaredEpsilon) {
                 validNeighboursCount++;
-                if (!neighbourBin.visitedAndMemberOfCluster[i]) {
+                if (!neighbourBin[i].visitedAndMemberOfCluster) {
                     nieghbourhood.emplace_back(&neighbourBin, i);
                 }
             }
@@ -144,39 +138,26 @@ void Dbscan::fillDiscretizationVolume(const Eigen::Matrix3Xf& points)
 {
     uint32_t pointsCount = points.cols();
 
-//    discretizationVolumeIndex.resize(pointsCount);
-
     for (uint32_t i = 0; i < pointsCount; ++i) {
         const Vector3f& point = points.col(i);
         const uint32_t index = getIndex(point);
         bin_t& bin = discretizationVolume[index];
 
-        bin.points.emplace_back(point.x(), point.y(), point.z(), 0);
-        bin.pointIndices.push_back(i);
+        bin.emplace_back();
+        auto& entry = bin.back();
+        entry.point = Vector4f(point.x(), point.y(), point.z(), 0);
+        entry.pointIndex = i;
+        entry.visited = false;
+        entry.isMemberOfCluster = false;
+        entry.visitedAndMemberOfCluster = false;
 
         usedBins.insert(&bin);
-//        discretizationVolumeIndex[i] = index;
     }
-
-    for (bin_t* bin_p : usedBins) {
-        bin_t& bin = *bin_p;
-
-        bin.visited.assign(bin.points.size(), false);
-        bin.isMemberOfCluster.assign(bin.points.size(), false);
-        bin.visitedAndMemberOfCluster.assign(bin.points.size(), false);
-    }
-
 }
 
 void Dbscan::cleanUpDiscretizationVolume()
 {
     for (bin_t* bin_p : usedBins) {
-        bin_t& bin = *bin_p;
-
-        bin.points.clear();
-        bin.pointIndices.clear();
-        bin.visited.clear();
-        bin.isMemberOfCluster.clear();
-        bin.visitedAndMemberOfCluster.clear();
+        (*bin_p).clear();
     }
 }
