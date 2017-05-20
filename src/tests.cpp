@@ -23,13 +23,48 @@
 #include "LatticeAssembler.h"
 #include "Indexer.h"
 #include "pointAutocorrelation.h"
+#include "Dbscan.h"
 
 using namespace std;
 using namespace Eigen;
 
+void test_dbscan()
+{
+    Matrix3Xf points;
 
-void test_dbscan(){
-    
+    loadEigenMatrixFromDisk(points, "workfolder/autocorrelationPoints");
+
+    float maxEpsilon = 0.0037;
+    float maxPossiblePointNorm = 1;
+    Dbscan dbscan(maxEpsilon, maxPossiblePointNorm);
+
+    uint16_t minPoints = 2;
+    float epsilon = 0.0037;
+
+    chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
+
+    vector< Dbscan::cluster_t > clusters;
+    dbscan.computeClusters(clusters, points, minPoints, epsilon);
+
+    chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+    cout << "duration: " << duration << "ms" << endl << endl;
+
+    RowVectorXf clusterIndex = RowVectorXf::Zero(points.cols());
+    for (uint32_t i = 0; i < clusters.size(); ++i) {
+        const auto& cluster = clusters[i];
+        for (uint32_t index : cluster) {
+            if (clusterIndex[index] != 0) {
+                cerr << "node belonging to two clusters!";
+            }
+            clusterIndex[index] = i+1;
+        }
+    }
+
+    cout << "clusters found: " << clusters.size();
+
+    ofstream out1("workfolder/clusterIndex");
+    out1 << clusterIndex;
 }
 
 void test_pointAutocorrelation()
