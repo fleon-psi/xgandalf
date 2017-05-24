@@ -168,6 +168,10 @@ void Indexer::index_balanced(vector< Lattice >& assembledLattices, const Matrix2
 //            << endl;
 }
 
+void index_autocorrPrefit(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m){
+    
+}
+
 void Indexer::clearSamplePointsWithLowInverseFunctionEvaluation(Matrix3Xf& samplePoints, RowVectorXf& samplePointsEvaluation, float minFunctionEvaluation)
 {
     uint32_t bigEvaluationSamplePointsCount = 0;

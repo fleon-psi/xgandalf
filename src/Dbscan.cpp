@@ -75,7 +75,7 @@ void Dbscan::computeClusters(vector< cluster_t >& clusters, const Matrix3Xf& poi
                 continue;
             }
 
-            Neighbour currentPoint(bin_p, i);
+            Neighbour currentPoint(bin_p, &bin[i]);
 
             currentPoint.markVisited();
 
@@ -125,7 +125,7 @@ uint32_t Dbscan::regionQuery(std::vector< Neighbour >& nieghbourhood, const Neig
             if ((currentPointPos - neighbourPos).squaredNorm() <= squaredEpsilon) {
                 validNeighboursCount++;
                 if (!neighbourBin[i].visitedAndMemberOfCluster) {
-                    nieghbourhood.emplace_back(&neighbourBin, i);
+                    nieghbourhood.emplace_back(&neighbourBin, &neighbourBin[i]);
                 }
             }
         }

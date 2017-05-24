@@ -23,6 +23,7 @@ public:
     Indexer(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath);
 
     void index_balanced(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m);
+    void index_autocorrPrefit(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m);
 
 private:
     void construct();

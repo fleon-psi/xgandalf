@@ -38,46 +38,46 @@ private:
                 ;
     } binEntry_t;
 
-    typedef  std::vector< binEntry_t > bin_t;
+    typedef std::vector< binEntry_t > bin_t;
 
     class Neighbour {
     public:
-        Neighbour(bin_t* bin, uint32_t indexInBin) :
-                bin(bin), indexInBin(indexInBin)
+        Neighbour(bin_t* bin, binEntry_t* binEntry) :
+                bin(bin), binEntry(binEntry)
         {
         }
 
         bin_t* bin;
-        uint32_t indexInBin;
+        binEntry_t* binEntry;
 
         inline bool isVisited() const
         {
-            return (*bin)[indexInBin].visited;
+            return (*binEntry).visited;
         }
         inline bool isMemberOfCluster() const
         {
-            return (*bin)[indexInBin].isMemberOfCluster;
+            return (*binEntry).isMemberOfCluster;
         }
         inline uint32_t pointIndex() const
         {
-            return (*bin)[indexInBin].pointIndex;
+            return (*binEntry).pointIndex;
         }
         inline Eigen::Vector4f point() const
         {
-            return (*bin)[indexInBin].point;
+            return (*binEntry).point;
         }
         inline void markVisited()
         {
-            (*bin)[indexInBin].visited = true;
-            if ((*bin)[indexInBin].isMemberOfCluster) {
-                (*bin)[indexInBin].visitedAndMemberOfCluster = true;
+            (*binEntry).visited = true;
+            if ((*binEntry).isMemberOfCluster) {
+                (*binEntry).visitedAndMemberOfCluster = true;
             }
         }
         inline void markIsMemberOfCluster()
         {
-            (*bin)[indexInBin].isMemberOfCluster = true;
-            if ((*bin)[indexInBin].visited) {
-                (*bin)[indexInBin].visitedAndMemberOfCluster = true;
+            (*binEntry).isMemberOfCluster = true;
+            if ((*binEntry).visited) {
+                (*binEntry).visitedAndMemberOfCluster = true;
             }
         }
     };
