@@ -131,7 +131,7 @@ vector< vector< uint16_t > >& HillClimbingOptimizer::getPeaksCloseToEvaluationPo
 void HillClimbingOptimizer::computeStep(Matrix3Xf& gradient, RowVectorXf& closeToPeaksCount, RowVectorXf& inverseTransformEvaluation,
         bool useStepOrthogonalization)
 {
-//reuse memory for processing for performance reasons
+    //reuse memory for processing for performance reasons
     Matrix3Xf& stepDirection = gradient;
     RowVectorXf& closeToPeaksFactor = closeToPeaksCount;
     RowVectorXf& functionEvaluationFactor = inverseTransformEvaluation;

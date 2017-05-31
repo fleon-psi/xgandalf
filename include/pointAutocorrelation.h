@@ -16,7 +16,7 @@
 void getPointAutocorrelation(Eigen::Matrix3Xf& autocorrelationPoints, const Eigen::Matrix3Xf& points,
         float minNormInAutocorrelation, float maxNormInAutocorrelation);
 
-void getPointAutocorrelation(Eigen::Matrix3Xf& autocorrelationPoints, Eigen::VectorXf& centerPointIndices, Eigen::VectorXf& shiftedPointIndices,
+void getPointAutocorrelation(Eigen::Matrix3Xf& autocorrelationPoints, Eigen::VectorXi& centerPointIndices, Eigen::VectorXi& shiftedPointIndices,
         const Eigen::Matrix3Xf& points, float minNormInAutocorrelation, float maxNormInAutocorrelation);
 
 #endif /* POINTAUTOCORRELATION_H_ */

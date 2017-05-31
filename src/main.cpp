@@ -34,7 +34,7 @@ ExperimentSettings getExperimentSettingLys();
 
 int main()
 {
-    test_dbscan();
+    test_hillClimbing();
     
 //    ExperimentSettings experimentSettings = getExperimentSettingLys();
 //

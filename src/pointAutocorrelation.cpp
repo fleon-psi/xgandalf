@@ -48,7 +48,7 @@ void getPointAutocorrelation(Matrix3Xf& autocorrelationPoints, const Matrix3Xf& 
     autocorrelationPoints.conservativeResize(3, autocorrelationPointsCount);
 }
 
-void getPointAutocorrelation(Matrix3Xf& autocorrelationPoints, VectorXf& centerPointIndices, VectorXf& shiftedPointIndices,
+void getPointAutocorrelation(Matrix3Xf& autocorrelationPoints, VectorXi& centerPointIndices, VectorXi& shiftedPointIndices,
         const Matrix3Xf& points, float minNormInAutocorrelation, float maxNormInAutocorrelation)
 {
     uint32_t N = points.cols();

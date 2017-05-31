@@ -57,7 +57,7 @@ void test_dbscan()
             if (clusterIndex[index] != 0) {
                 cerr << "node belonging to two clusters!";
             }
-            clusterIndex[index] = i+1;
+            clusterIndex[index] = i + 1;
         }
     }
 
@@ -70,8 +70,8 @@ void test_dbscan()
 void test_pointAutocorrelation()
 {
     Matrix3Xf autocorrelationPoints;
-    VectorXf centerPointIndices;
-    VectorXf shiftedPointIndices;
+    VectorXi centerPointIndices;
+    VectorXi shiftedPointIndices;
     Matrix3Xf points;
     float maxNormInAutocorrelation = 0.05;
     float minNormInAutocorrelation = 0.02;
@@ -187,7 +187,7 @@ void test_hillClimbing()
     samplePointsGenerator.getTightGrid(positionsToOptimize, unitPitch, tolerance, radii);
     loadEigenMatrixFromDisk(pointsToTransform, "workfolder/positionsToTransform");
 
-    positionsToOptimize = positionsToOptimize.col(0).eval();
+//    positionsToOptimize = positionsToOptimize.col(0).eval();
 
     HillClimbingOptimizer optimizer;
 
@@ -210,7 +210,11 @@ void test_hillClimbing()
     hillClimbingOptimizer_accuracyConstants.stepComputationAccuracyConstants.gamma = 0.650000000000000;
     optimizer.setHillClimbingAccuracyConstants(hillClimbingOptimizer_accuracyConstants);
 
+    chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
     optimizer.performOptimization(pointsToTransform, positionsToOptimize);
+    chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+    cout << "duration: " << duration << "ms" << endl;
 
     std::ofstream ofs("workfolder/optimizedPoints", std::ofstream::out);
     ofs << positionsToOptimize.transpose().eval();

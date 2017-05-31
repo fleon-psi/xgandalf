@@ -62,7 +62,7 @@ void InverseSpaceTransform::performTransform(const Matrix3Xf& positionsToEvaluat
 //    cout << slope << endl << endl << functionEvaluation << endl << endl << fullGradient << endl << endl;
 
     gradient = (pointsToTransform.array().rowwise() * pointsToTransformWeights.array()).matrix() * slope.matrix();
-    inverseTransformEvaluation = pointsToTransformWeights * functionEvaluation.matrix() * (1 / inverseTransformEvaluationScalingFactor);
+    inverseTransformEvaluation = pointsToTransformWeights * functionEvaluation.matrix() * inverseTransformEvaluationScalingFactor;
 
     if (closeToPoint.rows() <= 255) {
         closeToPointsCount = closeToPoint.matrix().cast< uint8_t >().colwise().sum().cast< float >();
@@ -286,7 +286,7 @@ void InverseSpaceTransform::update_pointsToTransformWeights()
     } else {
         pointsToTransformWeights = pointsToTransformWeights_userPreset;
     }
-    inverseTransformEvaluationScalingFactor = pointsToTransformWeights.sum();
+    inverseTransformEvaluationScalingFactor = 1 / pointsToTransformWeights.sum();
 }
 
 void InverseSpaceTransform::setFunctionSelection(int functionSelection)
