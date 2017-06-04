@@ -94,13 +94,13 @@ static inline void function1(const ArrayXXf& x, ArrayXXf& functionEvaluation, Ar
     assert((int )optionalFunctionArgument % 2 != 0); // An even optionanFunctionArgument does not make sense with this function.
 
     if (optionalFunctionArgument == 1) {
-        functionEvaluation = cos(2 * M_PI * x);
-        slope = -sin(2 * M_PI * x);
+        functionEvaluation = cos(x * (2 * M_PI));
+        slope = -sin(x * (2 * M_PI));
     } else {
-        functionEvaluation = pow(cos(2 * M_PI * x), (int) optionalFunctionArgument);    //can be faster using manual pow for integer exponent!
+        functionEvaluation = pow(cos(x * (2 * M_PI)), (int) optionalFunctionArgument);    //can be faster using manual pow for integer exponent!
         float n = optionalFunctionArgument;
         float scaling = pow(n, n / 2) / pow((n - 1), (int) (n - 1) / 2);
-        slope = -scaling * sin(2 * M_PI * x) * pow(cos(2 * M_PI * x), (int) (n - 1));
+        slope = -scaling * sin(x * (2 * M_PI)) * pow(cos(x * (2 * M_PI)), (int) (n - 1));
     }
 }
 

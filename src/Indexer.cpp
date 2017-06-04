@@ -30,10 +30,10 @@ Indexer::Indexer(const ExperimentSettings& experimentSettings, const string& pre
 void Indexer::construct()
 {
     precomputeIndexingStrategy_balanced();
+    precomputeIndexingStrategy_autocorrPrefit();
 }
 
-void Indexer::precomputeSamplePoints_balanced()
-
+void Indexer::precomputeIndexingStrategy_balanced()
 {
     if (experimentSettings.isLatticeParametersKnown()) {
         float unitPitch = 0.05;
@@ -47,11 +47,6 @@ void Indexer::precomputeSamplePoints_balanced()
 
         samplePointsGenerator.getDenseGrid(samplePoints_balanced, unitPitch, minRadius, maxRadius);
     }
-}
-
-void Indexer::precomputeIndexingStrategy_balanced()
-{
-    precomputeSamplePoints_balanced();
 
     float minSpacingBetweenPeaks = experimentSettings.getDifferentRealLatticeVectorLengths_A().minCoeff() * 0.2;
     float maxPossiblePointNorm = experimentSettings.getDifferentRealLatticeVectorLengths_A().maxCoeff() * 1.2;
@@ -61,7 +56,7 @@ void Indexer::precomputeIndexingStrategy_balanced()
 void Indexer::index_balanced(vector< Lattice >& assembledLattices, const Matrix2Xf& detectorPeaks_m)
 {
     if (samplePoints_balanced.size() == 0) {
-        precomputeSamplePoints_balanced();
+        precomputeIndexingStrategy_balanced();
     }
 
     Matrix3Xf samplePoints = samplePoints_balanced;
@@ -132,7 +127,7 @@ void Indexer::index_balanced(vector< Lattice >& assembledLattices, const Matrix2
 
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_peaks);
     hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, samplePoints);
-    
+
 //    ofstream ofs("workfolder/samplePoints", ofstream::out);
 //    ofs << samplePoints.transpose().eval();
 
@@ -168,7 +163,32 @@ void Indexer::index_balanced(vector< Lattice >& assembledLattices, const Matrix2
 //            << endl;
 }
 
-void index_autocorrPrefit(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m){
+void Indexer::precomputeIndexingStrategy_autocorrPrefit()
+{
+    if (experimentSettings.isLatticeParametersKnown()) {
+        float unitPitch = 0.05;
+        float tolerance = 0.02;
+
+        samplePointsGenerator.getTightGrid(samplePoints_autocorrPrefit, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
+    } else {
+        float unitPitch = 0.05;
+        float minRadius = experimentSettings.getMinRealLatticeVectorLength_A() * 0.98;
+        float maxRadius = experimentSettings.getMaxRealLatticeVectorLength_A() * 1.02;
+
+        samplePointsGenerator.getDenseGrid(samplePoints_autocorrPrefit, unitPitch, minRadius, maxRadius);
+    }
+
+    float minSpacingBetweenPeaks = experimentSettings.getDifferentRealLatticeVectorLengths_A().minCoeff() * 0.2;
+    float maxPossiblePointNorm = experimentSettings.getDifferentRealLatticeVectorLengths_A().maxCoeff() * 1.2;
+    sparsePeakFinder_autocorrPrefit.precompute(minSpacingBetweenPeaks, maxPossiblePointNorm);
+}
+
+void Indexer::index_autocorrPrefit(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m)
+{
+    if (samplePoints_autocorrPrefit.size() == 0) {
+        precomputeIndexingStrategy_autocorrPrefit();
+    }
+    
     
 }
 

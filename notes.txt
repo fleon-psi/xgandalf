@@ -13,5 +13,3 @@ Optimize for Eigens lazy evaluation:
 http://eigen.tuxfamily.org/dox/TopicWritingEfficientProductExpression.html
 
 
-
-für closeToPeaks sollte weightening berücksichtigt werden

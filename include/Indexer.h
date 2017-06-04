@@ -29,11 +29,13 @@ private:
     void construct();
 
     void precomputeIndexingStrategy_balanced();
-    void precomputeSamplePoints_balanced();
+    void precomputeIndexingStrategy_autocorrPrefit();
 
     void clearSamplePointsWithLowInverseFunctionEvaluation(Eigen::Matrix3Xf& samplePoints, Eigen::RowVectorXf& samplePointsEvaluation,
             float minFunctionEvaluation);
     void filterSamplePointsForInverseFunctionEvaluation(Eigen::Matrix3Xf& samplePoints, Eigen::RowVectorXf& samplePointsEvaluation, uint32_t maxToTakeCount);
+
+    void autocorrPrefit(Eigen::Matrix3Xf& reciprocalPeaks_A, Eigen::Matrix3Xf& samplePoints);
 
     ExperimentSettings experimentSettings;
     SamplePointsGenerator samplePointsGenerator;
@@ -42,16 +44,13 @@ private:
 
     Eigen::Matrix3Xf samplePoints_balanced;
     SparsePeakFinder sparsePeakFinder_balanced;
-    InverseSpaceTransform inverseSpaceTransform_balanced;
-    
+    Eigen::Matrix3Xf samplePoints_autocorrPrefit;
+    SparsePeakFinder sparsePeakFinder_autocorrPrefit;
+
     LatticeAssembler latticeAssembler;
-    
+
     //just for less reallocation
     std::vector< uint32_t > sortIndices;  //to avoid frequent reallocation
-
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        ;
 };
 
 #endif /* INDEXER_H_ */
