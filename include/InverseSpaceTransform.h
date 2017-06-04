@@ -56,7 +56,7 @@ private:
     Eigen::RowVectorXf pointsToTransformWeights;
 
     accuracyConstants_t accuracyConstants;
-    
+
     //output 
     Eigen::Matrix3Xf gradient;
     Eigen::RowVectorXf inverseTransformEvaluation;
@@ -72,10 +72,6 @@ private:
     float inverseTransformEvaluationScalingFactor;
 
     bool resultsUpToDate;
-
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        ;
 };
 
 #endif /* INVERSESPACETRANSFORM_H_ */

@@ -49,7 +49,7 @@ public:
 
 public:
     void setStepComputationAccuracyConstants(stepComputationAccuracyConstants_t stepComputationAccuracyConstants);
-    
+
     //watch out! gradient, closeToPeaksCount and inverseTransformEvaluation are changed in this function (for performance reasons)!
     void computeStep(Eigen::Matrix3Xf& gradient, Eigen::RowVectorXf& closeToPeaksCount, Eigen::RowVectorXf& inverseTransformEvaluation,
             bool useStepOrthogonalization);
@@ -66,10 +66,6 @@ public:
     Eigen::Array< float, 1, Eigen::Dynamic > previousStepLength;
 
     Eigen::RowVectorXf lastInverseTransformEvaluation;
-
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        ;
 };
 
 #endif /* HILLCLIMBINGOPTIMIZER_H_ */
