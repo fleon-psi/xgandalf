@@ -143,8 +143,8 @@ void HillClimbingOptimizer::computeStep(Matrix3Xf& gradient, RowVectorXf& closeT
 //    cout << "dirChange " << endl << directionChange << endl << endl;
 
     Array< float, 1, Dynamic > stepDirectionFactor = ((directionChange + 1) / 2).square().square() * 1.5 + 0.5;   //directionChange in [-1 1]   
-    closeToPeaksFactor = (-1 * closeToPeaksCount.array() + 0.8).square() * 6 + 0.5;   //closeToPeaks in [0 1]
-    functionEvaluationFactor = ((-1 * inverseTransformEvaluation.array() + 0.8) / 2).cube() * 4 + 0.3;   //functionEvaluation in [-1 1]
+    closeToPeaksFactor = (closeToPeaksCount.array() * (-1) + 0.8).square() * 6 + 0.5;   //closeToPeaks in [0 1]
+    functionEvaluationFactor = ((inverseTransformEvaluation.array() * (-1) + 0.8) / 2).cube() * 4 + 0.3;   //functionEvaluation in [-1 1]
 //    cout << stepDirectionFactor << endl << endl << closeToPeaksFactor << endl << endl << functionEvaluationFactor << endl;
 
 //    cout << "stepDirection " << endl << stepDirection << endl << endl;
