@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <numeric> 
 #include <fstream>
+#include <eigenSTLContainers.h>
 
 using namespace Eigen;
 using namespace std;
@@ -93,7 +94,7 @@ void Indexer::index_balanced(vector< Lattice >& assembledLattices, const Matrix2
 //    ofs << samplePoints.transpose().eval();
 
 /////// keep only big values 
-    float minFunctionEvaluation = 0.65; // TODO: can be much lower, since C++ peak finder is much faster than Matlab peak finder. especially needed for multiple lattices
+    float minFunctionEvaluation = 0.4; // can be much lower than in Matlab since C++ peak finder is much faster than Matlab peak finder. especially needed for multiple lattices
     RowVectorXf& samplePointsEvaluation = hillClimbingOptimizer.getLastInverseTransformEvaluation();
     clearSamplePointsWithLowInverseFunctionEvaluation(samplePoints, samplePointsEvaluation, minFunctionEvaluation);
 
@@ -153,7 +154,7 @@ void Indexer::index_balanced(vector< Lattice >& assembledLattices, const Matrix2
 
     vector< LatticeAssembler::assembledLatticeStatistics_t > assembledLatticesStatistics;
     Matrix3Xf& candidateVectors = samplePoints;
-    RowVectorXf& candidateVectorWeights = hillClimbingOptimizer.getLastInverseTransformEvaluation();
+    RowVectorXf& candidateVectorWeights = hillClimbingOptimizer.getLastInverseTransformEvaluation(); //TODO: FEHLER!!! u.U. falsche radial weightening und local transform flag!!
     vector< vector< uint16_t > >& pointIndicesOnVector = hillClimbingOptimizer.getPeaksCloseToEvaluationPositions_indices();
     latticeAssembler.assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors,
             candidateVectorWeights, pointIndicesOnVector, reciprocalPeaks_A);
@@ -161,6 +162,67 @@ void Indexer::index_balanced(vector< Lattice >& assembledLattices, const Matrix2
 //    cout << assembledLatticesStatistics[0].meanDefect << " " << assembledLatticesStatistics[0].meanRelativeDefect << " "
 //            << assembledLatticesStatistics[0].occupiedLatticePointsCount << " " << assembledLatticesStatistics.size() << endl << assembledLattices[0].det()
 //            << endl;
+}
+
+void Indexer::getGoodAutocorrelationPoints(Matrix3Xf& goodAutocorrelationPoints, RowVectorXf& goodAutocorrelationPointWeights, const Matrix3Xf& points,
+        uint32_t maxAutocorrelationPointsCount)
+{
+    Matrix3Xf autocorrelationPoints;
+
+    getPointAutocorrelation(autocorrelationPoints, points, minNormInAutocorrelation_autocorrPrefit, maxNormInAutocorrelation_autocorrPrefit);
+
+    vector< Dbscan::cluster_t >& clusters;
+    uint16_t minPoints = 2;
+    dbscan_autocorrPrefit.computeClusters(clusters, autocorrelationPoints, minPoints, dbscanEpsilon_autocorrPrefit);
+
+    sort(clusters.begin(), clusters.end(), [&](const Dbscan::cluster_t& i, const Dbscan::cluster_t& j) {return i.size() > j.size();});
+
+    Array< uint8_t, 1, Dynamic > autocorrelationPointIsInCluster(autocorrelationPoints.count());
+    for (auto& cluster : clusters) {
+        for (uint32_t index : cluster) {
+            autocorrelationPointIsInCluster[index] = 1;
+        }
+    }
+    uint32_t pointsOutsideOfClustersCount = autocorrelationPointIsInCluster.size() - autocorrelationPointIsInCluster.sum();
+
+    goodAutocorrelationPoints.resize(3, min(pointsOutsideOfClustersCount + (uint32_t) clusters.size(), maxAutocorrelationPointsCount));
+
+    uint32_t goodAutocorrelationPointsCount = 0;
+
+    uint32_t clusterMeansToTakeCount = min((uint32_t) goodAutocorrelationPoints.size(), (uint32_t) clusters.size());
+    for (; goodAutocorrelationPointsCount < clusterMeansToTakeCount; ++goodAutocorrelationPointsCount) {
+        Array3f sum(0, 0, 0);
+        for (uint32_t index : clusters[goodAutocorrelationPointsCount]) {
+            sum += autocorrelationPointIsInCluster.col(index);
+        }
+        Array3f mean = sum / clusters[goodAutocorrelationPointsCount].size();
+
+        goodAutocorrelationPoints.col(goodAutocorrelationPointsCount) = mean;
+        goodAutocorrelationPointWeights[goodAutocorrelationPointsCount] = clusters[goodAutocorrelationPointsCount].size();
+    }
+
+    uint32_t pointsOutsideOfClustersToTakeCount = goodAutocorrelationPoints.cols() - goodAutocorrelationPointsCount;
+    if (pointsOutsideOfClustersToTakeCount == 0) {
+        return;
+    }
+
+    EigenSTL::vector_Vector3f pointsOutsideOfClusters;
+    pointsOutsideOfClusters.reserve(pointsOutsideOfClustersCount);
+    for (int i = 0; i < autocorrelationPoints.size(); ++i) {
+        if (!autocorrelationPointIsInCluster[i]) {
+            pointsOutsideOfClusters.push_back(autocorrelationPoints.col(i));
+        }
+    }
+
+    nth_element(pointsOutsideOfClusters.begin(), pointsOutsideOfClusters.begin() + pointsOutsideOfClustersToTakeCount, pointsOutsideOfClusters.end(),
+            [&](const Vector3f& i, const Vector3f& j) {return i.squaredNorm() < j.squaredNorm();});
+
+    for (int i = 0; i < pointsOutsideOfClustersToTakeCount; ++i, ++goodAutocorrelationPointsCount) {
+        goodAutocorrelationPoints.col(goodAutocorrelationPointsCount) = pointsOutsideOfClusters[i];
+        goodAutocorrelationPointWeights[goodAutocorrelationPointsCount] = 1;
+    }
+
+    goodAutocorrelationPointWeights.array().cube().sqrt(); //weighten bigger clusters more
 }
 
 void Indexer::precomputeIndexingStrategy_autocorrPrefit()
@@ -178,9 +240,41 @@ void Indexer::precomputeIndexingStrategy_autocorrPrefit()
         samplePointsGenerator.getDenseGrid(samplePoints_autocorrPrefit, unitPitch, minRadius, maxRadius);
     }
 
-    float minSpacingBetweenPeaks = experimentSettings.getDifferentRealLatticeVectorLengths_A().minCoeff() * 0.2;
+    maxNormInAutocorrelation_autocorrPrefit = experimentSettings.getMaxReciprocalLatticeVectorLength_1A() * 5;
+    minNormInAutocorrelation_autocorrPrefit = experimentSettings.getMinReciprocalLatticeVectorLength_1A() * 0.7;
+    dbscanEpsilon_autocorrPrefit = experimentSettings.getMinReciprocalLatticeVectorLength_1A() * 0.15;
+    dbscan_autocorrPrefit = Dbscan(dbscanEpsilon_autocorrPrefit, maxNormInAutocorrelation_autocorrPrefit);
+
+    float minSpacingBetweenPeaks = experimentSettings.getDifferentRealLatticeVectorLengths_A().minCoeff() * 0.3;
     float maxPossiblePointNorm = experimentSettings.getDifferentRealLatticeVectorLengths_A().maxCoeff() * 1.2;
     sparsePeakFinder_autocorrPrefit.precompute(minSpacingBetweenPeaks, maxPossiblePointNorm);
+    
+    maxCloseToPeakDeviation_autocorrPrefit = 0.15;
+    inverseSpaceTransform_autocorrPrefit = InverseSpaceTransform(maxCloseToPeakDeviation_autocorrPrefit);
+}
+
+void Indexer::autocorrPrefit(const Matrix3Xf& reciprocalPeaks_A, Matrix3Xf& samplePoints,
+        HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_autocorr)
+{
+    Matrix3Xf autocorrelationPeaks;
+    RowVectorXf autocorrelationPointWeights;
+
+    float maxAutocorrelationPointsCount = 20;
+
+    getGoodAutocorrelationPoints(autocorrelationPeaks, autocorrelationPointWeights, reciprocalPeaks_A, maxAutocorrelationPointsCount);
+
+    if (autocorrelationPeaks.cols() < 5) {
+        return;
+    }
+
+    hillClimbing_accuracyConstants_autocorr.functionSelection = 1;
+    hillClimbing_accuracyConstants_autocorr.optionalFunctionArgument = 1;
+    hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_autocorr);
+    hillClimbingOptimizer.performOptimization(autocorrelationPeaks, samplePoints);
+
+    Matrix3Xf peakPositions_11 = samplePoints;
+    RowVectorXf peakValues_11 = hillClimbingOptimizer.getLastInverseTransformEvaluation();
+    sparsePeakFinder_autocorrPrefit.findPeaks_fast(peakPositions_11, peakValues_11);
 }
 
 void Indexer::index_autocorrPrefit(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m)
@@ -188,8 +282,7 @@ void Indexer::index_autocorrPrefit(std::vector< Lattice >& assembledLattices, co
     if (samplePoints_autocorrPrefit.size() == 0) {
         precomputeIndexingStrategy_autocorrPrefit();
     }
-    
-    
+
 }
 
 void Indexer::clearSamplePointsWithLowInverseFunctionEvaluation(Matrix3Xf& samplePoints, RowVectorXf& samplePointsEvaluation, float minFunctionEvaluation)

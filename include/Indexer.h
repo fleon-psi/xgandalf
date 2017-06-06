@@ -35,19 +35,31 @@ private:
             float minFunctionEvaluation);
     void filterSamplePointsForInverseFunctionEvaluation(Eigen::Matrix3Xf& samplePoints, Eigen::RowVectorXf& samplePointsEvaluation, uint32_t maxToTakeCount);
 
-    void autocorrPrefit(Eigen::Matrix3Xf& reciprocalPeaks_A, Eigen::Matrix3Xf& samplePoints);
+    void getGoodAutocorrelationPoints(Eigen::Matrix3Xf& goodAutocorrelationPoints, Eigen::RowVectorXf& goodAutocorrelationPointWeights,
+            const Eigen::Matrix3Xf& points, uint32_t maxAutocorrelationPointsCount);
+    void autocorrPrefit(const Eigen::Matrix3Xf& reciprocalPeaks_A, Eigen::Matrix3Xf& samplePoints,
+            HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_autocorr);
 
     ExperimentSettings experimentSettings;
     SamplePointsGenerator samplePointsGenerator;
     DetectorToReciprocalSpaceTransform detectorToReciprocalSpaceTransform;
     HillClimbingOptimizer hillClimbingOptimizer;
 
+    LatticeAssembler latticeAssembler;
+
+    //for balanced
     Eigen::Matrix3Xf samplePoints_balanced;
     SparsePeakFinder sparsePeakFinder_balanced;
+
+    //for autocorr prefit
+    float maxCloseToPeakDeviation_autocorrPrefit;
+    float maxNormInAutocorrelation_autocorrPrefit;
+    float minNormInAutocorrelation_autocorrPrefit;
+    float dbscanEpsilon_autocorrPrefit;
+    Dbscan dbscan_autocorrPrefit;
     Eigen::Matrix3Xf samplePoints_autocorrPrefit;
     SparsePeakFinder sparsePeakFinder_autocorrPrefit;
-
-    LatticeAssembler latticeAssembler;
+    InverseSpaceTransform inverseSpaceTransform_autocorrPrefit;
 
     //just for less reallocation
     std::vector< uint32_t > sortIndices;  //to avoid frequent reallocation
