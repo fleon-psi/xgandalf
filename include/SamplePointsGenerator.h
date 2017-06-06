@@ -24,10 +24,6 @@ private:
     std::string precomputedSamplePointsPath;
 
     void loadPrecomputedSamplePoints(Eigen::Matrix3Xf& samplePoints, float unitPitch, float tolerance);
-
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        ;
 };
 
 #endif /* SAMPLEPOINTSGENERATOR_H_ */
