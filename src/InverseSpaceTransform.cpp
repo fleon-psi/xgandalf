@@ -72,8 +72,6 @@ void InverseSpaceTransform::performTransform(const Matrix3Xf& positionsToEvaluat
 //    cout << gradient << endl << endl << inverseTransformEvaluation << endl << endl << closeToPeak << endl << endl;
 
     if (accuracyConstants.localTransform) {
-//        gradient = gradient.array().rowwise() / closeToPeaksCount.array();
-//        gradient = (gradient.array() == 0).select(fullGradient * pointsToTransformCount_inverse, gradient);
         for (int i = 0; i < closeToPointsCount.size(); i++) {
             gradient.col(i) =
                     (closeToPointsCount(i) != 0) ? (gradient.col(i) * (1.0f / closeToPointsCount(i))) : (fullGradient.col(i) * pointsToTransformCount_inverse);
