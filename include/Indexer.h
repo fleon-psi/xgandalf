@@ -16,6 +16,7 @@
 #include "DetectorToReciprocalSpaceTransform.h"
 #include "HillClimbingOptimizer.h"
 #include "SparsePeakFinder.h"
+#include "Dbscan.h"
 
 class Indexer {
 public:

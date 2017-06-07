@@ -12,9 +12,20 @@
 using namespace std;
 using namespace Eigen;
 
-Dbscan::Dbscan(float maxEpsilon, float maxPossiblePointNorm) :
-        squaredEpsilon(0), maxEpsilon(maxEpsilon)
+Dbscan::Dbscan() :
+        squaredEpsilon(0),maxEpsilon(0),binWidth(0), binWidth_reciprocal(0),binsPerDimension(0),binCount(0),binCountMinus1(0)
 {
+}
+
+Dbscan::Dbscan(float maxEpsilon, float maxPossiblePointNorm)
+{
+    init(maxEpsilon, maxPossiblePointNorm);
+}
+
+void Dbscan::init(float maxEpsilon, float maxPossiblePointNorm)
+{
+    this->maxEpsilon = maxEpsilon;
+
     if (2 * ceil(maxPossiblePointNorm / maxEpsilon) + 2 + 1) {
         cout << "dbscan histogram would take too much memory! Reducing performance in trade of memory!" << endl << endl;
         this->maxEpsilon = maxPossiblePointNorm / 50;

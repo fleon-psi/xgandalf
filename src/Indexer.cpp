@@ -11,6 +11,7 @@
 #include <numeric> 
 #include <fstream>
 #include <eigenSTLContainers.h>
+#include "pointAutocorrelation.h"
 
 using namespace Eigen;
 using namespace std;
@@ -94,9 +95,9 @@ void Indexer::index_balanced(vector< Lattice >& assembledLattices, const Matrix2
 //    ofs << samplePoints.transpose().eval();
 
 /////// keep only big values 
-    float minFunctionEvaluation = 0.4; // can be much lower than in Matlab since C++ peak finder is much faster than Matlab peak finder. especially needed for multiple lattices
-    RowVectorXf& samplePointsEvaluation = hillClimbingOptimizer.getLastInverseTransformEvaluation();
-    clearSamplePointsWithLowInverseFunctionEvaluation(samplePoints, samplePointsEvaluation, minFunctionEvaluation);
+//    float minFunctionEvaluation = 0.55; //not needed here, since C++ peak finder is much faster than Matlab peak finder.
+//    RowVectorXf& samplePointsEvaluation = hillClimbingOptimizer.getLastInverseTransformEvaluation();
+//    clearSamplePointsWithLowInverseFunctionEvaluation(samplePoints, samplePointsEvaluation, minFunctionEvaluation);
 
     /////// find peaks
     uint32_t maxPeaksToTakeCount = 50;
@@ -171,7 +172,7 @@ void Indexer::getGoodAutocorrelationPoints(Matrix3Xf& goodAutocorrelationPoints,
 
     getPointAutocorrelation(autocorrelationPoints, points, minNormInAutocorrelation_autocorrPrefit, maxNormInAutocorrelation_autocorrPrefit);
 
-    vector< Dbscan::cluster_t >& clusters;
+    vector< Dbscan::cluster_t > clusters;
     uint16_t minPoints = 2;
     dbscan_autocorrPrefit.computeClusters(clusters, autocorrelationPoints, minPoints, dbscanEpsilon_autocorrPrefit);
 
@@ -191,11 +192,11 @@ void Indexer::getGoodAutocorrelationPoints(Matrix3Xf& goodAutocorrelationPoints,
 
     uint32_t clusterMeansToTakeCount = min((uint32_t) goodAutocorrelationPoints.size(), (uint32_t) clusters.size());
     for (; goodAutocorrelationPointsCount < clusterMeansToTakeCount; ++goodAutocorrelationPointsCount) {
-        Array3f sum(0, 0, 0);
+        Vector3f sum(0, 0, 0);
         for (uint32_t index : clusters[goodAutocorrelationPointsCount]) {
-            sum += autocorrelationPointIsInCluster.col(index);
+            sum += autocorrelationPoints.col(index);
         }
-        Array3f mean = sum / clusters[goodAutocorrelationPointsCount].size();
+        Vector3f mean = sum / clusters[goodAutocorrelationPointsCount].size();
 
         goodAutocorrelationPoints.col(goodAutocorrelationPointsCount) = mean;
         goodAutocorrelationPointWeights[goodAutocorrelationPointsCount] = clusters[goodAutocorrelationPointsCount].size();
@@ -217,7 +218,7 @@ void Indexer::getGoodAutocorrelationPoints(Matrix3Xf& goodAutocorrelationPoints,
     nth_element(pointsOutsideOfClusters.begin(), pointsOutsideOfClusters.begin() + pointsOutsideOfClustersToTakeCount, pointsOutsideOfClusters.end(),
             [&](const Vector3f& i, const Vector3f& j) {return i.squaredNorm() < j.squaredNorm();});
 
-    for (int i = 0; i < pointsOutsideOfClustersToTakeCount; ++i, ++goodAutocorrelationPointsCount) {
+    for (uint32_t i = 0; i < pointsOutsideOfClustersToTakeCount; ++i, ++goodAutocorrelationPointsCount) {
         goodAutocorrelationPoints.col(goodAutocorrelationPointsCount) = pointsOutsideOfClusters[i];
         goodAutocorrelationPointWeights[goodAutocorrelationPointsCount] = 1;
     }
@@ -243,12 +244,12 @@ void Indexer::precomputeIndexingStrategy_autocorrPrefit()
     maxNormInAutocorrelation_autocorrPrefit = experimentSettings.getMaxReciprocalLatticeVectorLength_1A() * 5;
     minNormInAutocorrelation_autocorrPrefit = experimentSettings.getMinReciprocalLatticeVectorLength_1A() * 0.7;
     dbscanEpsilon_autocorrPrefit = experimentSettings.getMinReciprocalLatticeVectorLength_1A() * 0.15;
-    dbscan_autocorrPrefit = Dbscan(dbscanEpsilon_autocorrPrefit, maxNormInAutocorrelation_autocorrPrefit);
+    dbscan_autocorrPrefit.init(dbscanEpsilon_autocorrPrefit, maxNormInAutocorrelation_autocorrPrefit);
 
     float minSpacingBetweenPeaks = experimentSettings.getDifferentRealLatticeVectorLengths_A().minCoeff() * 0.3;
     float maxPossiblePointNorm = experimentSettings.getDifferentRealLatticeVectorLengths_A().maxCoeff() * 1.2;
     sparsePeakFinder_autocorrPrefit.precompute(minSpacingBetweenPeaks, maxPossiblePointNorm);
-    
+
     maxCloseToPeakDeviation_autocorrPrefit = 0.15;
     inverseSpaceTransform_autocorrPrefit = InverseSpaceTransform(maxCloseToPeakDeviation_autocorrPrefit);
 }

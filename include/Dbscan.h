@@ -21,6 +21,9 @@ public:
 
     //maxEpsilon defines performance. Best performance for maxEpsilon == epsilon. Too small maxEpsilon means very big discretizationVolume
     Dbscan(float maxEpsilon, float maxPossiblePointNorm);
+    Dbscan();
+    
+    void init(float maxEpsilon, float maxPossiblePointNorm);
 
     void computeClusters(std::vector< cluster_t >& clusters, const Eigen::Matrix3Xf& points, uint16_t minPoints, float epsilon);
 

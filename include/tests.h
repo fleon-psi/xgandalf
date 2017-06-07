@@ -8,6 +8,9 @@
 #ifndef TESTS_H_
 #define TESTS_H_
 
+
+
+void test_indexer();
 void test_dbscan();
 void test_pointAutocorrelation();
 void test_latticeAssembler();

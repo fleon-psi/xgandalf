@@ -1,0 +1,30 @@
+/*
+ * IndexerPlain.h
+ *
+ *  Created on: 07.06.2017
+ *      Author: Yaro
+ */
+
+#ifndef INDEXERPLAIN_H_
+#define INDEXERPLAIN_H_
+
+#include <IndexerBase.h>
+
+class IndexerPlain: public IndexerBase {
+public:
+    IndexerPlain(const ExperimentSettings& experimentSettings);
+    IndexerPlain(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath);
+    //    ~IndexerPlain();
+
+    void index(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m);
+
+private:
+    void precompute();
+
+    HillClimbingOptimizer hillClimbingOptimizer;
+
+    Eigen::Matrix3Xf samplePoints;
+    SparsePeakFinder sparsePeakFinder;
+};
+
+#endif /* INDEXERPLAIN_H_ */
