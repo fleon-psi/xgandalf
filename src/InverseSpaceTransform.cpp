@@ -269,7 +269,7 @@ void InverseSpaceTransform::setPointsToTransform(const Matrix3Xf& pointsToTransf
     }
 }
 
-void InverseSpaceTransform::setPointsToTransformWeights(const RowVectorXf pointsToTransformWeights)
+void InverseSpaceTransform::setPointsToTransformWeights(const RowVectorXf& pointsToTransformWeights)
 {
     resultsUpToDate = false;
     pointsToTransformWeights_userPreset = pointsToTransformWeights;

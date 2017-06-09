@@ -108,7 +108,7 @@ void HillClimbingOptimizer::performOptimizationStep(Matrix3Xf& positionsToOptimi
 //    cout << "positionsToOptimize: " << endl << positionsToOptimize << endl << endl;
 }
 
-void HillClimbingOptimizer::setPointsToTransformWeights(const Eigen::RowVectorXf pointsToTransformWeights)
+void HillClimbingOptimizer::setPointsToTransformWeights(const RowVectorXf& pointsToTransformWeights)
 {
     transform.setPointsToTransformWeights(pointsToTransformWeights);
 }

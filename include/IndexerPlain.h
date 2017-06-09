@@ -14,7 +14,6 @@ class IndexerPlain: public IndexerBase {
 public:
     IndexerPlain(const ExperimentSettings& experimentSettings);
     IndexerPlain(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath);
-    //    ~IndexerPlain();
 
     void index(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m);
 

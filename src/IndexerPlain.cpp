@@ -22,10 +22,6 @@ IndexerPlain::IndexerPlain(const ExperimentSettings& experimentSettings, const s
     precompute();
 }
 
-//IndexerPlain::~IndexerPlain()
-//{
-//}
-
 void IndexerPlain::precompute()
 {
     if (experimentSettings.isLatticeParametersKnown()) {
@@ -97,7 +93,7 @@ void IndexerPlain::index(std::vector< Lattice >& assembledLattices, const Eigen:
 //    ofstream ofs("workfolder/samplePoints", ofstream::out);
 //    ofs << samplePoints.transpose().eval();
 
-    filterSamplePointsForInverseFunctionEvaluation(samplePoints, hillClimbingOptimizer.getLastInverseTransformEvaluation(), maxPeaksToTakeCount);
+    keepSamplePointsWithHighestEvaluation(samplePoints, hillClimbingOptimizer.getLastInverseTransformEvaluation(), maxPeaksToTakeCount);
 
     /////// peaks hill climbing
     HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_peaks;

@@ -45,7 +45,7 @@ public:
     void setHillClimbingAccuracyConstants(hillClimbingAccuracyConstants_t accuracyConstants);
 
     //optional
-    void setPointsToTransformWeights(const Eigen::RowVectorXf pointsToTransformWeights);
+    void setPointsToTransformWeights(const Eigen::RowVectorXf& pointsToTransformWeights);
 
 public:
     void setStepComputationAccuracyConstants(stepComputationAccuracyConstants_t stepComputationAccuracyConstants);

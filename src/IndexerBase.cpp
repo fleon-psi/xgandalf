@@ -5,7 +5,6 @@
  *      Author: Yaro
  */
 
-
 #include <IndexerBase.h>
 #include <algorithm>
 #include <cstdint>
@@ -27,11 +26,11 @@ IndexerBase::IndexerBase(const ExperimentSettings& experimentSettings, const str
 {
 }
 
-void IndexerBase::clearSamplePointsWithLowInverseFunctionEvaluation(Matrix3Xf& samplePoints, RowVectorXf& samplePointsEvaluation, float minFunctionEvaluation)
+void IndexerBase::keepSamplePointsWithHighEvaluation(Matrix3Xf& samplePoints, RowVectorXf& samplePointsEvaluation, float minEvaluation)
 {
     uint32_t bigEvaluationSamplePointsCount = 0;
     for (int i = 0; i < samplePointsEvaluation.size(); ++i) {
-        if (samplePointsEvaluation[i] >= minFunctionEvaluation) {
+        if (samplePointsEvaluation[i] >= minEvaluation) {
             samplePoints.col(bigEvaluationSamplePointsCount) = samplePoints.col(i);
             samplePointsEvaluation[bigEvaluationSamplePointsCount] = samplePointsEvaluation[i];
             bigEvaluationSamplePointsCount++;
@@ -41,7 +40,7 @@ void IndexerBase::clearSamplePointsWithLowInverseFunctionEvaluation(Matrix3Xf& s
     samplePointsEvaluation.conservativeResize(bigEvaluationSamplePointsCount);
 }
 
-void IndexerBase::filterSamplePointsForInverseFunctionEvaluation(Eigen::Matrix3Xf& samplePoints, RowVectorXf& samplePointsEvaluation, uint32_t maxToTakeCount)
+void IndexerBase::keepSamplePointsWithHighestEvaluation(Eigen::Matrix3Xf& samplePoints, RowVectorXf& samplePointsEvaluation, uint32_t maxToTakeCount)
 {
     uint32_t toTakeCount = min(maxToTakeCount, (uint32_t) samplePointsEvaluation.size());
 

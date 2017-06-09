@@ -30,7 +30,7 @@ public:
     void performTransform(const Eigen::Matrix3Xf& positionsToEvaluate);
 
     void setPointsToTransform(const Eigen::Matrix3Xf& pointsToTransform);
-    void setPointsToTransformWeights(const Eigen::RowVectorXf pointsToTransformWeights);
+    void setPointsToTransformWeights(const Eigen::RowVectorXf& pointsToTransformWeights);
 
     void setMaxCloseToPeakDeviation(float maxCloseToPeakDeviation);
     void setFunctionSelection(int functionSelection);
