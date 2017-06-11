@@ -13,7 +13,7 @@ using namespace std;
 using namespace Eigen;
 
 Dbscan::Dbscan() :
-        squaredEpsilon(0),maxEpsilon(0),binWidth(0), binWidth_reciprocal(0),binsPerDimension(0),binCount(0),binCountMinus1(0)
+        squaredEpsilon(0), maxEpsilon(0), binWidth(0), binWidth_reciprocal(0), binsPerDimension(0), binCount(0), binCountMinus1(0)
 {
 }
 
@@ -26,7 +26,7 @@ void Dbscan::init(float maxEpsilon, float maxPossiblePointNorm)
 {
     this->maxEpsilon = maxEpsilon;
 
-    if (2 * ceil(maxPossiblePointNorm / maxEpsilon) + 2 + 1) {
+    if (maxEpsilon < maxPossiblePointNorm / 50) {
         cout << "dbscan histogram would take too much memory! Reducing performance in trade of memory!" << endl << endl;
         this->maxEpsilon = maxPossiblePointNorm / 50;
     }
@@ -70,6 +70,8 @@ void Dbscan::computeClusters(vector< cluster_t >& clusters, const Matrix3Xf& poi
     if (epsilon > maxEpsilon) {
         stringstream errStream;
         errStream << "epsilon must be smaller than maxEpsilon" << endl;
+        errStream << "epsilon = " << epsilon << endl;
+        errStream << "maxEpsilon = " << maxEpsilon << endl;
         throw WrongUsageException(errStream.str());
     }
 
