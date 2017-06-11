@@ -28,27 +28,29 @@ void IndexerPlain::precompute()
         float unitPitch = 0.05;
         float tolerance = 0.02;
 
-        samplePointsGenerator.getTightGrid(samplePoints, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
+        samplePointsGenerator.getTightGrid(precomputedSamplePoints, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
     } else {
         float unitPitch = 0.05;
         float minRadius = experimentSettings.getMinRealLatticeVectorLength_A() * 0.98;
         float maxRadius = experimentSettings.getMaxRealLatticeVectorLength_A() * 1.02;
 
-        samplePointsGenerator.getDenseGrid(samplePoints, unitPitch, minRadius, maxRadius);
+        samplePointsGenerator.getDenseGrid(precomputedSamplePoints, unitPitch, minRadius, maxRadius);
     }
 
     float minSpacingBetweenPeaks = experimentSettings.getDifferentRealLatticeVectorLengths_A().minCoeff() * 0.2;
     float maxPossiblePointNorm = experimentSettings.getDifferentRealLatticeVectorLengths_A().maxCoeff() * 1.2;
     sparsePeakFinder.precompute(minSpacingBetweenPeaks, maxPossiblePointNorm);
+    
+    maxCloseToPeakDeviation = 0.15;
 }
 
 void IndexerPlain::index(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m)
 {
-    if (samplePoints.size() == 0) {
+    if (precomputedSamplePoints.size() == 0) {
         precompute();
     }
 
-    Matrix3Xf samplePoints = samplePoints;
+    Matrix3Xf samplePoints = precomputedSamplePoints;
 
     Matrix3Xf reciprocalPeaks_A;
     detectorToReciprocalSpaceTransform.computeReciprocalPeaksFromDetectorPeaks(reciprocalPeaks_A, detectorPeaks_m);
@@ -58,7 +60,7 @@ void IndexerPlain::index(std::vector< Lattice >& assembledLattices, const Eigen:
 
     hillClimbing_accuracyConstants_global.functionSelection = 1;
     hillClimbing_accuracyConstants_global.optionalFunctionArgument = 1;
-    hillClimbing_accuracyConstants_global.maxCloseToPeakDeviation = 0.15;
+    hillClimbing_accuracyConstants_global.maxCloseToPeakDeviation = maxCloseToPeakDeviation;
 
     hillClimbing_accuracyConstants_global.initialIterationCount = 40;
     hillClimbing_accuracyConstants_global.calmDownIterationCount = 5;
@@ -100,7 +102,7 @@ void IndexerPlain::index(std::vector< Lattice >& assembledLattices, const Eigen:
 
     hillClimbing_accuracyConstants_peaks.functionSelection = 9;
     hillClimbing_accuracyConstants_peaks.optionalFunctionArgument = 8;
-    hillClimbing_accuracyConstants_peaks.maxCloseToPeakDeviation = 0.15;
+    hillClimbing_accuracyConstants_peaks.maxCloseToPeakDeviation = maxCloseToPeakDeviation;
 
     hillClimbing_accuracyConstants_peaks.initialIterationCount = 0;
     hillClimbing_accuracyConstants_peaks.calmDownIterationCount = 0;

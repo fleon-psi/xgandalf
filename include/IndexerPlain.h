@@ -20,10 +20,12 @@ public:
 private:
     void precompute();
 
+    Eigen::Matrix3Xf precomputedSamplePoints;
+    
     HillClimbingOptimizer hillClimbingOptimizer;
-
-    Eigen::Matrix3Xf samplePoints;
     SparsePeakFinder sparsePeakFinder;
+    
+    float maxCloseToPeakDeviation;
 };
 
 #endif /* INDEXERPLAIN_H_ */
