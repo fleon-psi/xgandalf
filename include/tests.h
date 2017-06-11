@@ -9,8 +9,8 @@
 #define TESTS_H_
 
 
-
-void test_indexer();
+void test_indexerAutocorrPrefit();
+void test_indexerPlain();
 void test_dbscan();
 void test_pointAutocorrelation();
 void test_latticeAssembler();
