@@ -43,8 +43,9 @@ public:
             Eigen::Matrix3Xf& candidateVectors, Eigen::RowVectorXf& candidateVectorWeights, std::vector< std::vector< uint16_t > >& pointIndicesOnVector,
             Eigen::Matrix3Xf& pointsToFitInReciprocalSpace);
 
-    void reset();
 private:
+    void reset();
+
     //input
     Eigen::Vector2f determinantRange;
 

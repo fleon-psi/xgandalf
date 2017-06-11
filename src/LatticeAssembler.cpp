@@ -56,6 +56,8 @@ void LatticeAssembler::assembleLattices(vector< Lattice >& assembledLattices, ve
         Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights, vector< vector< uint16_t > >& pointIndicesOnVector,
         Matrix3Xf& pointsToFitInReciprocalSpace)
 {
+    reset();
+
     computeCandidateLattices(candidateVectors, candidateVectorWeights, pointIndicesOnVector);
 
     list< candidateLattice_t > finalCandidateLattices;
