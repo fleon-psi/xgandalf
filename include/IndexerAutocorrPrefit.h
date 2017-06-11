@@ -25,9 +25,9 @@ private:
     void autocorrPrefit(const Eigen::Matrix3Xf& reciprocalPeaks_A, Eigen::Matrix3Xf& samplePoints,
             HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_autocorr);
 
-    HillClimbingOptimizer hillClimbingOptimizer;
+    Eigen::Matrix3Xf precomputedSamplePoints;
 
-    Eigen::Matrix3Xf samplePoints;
+    HillClimbingOptimizer hillClimbingOptimizer;
     SparsePeakFinder sparsePeakFinder;
     InverseSpaceTransform inverseSpaceTransform;
 

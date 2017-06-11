@@ -6,6 +6,7 @@
  */
 
 #include <IndexerAutocorrPrefit.h>
+
 #include "pointAutocorrelation.h"
 
 using namespace Eigen;
@@ -27,15 +28,15 @@ void IndexerAutocorrPrefit::precompute()
 {
     if (experimentSettings.isLatticeParametersKnown()) {
         float unitPitch = 0.05;
-        float tolerance = 0.02;
+        float tolerance = min(0.05f, experimentSettings.getTolerance());
 
-        samplePointsGenerator.getTightGrid(samplePoints, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
+        samplePointsGenerator.getTightGrid(precomputedSamplePoints, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
     } else {
         float unitPitch = 0.05;
         float minRadius = experimentSettings.getMinRealLatticeVectorLength_A() * 0.98;
         float maxRadius = experimentSettings.getMaxRealLatticeVectorLength_A() * 1.02;
 
-        samplePointsGenerator.getDenseGrid(samplePoints, unitPitch, minRadius, maxRadius);
+        samplePointsGenerator.getDenseGrid(precomputedSamplePoints, unitPitch, minRadius, maxRadius);
     }
 
     maxNormInAutocorrelation = experimentSettings.getMaxReciprocalLatticeVectorLength_1A() * 5;
@@ -177,8 +178,107 @@ void IndexerAutocorrPrefit::autocorrPrefit(const Matrix3Xf& reciprocalPeaks_A, M
 
 void IndexerAutocorrPrefit::index(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m)
 {
-    if (samplePoints.size() == 0) {
+    if (precomputedSamplePoints.size() == 0) {
         precompute();
     }
 
+    Matrix3Xf samplePoints = precomputedSamplePoints;
+
+    Matrix3Xf reciprocalPeaks_A;
+    detectorToReciprocalSpaceTransform.computeReciprocalPeaksFromDetectorPeaks(reciprocalPeaks_A, detectorPeaks_m);
+
+    //////// autocorr prefit
+    HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_autocorr;
+
+    hillClimbing_accuracyConstants_autocorr.maxCloseToPeakDeviation = maxCloseToPeakDeviation;
+
+    hillClimbing_accuracyConstants_autocorr.initialIterationCount = 5;
+    hillClimbing_accuracyConstants_autocorr.calmDownIterationCount = 3;
+    hillClimbing_accuracyConstants_autocorr.calmDownFactor = 0.8;
+    hillClimbing_accuracyConstants_autocorr.localFitIterationCount = 3;
+    hillClimbing_accuracyConstants_autocorr.localCalmDownIterationCount = 3;
+    hillClimbing_accuracyConstants_autocorr.localCalmDownFactor = 0.75;
+
+    hillClimbing_accuracyConstants_autocorr.stepComputationAccuracyConstants.gamma = 0.65;
+    hillClimbing_accuracyConstants_autocorr.stepComputationAccuracyConstants.maxStep = experimentSettings.getDifferentRealLatticeVectorLengths_A().mean() / 10;
+    hillClimbing_accuracyConstants_autocorr.stepComputationAccuracyConstants.minStep = experimentSettings.getDifferentRealLatticeVectorLengths_A().mean() / 200;
+    hillClimbing_accuracyConstants_autocorr.stepComputationAccuracyConstants.directionChangeFactor = 1.5;
+
+    autocorrPrefit(reciprocalPeaks_A, samplePoints, hillClimbing_accuracyConstants_autocorr);
+
+    //////// global hill climbing
+    HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_global;
+
+    hillClimbing_accuracyConstants_global.functionSelection = 1;
+    hillClimbing_accuracyConstants_global.optionalFunctionArgument = 1;
+    hillClimbing_accuracyConstants_global.maxCloseToPeakDeviation = maxCloseToPeakDeviation;
+
+    hillClimbing_accuracyConstants_global.initialIterationCount = 3;
+    hillClimbing_accuracyConstants_global.calmDownIterationCount = 3;
+    hillClimbing_accuracyConstants_global.calmDownFactor = 0.7;
+    hillClimbing_accuracyConstants_global.localFitIterationCount = 3;
+    hillClimbing_accuracyConstants_global.localCalmDownIterationCount = 3;
+    hillClimbing_accuracyConstants_global.localCalmDownFactor = 0.7;
+
+    hillClimbing_accuracyConstants_global.stepComputationAccuracyConstants.gamma = 0.65;
+    hillClimbing_accuracyConstants_global.stepComputationAccuracyConstants.maxStep = experimentSettings.getDifferentRealLatticeVectorLengths_A().mean() / 20;
+    hillClimbing_accuracyConstants_global.stepComputationAccuracyConstants.minStep = experimentSettings.getDifferentRealLatticeVectorLengths_A().mean() / 200;
+    hillClimbing_accuracyConstants_global.stepComputationAccuracyConstants.directionChangeFactor = 1.5;
+
+    hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_global);
+    hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, samplePoints);
+
+    uint32_t maxPeaksToTakeCount = 50;
+    sparsePeakFinder.findPeaks_fast(samplePoints, hillClimbingOptimizer.getLastInverseTransformEvaluation());
+    keepSamplePointsWithHighestEvaluation(samplePoints, hillClimbingOptimizer.getLastInverseTransformEvaluation(), maxPeaksToTakeCount);
+
+    /////// peaks hill climbing
+    HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_peaks;
+
+    hillClimbing_accuracyConstants_peaks.functionSelection = 9;
+    hillClimbing_accuracyConstants_peaks.optionalFunctionArgument = 8;
+    hillClimbing_accuracyConstants_peaks.maxCloseToPeakDeviation = maxCloseToPeakDeviation;
+
+    hillClimbing_accuracyConstants_peaks.initialIterationCount = 0;
+    hillClimbing_accuracyConstants_peaks.calmDownIterationCount = 0;
+    hillClimbing_accuracyConstants_peaks.calmDownFactor = 0;
+    hillClimbing_accuracyConstants_peaks.localFitIterationCount = 10;
+    hillClimbing_accuracyConstants_peaks.localCalmDownIterationCount = 20;
+    hillClimbing_accuracyConstants_peaks.localCalmDownFactor = 0.85;
+
+    hillClimbing_accuracyConstants_peaks.stepComputationAccuracyConstants.gamma = 0.1;
+    hillClimbing_accuracyConstants_peaks.stepComputationAccuracyConstants.maxStep = experimentSettings.getDifferentRealLatticeVectorLengths_A().mean() / 2000;
+    hillClimbing_accuracyConstants_peaks.stepComputationAccuracyConstants.minStep = experimentSettings.getDifferentRealLatticeVectorLengths_A().mean() / 20000;
+    hillClimbing_accuracyConstants_peaks.stepComputationAccuracyConstants.directionChangeFactor = 2.5;
+
+    hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_peaks);
+    hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, samplePoints);
+
+    /////// assemble lattices
+    inverseSpaceTransform.setPointsToTransform(reciprocalPeaks_A);
+    inverseSpaceTransform.setFunctionSelection(9);
+    inverseSpaceTransform.setOptionalFunctionArgument(8);
+    inverseSpaceTransform.setLocalTransformFlag();
+    inverseSpaceTransform.clearRadialWeightingFlag();
+    inverseSpaceTransform.performTransform(samplePoints);
+
+    LatticeAssembler::accuracyConstants_t accuracyConstants_LatticeAssembler;
+    accuracyConstants_LatticeAssembler.maxCountGlobalPassingWeightFilter = 500;
+    accuracyConstants_LatticeAssembler.maxCountLocalPassingWeightFilter = 15;
+    accuracyConstants_LatticeAssembler.maxCountPassingRelativeDefectFilter = 50;
+    accuracyConstants_LatticeAssembler.minPointsOnLattice = 5;
+
+    //    latticeAssembler.setDeterminantRange(experimentSettings.getMinRealLatticeDeterminant_A3(), experimentSettings.getMaxRealLatticeDeterminant_A3());
+    latticeAssembler.setDeterminantRange(experimentSettings.getRealLatticeDeterminant_A3() * 0.8, experimentSettings.getRealLatticeDeterminant_A3() * 1.2);
+
+    latticeAssembler.setAccuracyConstants(accuracyConstants_LatticeAssembler);
+
+    vector< LatticeAssembler::assembledLatticeStatistics_t > assembledLatticesStatistics;
+    Matrix3Xf& candidateVectors = samplePoints;
+    RowVectorXf& candidateVectorWeights = inverseSpaceTransform.getInverseTransformEvaluation();
+    vector< vector< uint16_t > >& pointIndicesOnVector = inverseSpaceTransform.getPointsCloseToEvaluationPositions_indices();
+    latticeAssembler.assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors,
+            candidateVectorWeights, pointIndicesOnVector, reciprocalPeaks_A);
+
 }
+
