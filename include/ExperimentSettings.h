@@ -9,6 +9,7 @@
 #define EXPERIMENTSETTINGS_H_
 
 #include "Lattice.h"
+#include "WrongUsageException.h"
 
 class ExperimentSettings {
 public:
@@ -24,9 +25,9 @@ public:
             float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3, float maxRealLatticeDeterminant_A3);
 
     ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
-            float pixelLength_m, float detectorRadius_pixel, const Lattice& sampleReciprocalLattice_1A);
+            float pixelLength_m, float detectorRadius_pixel, const Lattice& sampleReciprocalLattice_1A, float tolerance);
     ExperimentSettings(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
-            const Lattice& sampleReciprocalLattice_1A);
+            const Lattice& sampleReciprocalLattice_1A, float tolerance);
 
     float getDetectorDistance_m() const;
     float getDetectorRadius_m() const;
@@ -50,6 +51,7 @@ public:
     const Eigen::Vector3f& getReciprocalLatticeVectorLengths_1A() const;
     const Eigen::Vector3f& getReciprocalLatticeVectorAngles_rad() const;
     float getReciprocalLatticeDeterminant_1A3() const;
+    float getTolerance() const;
 
     float getMaxRealLatticeDeterminant_A3() const;
     float getMaxRealLatticeVectorLength_A() const;
@@ -65,7 +67,7 @@ public:
 private:
     void constructFromGeometryFileValues(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
             float pixelLength_m, float detectorRadius_pixel);
-    void constructFromPrecomputedCalues(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
+    void constructFromPrecomputedValues(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
             float nonMonochromaticity);
     void deduceValuesFromSampleReciprocalLattice();
 
@@ -79,6 +81,15 @@ private:
 
     bool latticeParametersKnown;
 
+    float minRealLatticeVectorLength_A;
+    float maxRealLatticeVectorLength_A;
+    float minRealLatticeDeterminant_A3;
+    float maxRealLatticeDeterminant_A3;
+    float minReciprocalLatticeVectorLength_1A;
+    float maxReciprocalLatticeVectorLength_1A;
+    float minReciprocalLatticeDeterminant_1A3;
+    float maxReciprocalLatticeDeterminant_1A3;
+
     //if latticeParametersKnown
     Lattice sampleRealLattice_A;
     Lattice sampleReciprocalLattice_1A;
@@ -88,20 +99,16 @@ private:
     Eigen::Vector3f reciprocalLatticeVectorLengths_1A;
     Eigen::Vector3f reciprocalLatticeVectorAngles_rad;
     float reciprocalLatticeDeterminant_1A3;
+    float tolerance;
 
-    //if not latticeParametersKnown
-    float minRealLatticeVectorLength_A;
-    float maxRealLatticeVectorLength_A;
-    float minRealLatticeDeterminant_A3;
-    float maxRealLatticeDeterminant_A3;
-    float minReciprocalLatticeVectorLength_1A;
-    float maxReciprocalLatticeVectorLength_1A;
-    float minReciprocalLatticeDeterminant_1A3;
-    float maxReciprocalLatticeDeterminant_1A3;
     
     //if latticeParametersKnown, trivial. if not, set to min and max vector length 
     Eigen::VectorXf differentRealLatticeVectorLengths_A;
+
 public:
+
+
+
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         ;
 };

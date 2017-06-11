@@ -26,7 +26,7 @@ void IndexerPlain::precompute()
 {
     if (experimentSettings.isLatticeParametersKnown()) {
         float unitPitch = 0.05;
-        float tolerance = 0.02;
+        float tolerance = min(0.05f, experimentSettings.getTolerance());
 
         samplePointsGenerator.getTightGrid(precomputedSamplePoints, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
     } else {
@@ -40,8 +40,9 @@ void IndexerPlain::precompute()
     float minSpacingBetweenPeaks = experimentSettings.getDifferentRealLatticeVectorLengths_A().minCoeff() * 0.2;
     float maxPossiblePointNorm = experimentSettings.getDifferentRealLatticeVectorLengths_A().maxCoeff() * 1.2;
     sparsePeakFinder.precompute(minSpacingBetweenPeaks, maxPossiblePointNorm);
-    
+
     maxCloseToPeakDeviation = 0.15;
+    inverseSpaceTransform = InverseSpaceTransform(maxCloseToPeakDeviation);
 }
 
 void IndexerPlain::index(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m)
@@ -126,7 +127,12 @@ void IndexerPlain::index(std::vector< Lattice >& assembledLattices, const Eigen:
 //    ofs << hillClimbingOptimizer.getLastInverseTransformEvaluation().transpose().eval();
 
 /////// assemble lattices
-    latticeAssembler.reset();
+    inverseSpaceTransform.setPointsToTransform(reciprocalPeaks_A);
+    inverseSpaceTransform.setFunctionSelection(9);
+    inverseSpaceTransform.setOptionalFunctionArgument(8);
+    inverseSpaceTransform.setLocalTransformFlag();
+    inverseSpaceTransform.clearRadialWeightingFlag();
+    inverseSpaceTransform.performTransform(samplePoints);
 
     LatticeAssembler::accuracyConstants_t accuracyConstants_LatticeAssembler;
     accuracyConstants_LatticeAssembler.maxCountGlobalPassingWeightFilter = 500;
@@ -134,18 +140,15 @@ void IndexerPlain::index(std::vector< Lattice >& assembledLattices, const Eigen:
     accuracyConstants_LatticeAssembler.maxCountPassingRelativeDefectFilter = 50;
     accuracyConstants_LatticeAssembler.minPointsOnLattice = 5;
 
-    if (experimentSettings.isLatticeParametersKnown()) { //TODO: bad design! put tolerance in experiment settings and compute getMinRealLatticeDeterminant_A3 from that!!!
-        latticeAssembler.setDeterminantRange(experimentSettings.getRealLatticeDeterminant_A3() * 0.8, experimentSettings.getRealLatticeDeterminant_A3() * 1.2);
-    } else {
-        latticeAssembler.setDeterminantRange(experimentSettings.getMinRealLatticeDeterminant_A3(), experimentSettings.getMaxRealLatticeDeterminant_A3());
-    }
+//    latticeAssembler.setDeterminantRange(experimentSettings.getMinRealLatticeDeterminant_A3(), experimentSettings.getMaxRealLatticeDeterminant_A3());
+    latticeAssembler.setDeterminantRange(experimentSettings.getRealLatticeDeterminant_A3() * 0.8, experimentSettings.getRealLatticeDeterminant_A3() * 1.2);
 
     latticeAssembler.setAccuracyConstants(accuracyConstants_LatticeAssembler);
 
     vector< LatticeAssembler::assembledLatticeStatistics_t > assembledLatticesStatistics;
     Matrix3Xf& candidateVectors = samplePoints;
-    RowVectorXf& candidateVectorWeights = hillClimbingOptimizer.getLastInverseTransformEvaluation(); //TODO: FEHLER!!! u.U. falsche radial weightening und local transform flag!!
-    vector< vector< uint16_t > >& pointIndicesOnVector = hillClimbingOptimizer.getPeaksCloseToEvaluationPositions_indices();
+    RowVectorXf& candidateVectorWeights = inverseSpaceTransform.getInverseTransformEvaluation();
+    vector< vector< uint16_t > >& pointIndicesOnVector = inverseSpaceTransform.getPointsCloseToEvaluationPositions_indices();
     latticeAssembler.assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors,
             candidateVectorWeights, pointIndicesOnVector, reciprocalPeaks_A);
 

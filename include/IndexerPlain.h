@@ -24,6 +24,7 @@ private:
     
     HillClimbingOptimizer hillClimbingOptimizer;
     SparsePeakFinder sparsePeakFinder;
+    InverseSpaceTransform inverseSpaceTransform;
     
     float maxCloseToPeakDeviation;
 };
