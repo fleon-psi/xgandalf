@@ -146,7 +146,7 @@ void ExperimentSettings::deduceValuesFromSampleReciprocalLattice()
     minRealLatticeDeterminant_A3 = realLatticeDeterminant_A3 * (1 - tolerance);
     maxRealLatticeDeterminant_A3 = realLatticeDeterminant_A3 * (1 + tolerance);
     minReciprocalLatticeVectorLength_1A = reciprocalLatticeVectorLengths_1A.minCoeff() * (1 - tolerance);
-    maxReciprocalLatticeVectorLength_1A = reciprocalLatticeVectorLengths_1A.minCoeff() * (1 + tolerance);
+    maxReciprocalLatticeVectorLength_1A = reciprocalLatticeVectorLengths_1A.maxCoeff() * (1 + tolerance);
     minReciprocalLatticeDeterminant_1A3 = reciprocalLatticeDeterminant_1A3 * (1 - tolerance);
     maxReciprocalLatticeDeterminant_1A3 = reciprocalLatticeDeterminant_1A3 * (1 + tolerance);
 }

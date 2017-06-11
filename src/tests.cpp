@@ -24,6 +24,7 @@
 #include "pointAutocorrelation.h"
 #include "Dbscan.h"
 #include "IndexerPlain.h"
+#include "IndexerAutocorrPrefit.h"
 
 using namespace std;
 using namespace Eigen;
@@ -58,6 +59,7 @@ void test_indexerAutocorrPrefit()
             cout << "duration: " << duration << "ms" << endl << endl;
             totalDuration += duration;
 
+            cout << "runNumber " << runNumber << endl;
             ss.str("");
             ss.clear();
             ss << "workfolder/lattices__run" << runNumber;
@@ -66,12 +68,14 @@ void test_indexerAutocorrPrefit()
                 outfile << assembledLattices[i] << endl << endl;
             }
             outfile.close();
-
-            cout << "runNumber " << runNumber << endl;
         }
-    } catch (...) {
+    } catch (ifstream::failure& e) {
         cout << "no more files left" << endl << endl;
         cout << "total duration: " << totalDuration << endl << endl;
+    } catch (CustomException& e) {
+        cout << e.what();
+    } catch (exception& e) {
+        cout << e.what();
     }
 }
 
@@ -103,6 +107,7 @@ void test_indexerPlain()
             cout << "duration: " << duration << "ms" << endl << endl;
             totalDuration += duration;
 
+            cout << "runNumber " << runNumber << endl;
             ss.str("");
             ss.clear();
             ss << "workfolder/lattices__run" << runNumber;
@@ -111,12 +116,14 @@ void test_indexerPlain()
                 outfile << assembledLattices[i] << endl << endl;
             }
             outfile.close();
-
-            cout << "runNumber " << runNumber << endl;
         }
-    } catch (...) {
+    } catch (ifstream::failure& e) {
         cout << "no more files left" << endl << endl;
         cout << "total duration: " << totalDuration << endl << endl;
+    } catch (CustomException& e) {
+        cout << e.what();
+    } catch (exception& e) {
+        cout << e.what();
     }
 }
 
@@ -171,7 +178,7 @@ void test_pointAutocorrelation()
     loadEigenMatrixFromDisk(points, "workfolder/points");
 
     chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-    //    getPointAutocorrelation(autocorrelationPoints, points, maxNormInAutocorrelation);
+//    getPointAutocorrelation(autocorrelationPoints, points, maxNormInAutocorrelation);
     getPointAutocorrelation(autocorrelationPoints, centerPointIndices, shiftedPointIndices, points, minNormInAutocorrelation, maxNormInAutocorrelation);
     chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
@@ -337,7 +344,7 @@ void test_computeStep()
     t.setPointsToTransform(pointsToTransform);
     t.performTransform(positionsToEvaluate);
 
-    //    cout << t.getInverseTransformEvaluation() << endl << endl << t.getGradient() << endl << endl << t.getCloseToPeaksCount() << endl;
+//    cout << t.getInverseTransformEvaluation() << endl << endl << t.getGradient() << endl << endl << t.getCloseToPeaksCount() << endl;
 
     HillClimbingOptimizer h;
     h.previousStepDirection = (Matrix3Xf(3, 4) << 0.5789, 0.6826, 0.3688, 0.6340, 0.4493, 0.0735, 0.8089, 0.3796, 0.6804, 0.7271, 0.4578, 0.6737).finished();
