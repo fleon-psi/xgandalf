@@ -21,7 +21,6 @@
 #include "eigenDiskImport.h"
 #include "SparsePeakFinder.h"
 #include "LatticeAssembler.h"
-#include "Indexer.h"
 #include "pointAutocorrelation.h"
 #include "Dbscan.h"
 #include "IndexerPlain.h"
@@ -401,7 +400,8 @@ static ExperimentSettings getExperimentSettingLys()
     basis << a_star, b_star, c_star;
     basis = basis / 10; //nm to A
     Lattice sampleReciprocalLattice_1A(basis);
+    float tolerance = 0.02;
 
     return ExperimentSettings(coffset_m, clen_mm, beamEenergy_eV, divergenceAngle_deg, nonMonochromaticity,
-            pixelLength_m, detectorRadius_pixel, sampleReciprocalLattice_1A);
+            pixelLength_m, detectorRadius_pixel, sampleReciprocalLattice_1A, tolerance);
 }

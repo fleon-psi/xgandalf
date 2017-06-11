@@ -22,7 +22,6 @@
 #include "eigenDiskImport.h"
 #include "SparsePeakFinder.h"
 #include "LatticeAssembler.h"
-#include "Indexer.h"
 #include "tests.h"
 #include "pointAutocorrelation.h"
 
