@@ -99,7 +99,7 @@ private:
     Eigen::Vector3f reciprocalLatticeVectorLengths_1A;
     Eigen::Vector3f reciprocalLatticeVectorAngles_rad;
     float reciprocalLatticeDeterminant_1A3;
-    float tolerance;
+    float latticeParametersTolerance;
 
     
     //if latticeParametersKnown, trivial. if not, set to min and max vector length 
