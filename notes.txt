@@ -13,3 +13,5 @@ Optimize for Eigens lazy evaluation:
 http://eigen.tuxfamily.org/dox/TopicWritingEfficientProductExpression.html
 
 
+
+minSpacingBetweenPeaks (in SparsePeakFinder) seems to have influence on the indexting. Should be small for multi lattice and big for single lattice.
