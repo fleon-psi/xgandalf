@@ -8,6 +8,7 @@
 #include <IndexerAutocorrPrefit.h>
 
 #include "pointAutocorrelation.h"
+#include <fstream>
 
 using namespace Eigen;
 using namespace std;
@@ -44,7 +45,7 @@ void IndexerAutocorrPrefit::precompute()
     dbscanEpsilon = experimentSettings.getMinReciprocalLatticeVectorLength_1A() * 0.15;
     dbscan.init(dbscanEpsilon, maxNormInAutocorrelation);
 
-    float minSpacingBetweenPeaks = experimentSettings.getDifferentRealLatticeVectorLengths_A().minCoeff() * 0.3;
+    float minSpacingBetweenPeaks = experimentSettings.getDifferentRealLatticeVectorLengths_A().minCoeff() * 0.2;
     float maxPossiblePointNorm = experimentSettings.getDifferentRealLatticeVectorLengths_A().maxCoeff() * 1.2;
     sparsePeakFinder.precompute(minSpacingBetweenPeaks, maxPossiblePointNorm);
 
@@ -107,7 +108,7 @@ void IndexerAutocorrPrefit::getGoodAutocorrelationPoints(Matrix3Xf& goodAutocorr
     nth_element(pointsOutsideOfClusters.begin(), pointsOutsideOfClusters.begin() + pointsOutsideOfClustersToTakeCount, pointsOutsideOfClusters.end(),
             [&](const Vector3f& i, const Vector3f& j) {return i.squaredNorm() < j.squaredNorm();});
 //    sort(pointsOutsideOfClusters.begin(), pointsOutsideOfClusters.end(), /////////////DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//                [&](const Vector3f& i, const Vector3f& j) {return i.squaredNorm() < j.squaredNorm();});
+//            [&](const Vector3f& i, const Vector3f& j) {return i.squaredNorm() < j.squaredNorm();});
 
     for (uint32_t i = 0; i < pointsOutsideOfClustersToTakeCount; ++i, ++goodAutocorrelationPointsCount) {
         goodAutocorrelationPoints.col(goodAutocorrelationPointsCount) = pointsOutsideOfClusters[i];
@@ -178,6 +179,7 @@ void IndexerAutocorrPrefit::autocorrPrefit(const Matrix3Xf& reciprocalPeaks_A, M
 
     samplePoints.resize(3, prefittedSamplePointsCount);
     samplePoints << samplePointsPeaks_autocorr11, samplePointsPeaks_autocorr98, samplePointsPeaks_standard98;
+
 }
 
 void IndexerAutocorrPrefit::index(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m)
@@ -232,9 +234,19 @@ void IndexerAutocorrPrefit::index(std::vector< Lattice >& assembledLattices, con
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_global);
     hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, samplePoints);
 
+    ofstream ofs("workfolder/samplePoints", ofstream::out);
+    ofs << samplePoints.transpose().eval();
+    ofstream ofs2("workfolder/samplePointsEval", ofstream::out);
+    ofs2 << hillClimbingOptimizer.getLastInverseTransformEvaluation().transpose().eval();
+
     uint32_t maxPeaksToTakeCount = 50;
     sparsePeakFinder.findPeaks_fast(samplePoints, hillClimbingOptimizer.getLastInverseTransformEvaluation());
     keepSamplePointsWithHighestEvaluation(samplePoints, hillClimbingOptimizer.getLastInverseTransformEvaluation(), maxPeaksToTakeCount);
+
+    ofstream ofs3("workfolder/peakPoints", ofstream::out);
+    ofs3 << samplePoints.transpose().eval();
+    ofstream ofs4("workfolder/peakPointsEval", ofstream::out);
+    ofs4 << hillClimbingOptimizer.getLastInverseTransformEvaluation().transpose().eval();
 
     /////// peaks hill climbing
     HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_peaks;

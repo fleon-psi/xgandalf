@@ -82,8 +82,8 @@ void SparsePeakFinder::findPeaks_fast(Matrix3Xf& pointPositions, RowVectorXf& po
     }
 
     int peakCount = 0;
-    Matrix3Xf& peakPositions = pointPositions;
-    RowVectorXf& peakValues = pointValues;
+    Matrix3Xf peakPositions(3, pointPositions.cols());
+    RowVectorXf peakValues(pointValues.size());
 
     //For not checking whether index is out of borders, an extra border bin is added. Only inner borders are checked for peaks 
     uint32_t binsPerDimensionMinus1 = binsPerDimension - 1;
@@ -94,7 +94,7 @@ void SparsePeakFinder::findPeaks_fast(Matrix3Xf& pointPositions, RowVectorXf& po
                 int binIndex = lineStartIndex + x;
                 if (discretizationVolume[binIndex].value > numeric_limits< float >::lowest()) {   //something inside bin
                     bin_t* currentBin_p = &discretizationVolume[binIndex];
-                    bin_t & currentBin = *currentBin_p;
+                    bin_t& currentBin = *currentBin_p;
                     bool isPeak = true;
                     for (int neighbourBinIndexOffset : neighbourBinIndexOffsets) {
                         bin_t& neighbourBin = *(currentBin_p + neighbourBinIndexOffset);
@@ -107,7 +107,7 @@ void SparsePeakFinder::findPeaks_fast(Matrix3Xf& pointPositions, RowVectorXf& po
                     }
 
                     if (isPeak) {
-                        peakPositions.col(peakCount) = pointPositions.col(currentBin.pointIndex);
+                        peakPositions.col(peakCount) = pointPositions.col(currentBin.pointIndex);   //auf überschriebenes wird zugegriffen!!!
                         peakValues[peakCount] = pointValues[currentBin.pointIndex];
                         peakCount++;
                     }
@@ -120,4 +120,6 @@ void SparsePeakFinder::findPeaks_fast(Matrix3Xf& pointPositions, RowVectorXf& po
     peakPositions.conservativeResize(NoChange, peakCount);
     peakValues.conservativeResize(peakCount);
 
+    pointPositions.swap(peakPositions);
+    pointValues.swap(peakValues);
 }
