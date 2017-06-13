@@ -35,6 +35,7 @@ public:
     }
 
     Eigen::Vector3f getBasisVectorAngles() const;
+    Eigen::Vector3f getBasisVectorAnglesNormalized() const;
 
     inline Lattice getReciprocalLattice() const
     {

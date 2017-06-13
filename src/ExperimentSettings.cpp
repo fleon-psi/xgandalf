@@ -112,10 +112,12 @@ void ExperimentSettings::deduceValuesFromSampleReciprocalLattice()
     sampleRealLattice_A = sampleReciprocalLattice_1A.getReciprocalLattice().minimize();
 
     realLatticeVectorLengths_A = sampleRealLattice_A.getBasisVectorNorms();
-    realLatticeVectorAngles_rad = sampleRealLattice_A.getBasisVectorAngles();
+    realLatticeVectorAngles_deg = sampleRealLattice_A.getBasisVectorAngles();
+    realLatticeVectorAnglesNormalized_deg = sampleRealLattice_A.getBasisVectorAnglesNormalized();
     realLatticeDeterminant_A3 = abs(sampleRealLattice_A.det());
     reciprocalLatticeVectorLengths_1A = sampleReciprocalLattice_1A.getBasisVectorNorms();
-    reciprocalLatticeVectorAngles_rad = sampleReciprocalLattice_1A.getBasisVectorAngles();
+    reciprocalLatticeVectorAngles_deg = sampleReciprocalLattice_1A.getBasisVectorAngles();
+    reciprocalLatticeVectorAnglesNormalized_deg = sampleReciprocalLattice_1A.getBasisVectorAnglesNormalized();
     reciprocalLatticeDeterminant_1A3 = abs(sampleReciprocalLattice_1A.det());
 
     //norms are ordered due to minimization of matrix
@@ -282,7 +284,7 @@ float ExperimentSettings::getRealLatticeDeterminant_A3() const
     return realLatticeDeterminant_A3;
 }
 
-const Eigen::Vector3f& ExperimentSettings::getRealLatticeVectorAngles_rad() const
+const Eigen::Vector3f& ExperimentSettings::getRealLatticeVectorAngles_deg() const
 {
     if (!latticeParametersKnown) {
         stringstream errStream;
@@ -290,7 +292,18 @@ const Eigen::Vector3f& ExperimentSettings::getRealLatticeVectorAngles_rad() cons
         throw WrongUsageException(errStream.str());
     }
 
-    return realLatticeVectorAngles_rad;
+    return realLatticeVectorAngles_deg;
+}
+
+const Eigen::Vector3f& ExperimentSettings::getRealLatticeVectorAnglesNormalized_deg() const
+{
+    if (!latticeParametersKnown) {
+        stringstream errStream;
+        errStream << "Function can only be used, if the lattice parameters are known" << endl;
+        throw WrongUsageException(errStream.str());
+    }
+
+    return realLatticeVectorAnglesNormalized_deg;
 }
 
 const Eigen::Vector3f& ExperimentSettings::getRealLatticeVectorLengths_A() const
@@ -330,7 +343,7 @@ float ExperimentSettings::getReciprocalLatticeDeterminant_1A3() const
     return reciprocalLatticeDeterminant_1A3;
 }
 
-const Eigen::Vector3f& ExperimentSettings::getReciprocalLatticeVectorAngles_rad() const
+const Eigen::Vector3f& ExperimentSettings::getReciprocalLatticeVectorAngles_deg() const
 {
     if (!latticeParametersKnown) {
         stringstream errStream;
@@ -338,7 +351,18 @@ const Eigen::Vector3f& ExperimentSettings::getReciprocalLatticeVectorAngles_rad(
         throw WrongUsageException(errStream.str());
     }
 
-    return reciprocalLatticeVectorAngles_rad;
+    return reciprocalLatticeVectorAngles_deg;
+}
+
+const Eigen::Vector3f& ExperimentSettings::getReciprocalLatticeVectorAnglesNormalized_deg() const
+{
+    if (!latticeParametersKnown) {
+        stringstream errStream;
+        errStream << "Function can only be used, if the lattice parameters are known" << endl;
+        throw WrongUsageException(errStream.str());
+    }
+
+    return reciprocalLatticeVectorAnglesNormalized_deg;
 }
 
 const Eigen::Vector3f& ExperimentSettings::getReciprocalLatticeVectorLengths_1A() const

@@ -50,6 +50,8 @@ void test_indexerAutocorrPrefit()
             ss << "workfolder/detectorPeaks_m__run" << runNumber;
             loadEigenMatrixFromDisk(detectorPeaks_m, ss.str());
 
+            cout << "runNumber " << runNumber << endl;
+
             vector< Lattice > assembledLattices;
 
             chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
@@ -59,7 +61,6 @@ void test_indexerAutocorrPrefit()
             cout << "duration: " << duration << "ms" << endl << endl;
             totalDuration += duration;
 
-            cout << "runNumber " << runNumber << endl;
             ss.str("");
             ss.clear();
             ss << "workfolder/lattices__run" << runNumber;
@@ -98,6 +99,8 @@ void test_indexerPlain()
             ss << "workfolder/detectorPeaks_m__run" << runNumber;
             loadEigenMatrixFromDisk(detectorPeaks_m, ss.str());
 
+            cout << "runNumber " << runNumber << endl;
+
             vector< Lattice > assembledLattices;
 
             chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
@@ -107,7 +110,6 @@ void test_indexerPlain()
             cout << "duration: " << duration << "ms" << endl << endl;
             totalDuration += duration;
 
-            cout << "runNumber " << runNumber << endl;
             ss.str("");
             ss.clear();
             ss << "workfolder/lattices__run" << runNumber;

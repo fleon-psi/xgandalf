@@ -104,10 +104,10 @@ void IndexerAutocorrPrefit::getGoodAutocorrelationPoints(Matrix3Xf& goodAutocorr
         }
     }
 
-//    nth_element(pointsOutsideOfClusters.begin(), pointsOutsideOfClusters.begin() + pointsOutsideOfClustersToTakeCount, pointsOutsideOfClusters.end(),
-//            [&](const Vector3f& i, const Vector3f& j) {return i.squaredNorm() < j.squaredNorm();});
-    sort(pointsOutsideOfClusters.begin(), pointsOutsideOfClusters.end(), /////////////DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                [&](const Vector3f& i, const Vector3f& j) {return i.squaredNorm() < j.squaredNorm();});
+    nth_element(pointsOutsideOfClusters.begin(), pointsOutsideOfClusters.begin() + pointsOutsideOfClustersToTakeCount, pointsOutsideOfClusters.end(),
+            [&](const Vector3f& i, const Vector3f& j) {return i.squaredNorm() < j.squaredNorm();});
+//    sort(pointsOutsideOfClusters.begin(), pointsOutsideOfClusters.end(), /////////////DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//                [&](const Vector3f& i, const Vector3f& j) {return i.squaredNorm() < j.squaredNorm();});
 
     for (uint32_t i = 0; i < pointsOutsideOfClustersToTakeCount; ++i, ++goodAutocorrelationPointsCount) {
         goodAutocorrelationPoints.col(goodAutocorrelationPointsCount) = pointsOutsideOfClusters[i];
@@ -276,6 +276,7 @@ void IndexerAutocorrPrefit::index(std::vector< Lattice >& assembledLattices, con
     latticeAssembler.setDeterminantRange(experimentSettings.getRealLatticeDeterminant_A3() * 0.8, experimentSettings.getRealLatticeDeterminant_A3() * 1.2);
 
     latticeAssembler.setAccuracyConstants(accuracyConstants_LatticeAssembler);
+    latticeAssembler.setKnownLatticeParameters(experimentSettings.getSampleRealLattice_A(), experimentSettings.getTolerance());
 
     vector< LatticeAssembler::assembledLatticeStatistics_t > assembledLatticesStatistics;
     Matrix3Xf& candidateVectors = samplePoints;

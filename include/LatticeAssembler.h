@@ -30,12 +30,16 @@ public:
     } accuracyConstants_t;
 
     LatticeAssembler();
-    LatticeAssembler(Eigen::Vector2f& determinantRange);
-    LatticeAssembler(Eigen::Vector2f& determinantRange, accuracyConstants_t& accuracyConstants);
+    LatticeAssembler(const Eigen::Vector2f& determinantRange);
+    LatticeAssembler(const Eigen::Vector2f& determinantRange, const Lattice& sampleRealLattice_A, float knownLatticeTolerance);
+    LatticeAssembler(const Eigen::Vector2f& determinantRange, const accuracyConstants_t& accuracyConstants);
+    LatticeAssembler(const Eigen::Vector2f& determinantRange, const Lattice& sampleRealLattice_A, float knownLatticeTolerance,
+            const accuracyConstants_t& accuracyConstants);
 
     void setAccuracyConstants(const accuracyConstants_t& accuracyConstants);
     void setDeterminantRange(const Eigen::Vector2f& determinantRange);
     void setDeterminantRange(float min, float max);
+    void setKnownLatticeParameters(const Lattice& sampleRealLattice_A, float tolerance);
 
     void assembleLattices(std::vector< Lattice >& assembledLattices, Eigen::Matrix3Xf& candidateVectors, Eigen::RowVectorXf& candidateVectorWeights,
             std::vector< std::vector< uint16_t > >& pointIndicesOnVector, Eigen::Matrix3Xf& pointsToFitInReciprocalSpace);
@@ -44,10 +48,16 @@ public:
             Eigen::Matrix3Xf& pointsToFitInReciprocalSpace);
 
 private:
+    void setStandardValues();
     void reset();
+    bool checkLatticeParameters(Lattice& lattice);
 
     //input
     Eigen::Vector2f determinantRange;
+    Eigen::Array< float, 6, 1 > knownLatticeParameters;
+    Eigen::Array< float, 6, 1 > knownLatticeParametersInverse;
+    float knownLatticeParametersTolerance;
+    bool latticeParametersKnown;
 
     accuracyConstants_t accuracyConstants;
 

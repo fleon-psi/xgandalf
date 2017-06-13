@@ -144,6 +144,7 @@ void IndexerPlain::index(std::vector< Lattice >& assembledLattices, const Eigen:
     latticeAssembler.setDeterminantRange(experimentSettings.getRealLatticeDeterminant_A3() * 0.8, experimentSettings.getRealLatticeDeterminant_A3() * 1.2);
 
     latticeAssembler.setAccuracyConstants(accuracyConstants_LatticeAssembler);
+    latticeAssembler.setKnownLatticeParameters(experimentSettings.getSampleRealLattice_A(), experimentSettings.getTolerance());
 
     vector< LatticeAssembler::assembledLatticeStatistics_t > assembledLatticesStatistics;
     Matrix3Xf& candidateVectors = samplePoints;

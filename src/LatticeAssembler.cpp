@@ -20,8 +20,38 @@ using namespace std;
 
 LatticeAssembler::LatticeAssembler()
 {
+    setStandardValues();
+
+}
+LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange)
+{
+    setDeterminantRange(determinantRange);
+}
+LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange, const Lattice& sampleRealLattice_A, float knownLatticeTolerance)
+{
+    setDeterminantRange(determinantRange);
+    setKnownLatticeParameters(sampleRealLattice_A, knownLatticeTolerance);
+}
+LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange, const accuracyConstants_t& accuracyConstants)
+{
+    setDeterminantRange(determinantRange);
+    setAccuracyConstants(accuracyConstants);
+}
+LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange, const Lattice& sampleRealLattice_A, float knownLatticeTolerance,
+        const accuracyConstants_t& accuracyConstants)
+{
+    setDeterminantRange(determinantRange);
+    setKnownLatticeParameters(sampleRealLattice_A, knownLatticeTolerance);
+    setAccuracyConstants(accuracyConstants);
+}
+
+void LatticeAssembler::setStandardValues()
+{
     determinantRange << 0, numeric_limits< float >::max();
 
+    latticeParametersKnown = false;
+    knownLatticeParametersTolerance = 0;
+
     accuracyConstants.maxCountGlobalPassingWeightFilter = 500;
     accuracyConstants.maxCountLocalPassingWeightFilter = 15;
     accuracyConstants.maxCountPassingRelativeDefectFilter = 50;
@@ -29,19 +59,12 @@ LatticeAssembler::LatticeAssembler()
     accuracyConstants.minPointsOnLattice = 5;
 }
 
-LatticeAssembler::LatticeAssembler(Vector2f& determinantRange) :
-        determinantRange(determinantRange)
+void LatticeAssembler::setKnownLatticeParameters(const Lattice& sampleRealLattice_A, float tolerance)
 {
-    accuracyConstants.maxCountGlobalPassingWeightFilter = 500;
-    accuracyConstants.maxCountLocalPassingWeightFilter = 15;
-    accuracyConstants.maxCountPassingRelativeDefectFilter = 50;
-
-    accuracyConstants.minPointsOnLattice = 5;
-}
-
-LatticeAssembler::LatticeAssembler(Vector2f& determinantRange, accuracyConstants_t& accuracyConstants) :
-        determinantRange(determinantRange), accuracyConstants(accuracyConstants)
-{
+    latticeParametersKnown = true;
+    knownLatticeParameters << sampleRealLattice_A.getBasisVectorNorms(), sampleRealLattice_A.getBasisVectorAnglesNormalized();
+    knownLatticeParametersInverse = 1.0f / knownLatticeParameters;
+    knownLatticeParametersTolerance = tolerance;
 }
 
 void LatticeAssembler::assembleLattices(vector< Lattice >& assembledLattices, Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights,
@@ -108,7 +131,7 @@ void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, 
         tmp_indices.clear();
         set_union(combinedPointIndicesOnSelectedLattices.begin(), combinedPointIndicesOnSelectedLattices.end(),
                 bestCandidateLattice->pointOnLatticeIndices.begin(), bestCandidateLattice->pointOnLatticeIndices.end(),
-                back_inserter(tmp_indices));   // first resizing to take all elements and then rezizing to right size may be slightly faster than back-inserter 
+                back_inserter(tmp_indices));   // first resizing to take all elements and then rezizing to right size may be slightly faster than back-inserter
         combinedPointIndicesOnSelectedLattices.swap(tmp_indices);
 
         nextCandidateLattice = next(bestCandidateLattice);
@@ -139,6 +162,7 @@ void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, 
                                 && nextCandidateLattice->assembledLatticeStatistics.meanRelativeDefect
                                         < bestCandidateLattice->assembledLatticeStatistics.meanRelativeDefect * significantMeanRelativeDefectReductionFactor)
                         ) {
+
                     auto temp = next(nextCandidateLattice);
                     finalCandidateLattices.splice(next(bestCandidateLattice), finalCandidateLattices, nextCandidateLattice);
                     bestCandidateLattice = finalCandidateLattices.erase(bestCandidateLattice);
@@ -194,7 +218,7 @@ uint16_t LatticeAssembler::countUniqueColumns(const Matrix3Xf& millerIndices)
 void LatticeAssembler::computeCandidateLattices(Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights,
         vector< vector< uint16_t > >& pointIndicesOnVector)
 {
-    //hand-crafted remove-if for three variables. 
+//hand-crafted remove-if for three variables.
     for (int i = candidateVectors.cols() - 1; i >= 0; i--) {
         if (pointIndicesOnVector[i].size() < accuracyConstants.minPointsOnLattice) {
             pointIndicesOnVector[i] = pointIndicesOnVector.back();
@@ -241,6 +265,12 @@ void LatticeAssembler::computeCandidateLattices(Matrix3Xf& candidateVectors, Row
                     continue;
                 }
                 pointIndicesOnLatticeToCheck.resize(pointsOnLatticeToCheckCount);
+
+                if (latticeParametersKnown) {
+                    if (!checkLatticeParameters(latticeToCheck)) {
+                        continue;
+                    }
+                }
 
                 candidateLattices.resize(candidateLattices.size() + 1);
                 auto& newCandidateBasis = candidateLattices.back();
@@ -301,6 +331,34 @@ void LatticeAssembler::filterCandidateLatticesByWeight(uint32_t maxToTakeCount)
     }
 
     candidateLattices.swap(candidateLatticesFiltered);
+}
+
+bool LatticeAssembler::checkLatticeParameters( Lattice& lattice)
+{
+    lattice.minimize();
+
+    Vector3f n = lattice.getBasisVectorNorms();
+    Vector3f a = lattice.getBasisVectorAnglesNormalized();
+
+    Array< float, 6, 6 > allPermutations;
+
+    allPermutations <<
+            n[0], n[0], n[1], n[1], n[2], n[2],
+            n[1], n[2], n[0], n[2], n[0], n[1],
+            n[2], n[1], n[2], n[0], n[1], n[0],
+            a[0], a[0], a[1], a[1], a[2], a[2],
+            a[1], a[2], a[0], a[2], a[0], a[1],
+            a[2], a[1], a[2], a[0], a[1], a[0];
+
+    auto rasiduals = ((allPermutations.colwise() - knownLatticeParameters).colwise() * knownLatticeParametersInverse).abs(); // Array< bool, 6, 6 >
+
+    auto parametersValid = rasiduals < knownLatticeParametersTolerance;   // Array< bool, 6, 6 >
+
+    auto permutationsValid = parametersValid.colwise().all();   // Array< bool, 1, 6 >
+
+    bool latticeValid = permutationsValid.any();
+
+    return latticeValid;
 }
 
 void LatticeAssembler::filterCandidateBasesByMeanRelativeDefect(uint32_t maxToTakeCount)

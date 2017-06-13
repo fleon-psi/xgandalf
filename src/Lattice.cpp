@@ -144,6 +144,20 @@ Vector3f Lattice::getBasisVectorAngles() const
     return angles;
 }
 
+Vector3f Lattice::getBasisVectorAnglesNormalized() const
+{
+    const Vector3f& a = basis.col(0);
+    const Vector3f& b = basis.col(1);
+    const Vector3f& c = basis.col(2);
+
+    Vector3f angles;
+    angles[0] = atan2(b.cross(c).norm(), abs(b.dot(c))) * (M_1_PI * 180);
+    angles[1] = atan2(a.cross(c).norm(), abs(a.dot(c))) * (M_1_PI * 180);
+    angles[2] = atan2(a.cross(b).norm(), abs(a.dot(b))) * (M_1_PI * 180);
+
+    return angles;
+}
+
 std::ostream& operator<<(std::ostream& os, const Lattice& lattice)
 {
     os << lattice.basis;
