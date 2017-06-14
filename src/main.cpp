@@ -30,8 +30,8 @@ using namespace Eigen;
 
 int main()
 {
-    test_indexerAutocorrPrefit();
-//    test_indexerPlain();
+//    test_indexerAutocorrPrefit();
+    test_indexerPlain();
 
     return 0;
 }

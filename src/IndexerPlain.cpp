@@ -24,18 +24,7 @@ IndexerPlain::IndexerPlain(const ExperimentSettings& experimentSettings, const s
 
 void IndexerPlain::precompute()
 {
-    if (experimentSettings.isLatticeParametersKnown()) {
-        float unitPitch = 0.05;
-        float tolerance = min(0.05f, experimentSettings.getTolerance());
-
-        samplePointsGenerator.getTightGrid(precomputedSamplePoints, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
-    } else {
-        float unitPitch = 0.05;
-        float minRadius = experimentSettings.getMinRealLatticeVectorLength_A() * 0.98;
-        float maxRadius = experimentSettings.getMaxRealLatticeVectorLength_A() * 1.02;
-
-        samplePointsGenerator.getDenseGrid(precomputedSamplePoints, unitPitch, minRadius, maxRadius);
-    }
+    setSamplingPitch(SamplingPitch::standard);
 
     float minSpacingBetweenPeaks = experimentSettings.getDifferentRealLatticeVectorLengths_A().minCoeff() * 0.2;
     float maxPossiblePointNorm = experimentSettings.getDifferentRealLatticeVectorLengths_A().maxCoeff() * 1.2;
@@ -43,6 +32,45 @@ void IndexerPlain::precompute()
 
     maxCloseToPeakDeviation = 0.15;
     inverseSpaceTransform = InverseSpaceTransform(maxCloseToPeakDeviation);
+}
+
+void IndexerPlain::setSamplingPitch(SamplingPitch samplingPitch)
+{
+    float unitPitch;
+
+    switch (samplingPitch) {
+        case SamplingPitch::extremelyLoose:
+            unitPitch = 0.05;
+            break;
+        case SamplingPitch::loose:
+            unitPitch = 0.05;
+            break;
+        case SamplingPitch::standard:
+            unitPitch = 0.05;
+            break;
+        case SamplingPitch::dense:
+            unitPitch = 0.05;
+            break;
+        case SamplingPitch::extremelyDense:
+            unitPitch = 0.05;
+            break;
+    }
+
+    setSamplingPitch(unitPitch);
+}
+
+void IndexerPlain::setSamplingPitch(float unitPitch)
+{
+    if (experimentSettings.isLatticeParametersKnown()) {
+        float tolerance = min(unitPitch, experimentSettings.getTolerance());
+
+        samplePointsGenerator.getTightGrid(precomputedSamplePoints, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
+    } else {
+        float minRadius = experimentSettings.getMinRealLatticeVectorLength_A() * 0.98;
+        float maxRadius = experimentSettings.getMaxRealLatticeVectorLength_A() * 1.02;
+
+        samplePointsGenerator.getDenseGrid(precomputedSamplePoints, unitPitch, minRadius, maxRadius);
+    }
 }
 
 void IndexerPlain::index(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m)
