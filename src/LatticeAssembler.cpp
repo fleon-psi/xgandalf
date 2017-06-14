@@ -115,10 +115,10 @@ void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, 
 
     finalCandidateLattices.sort([&](candidateLattice_t i, candidateLattice_t j) {return i.pointOnLatticeIndices.size() > j.pointOnLatticeIndices.size();}); //descending
 
-    float significantDetReductionFactor = 0.75;
-    float significantPointCountReductionFactor = 0.85;
-    float significantMeanDefectReductionFactor = 0.7;
-    float significantMeanRelativeDefectReductionFactor = 0.8;
+    float significantDetReductionFactor = 0.75f;
+    float significantPointCountReductionFactor = 0.85f;
+    float significantMeanDefectReductionFactor = 0.7f;
+    float significantMeanRelativeDefectReductionFactor = 0.8f;
 
     vector< uint16_t > combinedPointIndicesOnSelectedLattices;
     vector< uint16_t > tmp_indices;
