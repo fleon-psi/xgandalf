@@ -22,7 +22,7 @@ public:
     //maxEpsilon defines performance. Best performance for maxEpsilon == epsilon. Too small maxEpsilon means very big discretizationVolume
     Dbscan(float maxEpsilon, float maxPossiblePointNorm);
     Dbscan();
-    
+
     void init(float maxEpsilon, float maxPossiblePointNorm);
 
     void computeClusters(std::vector< cluster_t >& clusters, const Eigen::Matrix3Xf& points, uint16_t minPoints, float epsilon);
@@ -113,7 +113,7 @@ private:
 
     //fast, but insecure: if point lies out of scope, it gets relocated somewhere inside the scope. 
     inline uint32_t getIndex(const Eigen::Vector3f& position) const
-            {
+    {
         Eigen::Vector3d temp = ((position - bin1Position) * binWidth_reciprocal).cast< double >().array().floor().matrix();
         return std::min((uint32_t) (temp[0] + temp.tail(2).dot(strides.tail(2))), binCountMinus1); //min could be avoided for the price of unsafety
     }

@@ -55,7 +55,7 @@ void IndexerPlain::setSamplingPitch(SamplingPitch samplingPitch)
             unitPitch = 0.01;
             break;
         default:
-            unitPitch = 0.00; //todo: can not happen! throw exception!
+            unitPitch = 0.00; //can not happen!
     }
 
     setSamplingPitch(unitPitch);
