@@ -39,7 +39,7 @@ if(EIGEN3_FOUND)
     target_link_libraries (indexer Eigen3::Eigen)
 else()
     message("Eigen not found, using internal Eigen.")
-    include_directories(include/Eigen)
+    include_directories(SYSTEM include/Eigen)
     
     install(
         DIRECTORY include/Eigen
