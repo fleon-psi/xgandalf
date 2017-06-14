@@ -40,20 +40,22 @@ void IndexerPlain::setSamplingPitch(SamplingPitch samplingPitch)
 
     switch (samplingPitch) {
         case SamplingPitch::extremelyLoose:
-            unitPitch = 0.05;
+            unitPitch = 0.10;
             break;
         case SamplingPitch::loose:
-            unitPitch = 0.05;
+            unitPitch = 0.075;
             break;
         case SamplingPitch::standard:
             unitPitch = 0.05;
             break;
         case SamplingPitch::dense:
-            unitPitch = 0.05;
+            unitPitch = 0.025;
             break;
         case SamplingPitch::extremelyDense:
-            unitPitch = 0.05;
+            unitPitch = 0.01;
             break;
+        default:
+            unitPitch = 0.00; //todo: can not happen! throw exception!
     }
 
     setSamplingPitch(unitPitch);
