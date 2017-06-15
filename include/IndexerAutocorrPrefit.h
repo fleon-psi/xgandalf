@@ -12,10 +12,21 @@
 
 class IndexerAutocorrPrefit: public IndexerBase {
 public:
+    enum class SamplingPitch {
+        extremelyLoose,
+        loose,
+        standard,
+        dense,
+        extremelyDense
+    };
+
     IndexerAutocorrPrefit(const ExperimentSettings& experimentSettings);
     IndexerAutocorrPrefit(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath);
 
     void index(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m);
+
+    void setSamplingPitch(SamplingPitch samplingPitch);
+    void setSamplingPitch(float unitPitch);
 
 private:
     void precompute();
