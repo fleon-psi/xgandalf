@@ -20,6 +20,14 @@ public:
         extremelyDense
     };
 
+    enum class GradientDescentIterationsCount {
+        verryFew,
+        few,
+        standard,
+        many,
+        manyMany
+    };
+
     IndexerPlain(const ExperimentSettings& experimentSettings);
     IndexerPlain(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath);
 
@@ -27,6 +35,8 @@ public:
 
     void setSamplingPitch(SamplingPitch samplingPitch);
     void setSamplingPitch(float unitPitch);
+
+    void setGradientDescentIterationsCount(GradientDescentIterationsCount gradientDescentIterationsCount);
 
 private:
     void precompute();
@@ -38,6 +48,10 @@ private:
     InverseSpaceTransform inverseSpaceTransform;
 
     float maxCloseToPeakDeviation;
+
+    HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_global;
+    HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_peaks;
+    LatticeAssembler::accuracyConstants_t accuracyConstants_LatticeAssembler;
 };
 
 #endif /* INDEXERPLAIN_H_ */
