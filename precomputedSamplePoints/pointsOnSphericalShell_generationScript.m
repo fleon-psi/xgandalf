@@ -2,8 +2,8 @@
 % needs "Rotation Matrix 3D" from https://de.mathworks.com/matlabcentral/fileexchange/46419-rotation-matrix-3d
 thisFilesPath = fileparts(mfilename('fullpath'));
 
-pitches = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2];
-tolerances = [0, 0.005, 0.01, 0.02, 0.03, 0.04, 0.05];
+pitches = [0.005, 0.0075, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2];
+tolerances = [0, 0.005, 0.01, 0.02, 0.03, 0.04];
 
 rotationMatrix1 = RotationMatrix([pi/8, pi/10, pi/12], 'eulerAngles').GetRotationMatrix();
 rotationMatrix2 = RotationMatrix([pi/12, pi/8, pi/10], 'eulerAngles').GetRotationMatrix();
@@ -37,3 +37,8 @@ for pitch = pitches
 
     end
 end
+
+filename = [thisFilesPath , '/pitches'];
+dlmwrite(filename, pitches,'delimiter','\t');
+filename = [thisFilesPath , '/tolerances'];
+dlmwrite(filename, tolerances,'delimiter','\t');
