@@ -381,7 +381,6 @@ vector< vector< uint16_t > >& InverseSpaceTransform::getPointsCloseToEvaluationP
     for_each(pointsCloseToEvaluationPositions_indices.begin(), pointsCloseToEvaluationPositions_indices.end(), [](vector< uint16_t >& v) {v.clear();});
 
     if (resultsUpToDate) {
-
         for (int pointIndex = 0; pointIndex < closeToPoint.rows(); pointIndex++) {
             for (int evaluationPositionIndex = 0; evaluationPositionIndex < closeToPoint.cols(); evaluationPositionIndex++) {
                 if (closeToPoint(pointIndex, evaluationPositionIndex)) {
