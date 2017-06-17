@@ -30,7 +30,7 @@ public:
 
         int functionSelection;
         float optionalFunctionArgument;
-        float maxCloseToPeakDeviation;
+        float maxCloseToPointDeviation;
 
         stepComputationAccuracyConstants_t stepComputationAccuracyConstants;
     } hillClimbingAccuracyConstants_t;
@@ -39,8 +39,8 @@ public:
 
     void performOptimization(const Eigen::Matrix3Xf& pointsToTransform, Eigen::Matrix3Xf& positionsToOptimize);
     Eigen::RowVectorXf& getLastInverseTransformEvaluation();
-    Eigen::RowVectorXf& getCloseToPeaksCount();
-    std::vector< std::vector< uint16_t > >& getPeaksCloseToEvaluationPositions_indices();
+    Eigen::RowVectorXf& getCloseToPointsCount();
+    std::vector< std::vector< uint16_t > >& getPointsCloseToEvaluationPositions_indices();
 
     void setHillClimbingAccuracyConstants(hillClimbingAccuracyConstants_t accuracyConstants);
 
@@ -50,8 +50,8 @@ public:
 public:
     void setStepComputationAccuracyConstants(stepComputationAccuracyConstants_t stepComputationAccuracyConstants);
 
-    //watch out! gradient, closeToPeaksCount and inverseTransformEvaluation are changed in this function (for performance reasons)!
-    void computeStep(Eigen::Matrix3Xf& gradient, Eigen::RowVectorXf& closeToPeaksCount, Eigen::RowVectorXf& inverseTransformEvaluation,
+    //watch out! gradient, closeToPointsCount and inverseTransformEvaluation are changed in this function (for performance reasons)!
+    void computeStep(Eigen::Matrix3Xf& gradient, Eigen::RowVectorXf& closeToPointsCount, Eigen::RowVectorXf& inverseTransformEvaluation,
             bool useStepOrthogonalization);
 
     void performOptimizationStep(Eigen::Matrix3Xf& positionsToOptimize, bool useStepOrthogonalization);

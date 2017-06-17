@@ -21,18 +21,18 @@ public:
         bool localTransform;
         bool radialWeighting;
 
-        float maxCloseToPeakDeviation;
+        float maxCloseToPointDeviation;
     } accuracyConstants_t;
 
     InverseSpaceTransform();
-    InverseSpaceTransform(float maxCloseToPeakDeviation);
+    InverseSpaceTransform(float maxCloseToPointDeviation);
 
     void performTransform(const Eigen::Matrix3Xf& positionsToEvaluate);
 
     void setPointsToTransform(const Eigen::Matrix3Xf& pointsToTransform);
     void setPointsToTransformWeights(const Eigen::RowVectorXf& pointsToTransformWeights);
 
-    void setMaxCloseToPeakDeviation(float maxCloseToPeakDeviation);
+    void setMaxCloseToPointDeviation(float maxCloseToPointDeviation);
     void setFunctionSelection(int functionSelection);
     void setOptionalFunctionArgument(float optionalFunctionArgument);
     void setLocalTransformFlag();

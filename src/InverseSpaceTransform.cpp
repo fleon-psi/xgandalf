@@ -32,17 +32,17 @@ InverseSpaceTransform::InverseSpaceTransform() :
     accuracyConstants.optionalFunctionArgument = 1;
     accuracyConstants.localTransform = false;
     accuracyConstants.radialWeighting = false;
-    accuracyConstants.maxCloseToPeakDeviation = 0.15;
+    accuracyConstants.maxCloseToPointDeviation = 0.15;
 }
 
-InverseSpaceTransform::InverseSpaceTransform(float maxCloseToPeakDeviation) :
+InverseSpaceTransform::InverseSpaceTransform(float maxCloseToPointDeviation) :
         inverseTransformEvaluationScalingFactor(0), resultsUpToDate(false)
 {
     accuracyConstants.functionSelection = 0;
     accuracyConstants.optionalFunctionArgument = 1;
     accuracyConstants.localTransform = false;
     accuracyConstants.radialWeighting = false;
-    accuracyConstants.maxCloseToPeakDeviation = maxCloseToPeakDeviation;
+    accuracyConstants.maxCloseToPointDeviation = maxCloseToPointDeviation;
 }
 
 void InverseSpaceTransform::performTransform(const Matrix3Xf& positionsToEvaluate)
@@ -69,7 +69,7 @@ void InverseSpaceTransform::performTransform(const Matrix3Xf& positionsToEvaluat
     } else {
         closeToPointsCount = closeToPoint.matrix().cast< uint16_t >().colwise().sum().cast< float >();
     }
-//    cout << gradient << endl << endl << inverseTransformEvaluation << endl << endl << closeToPeak << endl << endl;
+//    cout << gradient << endl << endl << inverseTransformEvaluation << endl << endl << closeToPoint << endl << endl;
 
     if (accuracyConstants.localTransform) {
         for (int i = 0; i < closeToPointsCount.size(); i++) {
@@ -221,7 +221,7 @@ void InverseSpaceTransform::onePeriodicFunction(ArrayXXf& x)
 //    cout << x<<endl<<endl;
     x = x - round(x);   //catastrophic cancellation possible
 //    cout << x << endl << endl;
-    closeToPoint = abs(x) < accuracyConstants.maxCloseToPeakDeviation;
+    closeToPoint = abs(x) < accuracyConstants.maxCloseToPointDeviation;
 
     switch (accuracyConstants.functionSelection) {
         case 1:
@@ -334,12 +334,12 @@ void InverseSpaceTransform::clearRadialWeightingFlag()
     update_pointsToTransformWeights();
 }
 
-void InverseSpaceTransform::setMaxCloseToPeakDeviation(float maxCloseToPeakDeviation)
+void InverseSpaceTransform::setMaxCloseToPointDeviation(float maxCloseToPointDeviation)
 {
-    assert(maxCloseToPeakDeviation < 0.5);
-    if (accuracyConstants.maxCloseToPeakDeviation != maxCloseToPeakDeviation) {
+    assert(maxCloseToPointDeviation < 0.5);
+    if (accuracyConstants.maxCloseToPointDeviation != maxCloseToPointDeviation) {
         resultsUpToDate = false;
-        accuracyConstants.maxCloseToPeakDeviation = maxCloseToPeakDeviation;
+        accuracyConstants.maxCloseToPointDeviation = maxCloseToPointDeviation;
     }
 }
 
@@ -369,7 +369,7 @@ Eigen::RowVectorXf& InverseSpaceTransform::getCloseToPointsCount()
         return closeToPointsCount;
     } else {
         stringstream errStream;
-        errStream << "CloseToPeaksCount not up to date, call performTransform() first.";
+        errStream << "CloseToPointsCount not up to date, call performTransform() first.";
         throw BadInputException(errStream.str());
     }
 }
@@ -392,7 +392,7 @@ vector< vector< uint16_t > >& InverseSpaceTransform::getPointsCloseToEvaluationP
         return pointsCloseToEvaluationPositions_indices;
     } else {
         stringstream errStream;
-        errStream << "closeToPeak not up to date, call performTransform() first.";
+        errStream << "closeToPoint not up to date, call performTransform() first.";
         throw BadInputException(errStream.str());
     }
 }

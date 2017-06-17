@@ -50,7 +50,7 @@ private:
     SparsePeakFinder sparsePeakFinder;
     InverseSpaceTransform inverseSpaceTransform;
 
-    float maxCloseToPeakDeviation;
+    float maxCloseToPointDeviation;
 
     HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_global;
     HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_peaks;

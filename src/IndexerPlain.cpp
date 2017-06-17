@@ -24,7 +24,7 @@ IndexerPlain::IndexerPlain(const ExperimentSettings& experimentSettings, const s
 
 void IndexerPlain::precompute()
 {
-    maxCloseToPeakDeviation = 0.15;
+    maxCloseToPointDeviation = 0.15;
 
     setSamplingPitch(SamplingPitch::standard);
     setGradientDescentIterationsCount(GradientDescentIterationsCount::standard);
@@ -33,7 +33,7 @@ void IndexerPlain::precompute()
     float maxPossiblePointNorm = experimentSettings.getDifferentRealLatticeVectorLengths_A().maxCoeff() * 1.2;
     sparsePeakFinder.precompute(minSpacingBetweenPeaks, maxPossiblePointNorm);
 
-    inverseSpaceTransform = InverseSpaceTransform(maxCloseToPeakDeviation);
+    inverseSpaceTransform = InverseSpaceTransform(maxCloseToPointDeviation);
     inverseSpaceTransform.setFunctionSelection(9);
     inverseSpaceTransform.setOptionalFunctionArgument(8);
     inverseSpaceTransform.setLocalTransformFlag();
@@ -239,11 +239,11 @@ void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCo
 
     global.functionSelection = 1;
     global.optionalFunctionArgument = 1;
-    global.maxCloseToPeakDeviation = maxCloseToPeakDeviation;
+    global.maxCloseToPointDeviation = maxCloseToPointDeviation;
 
     peaks.functionSelection = 9;
     peaks.optionalFunctionArgument = 8;
-    peaks.maxCloseToPeakDeviation = maxCloseToPeakDeviation;
+    peaks.maxCloseToPointDeviation = maxCloseToPointDeviation;
 
     peaks.initialIterationCount = 0;
     peaks.calmDownIterationCount = 0;

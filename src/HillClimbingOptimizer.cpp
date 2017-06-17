@@ -87,7 +87,7 @@ void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransfo
 //        ofs << positionsToOptimize.transpose().eval() << endl;
     }
 
-    // can be optimized! Does not always need to compute slope, closeToPeaks and gradient
+    // can be optimized! Does not always need to compute slope, closeToPoints and gradient
     transform.performTransform(positionsToOptimize);
     lastInverseTransformEvaluation = transform.getInverseTransformEvaluation();
 
@@ -100,9 +100,9 @@ void HillClimbingOptimizer::performOptimizationStep(Matrix3Xf& positionsToOptimi
 {
     transform.performTransform(positionsToOptimize);
     Matrix3Xf& gradient = transform.getGradient();
-    RowVectorXf& closeToPeaksCount = transform.getCloseToPointsCount();
+    RowVectorXf& closeToPointsCount = transform.getCloseToPointsCount();
     RowVectorXf& inverseTransformEvaluation = transform.getInverseTransformEvaluation();
-    computeStep(gradient, closeToPeaksCount, inverseTransformEvaluation, useStepOrthogonalization);
+    computeStep(gradient, closeToPointsCount, inverseTransformEvaluation, useStepOrthogonalization);
 //    cout << "step: " << endl << step << endl << endl;
     positionsToOptimize += step;
 //    cout << "positionsToOptimize: " << endl << positionsToOptimize << endl << endl;
@@ -118,22 +118,22 @@ RowVectorXf& HillClimbingOptimizer::getLastInverseTransformEvaluation()
     return lastInverseTransformEvaluation;
 }
 
-RowVectorXf& HillClimbingOptimizer::getCloseToPeaksCount()
+RowVectorXf& HillClimbingOptimizer::getCloseToPointsCount()
 {
     return transform.getCloseToPointsCount();
 }
 
-vector< vector< uint16_t > >& HillClimbingOptimizer::getPeaksCloseToEvaluationPositions_indices()
+vector< vector< uint16_t > >& HillClimbingOptimizer::getPointsCloseToEvaluationPositions_indices()
 {
     return transform.getPointsCloseToEvaluationPositions_indices();
 }
 
-void HillClimbingOptimizer::computeStep(Matrix3Xf& gradient, RowVectorXf& closeToPeaksCount, RowVectorXf& inverseTransformEvaluation,
+void HillClimbingOptimizer::computeStep(Matrix3Xf& gradient, RowVectorXf& closeToPointsCount, RowVectorXf& inverseTransformEvaluation,
         bool useStepOrthogonalization)
 {
     //reuse memory for processing for performance reasons
     Matrix3Xf& stepDirection = gradient;
-    RowVectorXf& closeToPeaksFactor = closeToPeaksCount;
+    RowVectorXf& closeToPointsFactor = closeToPointsCount;
     RowVectorXf& functionEvaluationFactor = inverseTransformEvaluation;
 
     stepDirection = gradient.colwise().normalized();
@@ -143,13 +143,13 @@ void HillClimbingOptimizer::computeStep(Matrix3Xf& gradient, RowVectorXf& closeT
 //    cout << "dirChange " << endl << directionChange << endl << endl;
 
     Array< float, 1, Dynamic > stepDirectionFactor = ((directionChange + 1) / 2).square().square() * 1.5 + 0.5;   //directionChange in [-1 1]   
-    closeToPeaksFactor = (closeToPeaksCount.array() * (-1) + 0.8).square() * 6 + 0.5;   //closeToPeaks in [0 1]
+    closeToPointsFactor = (closeToPointsCount.array() * (-1) + 0.8).square() * 6 + 0.5;   //closeToPoints in [0 1]
     functionEvaluationFactor = ((inverseTransformEvaluation.array() * (-1) + 0.8) / 2).cube() * 4 + 0.3;   //functionEvaluation in [-1 1]
-//    cout << stepDirectionFactor << endl << endl << closeToPeaksFactor << endl << endl << functionEvaluationFactor << endl;
+//    cout << stepDirectionFactor << endl << endl << closeToPointsFactor << endl << endl << functionEvaluationFactor << endl;
 
 //    cout << "stepDirection " << endl << stepDirection << endl << endl;
     if (useStepOrthogonalization) {
-        for (int i = 0; i < closeToPeaksCount.size(); i++) {
+        for (int i = 0; i < closeToPointsCount.size(); i++) {
             if (directionChange(i) < -0.4) {
                 stepDirection.col(i) = (stepDirection.col(i) + previousStepDirection.col(i)).normalized();
                 stepDirectionFactor(i) = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.directionChangeFactor;
@@ -166,7 +166,7 @@ void HillClimbingOptimizer::computeStep(Matrix3Xf& gradient, RowVectorXf& closeT
 
     Array< float, 1, Eigen::Dynamic >& stepLength = previousStepLength;  //reuse memory
     stepLength = ((0.5 * (minStep + (maxStep - minStep) * gamma) + 0.5 * previousStepLength)
-            * stepDirectionFactor * closeToPeaksFactor.array() * functionEvaluationFactor.array()).min(maxStep).max(minStep);
+            * stepDirectionFactor * closeToPointsFactor.array() * functionEvaluationFactor.array()).min(maxStep).max(minStep);
 
     step = stepDirection.array().rowwise() * stepLength;
 }
@@ -182,5 +182,5 @@ void HillClimbingOptimizer::setHillClimbingAccuracyConstants(hillClimbingAccurac
 
     transform.setFunctionSelection(accuracyConstants.functionSelection);
     transform.setOptionalFunctionArgument(accuracyConstants.optionalFunctionArgument);
-    transform.setMaxCloseToPeakDeviation(accuracyConstants.maxCloseToPeakDeviation);
+    transform.setMaxCloseToPointDeviation(accuracyConstants.maxCloseToPointDeviation);
 }

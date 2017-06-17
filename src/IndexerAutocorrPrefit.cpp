@@ -38,8 +38,8 @@ void IndexerAutocorrPrefit::precompute()
     float maxPossiblePointNorm = experimentSettings.getDifferentRealLatticeVectorLengths_A().maxCoeff() * 1.2;
     sparsePeakFinder.precompute(minSpacingBetweenPeaks, maxPossiblePointNorm);
 
-    maxCloseToPeakDeviation = 0.15;
-    inverseSpaceTransform = InverseSpaceTransform(maxCloseToPeakDeviation);
+    maxCloseToPointDeviation = 0.15;
+    inverseSpaceTransform = InverseSpaceTransform(maxCloseToPointDeviation);
 }
 
 void IndexerAutocorrPrefit::setSamplingPitch(SamplingPitch samplingPitch)
@@ -226,7 +226,7 @@ void IndexerAutocorrPrefit::index(std::vector< Lattice >& assembledLattices, con
     //////// autocorr prefit
     HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_autocorr;
 
-    hillClimbing_accuracyConstants_autocorr.maxCloseToPeakDeviation = maxCloseToPeakDeviation;
+    hillClimbing_accuracyConstants_autocorr.maxCloseToPointDeviation = maxCloseToPointDeviation;
 
     hillClimbing_accuracyConstants_autocorr.initialIterationCount = 5;
     hillClimbing_accuracyConstants_autocorr.calmDownIterationCount = 3;
@@ -247,7 +247,7 @@ void IndexerAutocorrPrefit::index(std::vector< Lattice >& assembledLattices, con
 
     hillClimbing_accuracyConstants_global.functionSelection = 1;
     hillClimbing_accuracyConstants_global.optionalFunctionArgument = 1;
-    hillClimbing_accuracyConstants_global.maxCloseToPeakDeviation = maxCloseToPeakDeviation;
+    hillClimbing_accuracyConstants_global.maxCloseToPointDeviation = maxCloseToPointDeviation;
 
     hillClimbing_accuracyConstants_global.initialIterationCount = 3;
     hillClimbing_accuracyConstants_global.calmDownIterationCount = 3;
@@ -283,7 +283,7 @@ void IndexerAutocorrPrefit::index(std::vector< Lattice >& assembledLattices, con
 
     hillClimbing_accuracyConstants_peaks.functionSelection = 9;
     hillClimbing_accuracyConstants_peaks.optionalFunctionArgument = 8;
-    hillClimbing_accuracyConstants_peaks.maxCloseToPeakDeviation = maxCloseToPeakDeviation;
+    hillClimbing_accuracyConstants_peaks.maxCloseToPointDeviation = maxCloseToPointDeviation;
 
     hillClimbing_accuracyConstants_peaks.initialIterationCount = 0;
     hillClimbing_accuracyConstants_peaks.calmDownIterationCount = 0;

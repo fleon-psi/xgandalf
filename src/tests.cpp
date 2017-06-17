@@ -296,7 +296,7 @@ void test_hillClimbing()
 
     hillClimbingOptimizer_accuracyConstants.functionSelection = 1;
     hillClimbingOptimizer_accuracyConstants.optionalFunctionArgument = 1;
-    hillClimbingOptimizer_accuracyConstants.maxCloseToPeakDeviation = 0.15;
+    hillClimbingOptimizer_accuracyConstants.maxCloseToPointDeviation = 0.15;
 
     hillClimbingOptimizer_accuracyConstants.initialIterationCount = 40;
     hillClimbingOptimizer_accuracyConstants.calmDownIterationCount = 5;
@@ -323,15 +323,15 @@ void test_hillClimbing()
     std::ofstream ofs2("workfolder/lastInverseTransformEvaluation", std::ofstream::out);
     ofs2 << optimizer.getLastInverseTransformEvaluation().transpose().eval();
 
-    std::ofstream ofs3("workfolder/closeToPeaksCount", std::ofstream::out);
-    ofs3 << optimizer.getCloseToPeaksCount().transpose().eval();
+    std::ofstream ofs3("workfolder/closeToPointsCount", std::ofstream::out);
+    ofs3 << optimizer.getCloseToPointsCount().transpose().eval();
 }
 
 void test_computeStep()
 {
-    float maxCloseToPeakDeviation = 0.15;
+    float maxCloseToPointDeviation = 0.15;
 
-    InverseSpaceTransform t(maxCloseToPeakDeviation);
+    InverseSpaceTransform t(maxCloseToPointDeviation);
     t.setFunctionSelection(9);
     t.setOptionalFunctionArgument(3);
     t.clearRadialWeightingFlag();
@@ -346,7 +346,7 @@ void test_computeStep()
     t.setPointsToTransform(pointsToTransform);
     t.performTransform(positionsToEvaluate);
 
-//    cout << t.getInverseTransformEvaluation() << endl << endl << t.getGradient() << endl << endl << t.getCloseToPeaksCount() << endl;
+//    cout << t.getInverseTransformEvaluation() << endl << endl << t.getGradient() << endl << endl << t.getCloseToPointsCount() << endl;
 
     HillClimbingOptimizer h;
     h.previousStepDirection = (Matrix3Xf(3, 4) << 0.5789, 0.6826, 0.3688, 0.6340, 0.4493, 0.0735, 0.8089, 0.3796, 0.6804, 0.7271, 0.4578, 0.6737).finished();
@@ -367,9 +367,9 @@ void test_computeStep()
 }
 void test_InverseSpaceTransform()
 {
-    float maxCloseToPeakDeviation = 0.15;
+    float maxCloseToPointDeviation = 0.15;
 
-    InverseSpaceTransform t(maxCloseToPeakDeviation);
+    InverseSpaceTransform t(maxCloseToPointDeviation);
     t.setFunctionSelection(9);
     t.setOptionalFunctionArgument(3);
     t.clearRadialWeightingFlag();

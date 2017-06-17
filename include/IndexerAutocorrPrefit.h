@@ -43,7 +43,7 @@ private:
     SparsePeakFinder sparsePeakFinder;
     InverseSpaceTransform inverseSpaceTransform;
 
-    float maxCloseToPeakDeviation;
+    float maxCloseToPointDeviation;
     float maxNormInAutocorrelation;
     float minNormInAutocorrelation;
     float dbscanEpsilon;
