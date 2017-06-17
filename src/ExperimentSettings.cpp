@@ -193,7 +193,7 @@ float ExperimentSettings::getDetectorRadius_m() const
     return detectorRadius_m;
 }
 
-const Eigen::VectorXf& ExperimentSettings::getDifferentRealLatticeVectorLengths_A() const
+const Eigen::ArrayXf& ExperimentSettings::getDifferentRealLatticeVectorLengths_A() const
 {
     return differentRealLatticeVectorLengths_A;
 }
@@ -284,7 +284,7 @@ float ExperimentSettings::getRealLatticeDeterminant_A3() const
     return realLatticeDeterminant_A3;
 }
 
-const Eigen::Vector3f& ExperimentSettings::getRealLatticeVectorAngles_deg() const
+const Eigen::Array3f& ExperimentSettings::getRealLatticeVectorAngles_deg() const
 {
     if (!latticeParametersKnown) {
         stringstream errStream;
@@ -295,7 +295,7 @@ const Eigen::Vector3f& ExperimentSettings::getRealLatticeVectorAngles_deg() cons
     return realLatticeVectorAngles_deg;
 }
 
-const Eigen::Vector3f& ExperimentSettings::getRealLatticeVectorAnglesNormalized_deg() const
+const Eigen::Array3f& ExperimentSettings::getRealLatticeVectorAnglesNormalized_deg() const
 {
     if (!latticeParametersKnown) {
         stringstream errStream;
@@ -306,7 +306,7 @@ const Eigen::Vector3f& ExperimentSettings::getRealLatticeVectorAnglesNormalized_
     return realLatticeVectorAnglesNormalized_deg;
 }
 
-const Eigen::Vector3f& ExperimentSettings::getRealLatticeVectorLengths_A() const
+const Eigen::Array3f& ExperimentSettings::getRealLatticeVectorLengths_A() const
 {
     if (!latticeParametersKnown) {
         stringstream errStream;
@@ -343,7 +343,7 @@ float ExperimentSettings::getReciprocalLatticeDeterminant_1A3() const
     return reciprocalLatticeDeterminant_1A3;
 }
 
-const Eigen::Vector3f& ExperimentSettings::getReciprocalLatticeVectorAngles_deg() const
+const Eigen::Array3f& ExperimentSettings::getReciprocalLatticeVectorAngles_deg() const
 {
     if (!latticeParametersKnown) {
         stringstream errStream;
@@ -354,7 +354,7 @@ const Eigen::Vector3f& ExperimentSettings::getReciprocalLatticeVectorAngles_deg(
     return reciprocalLatticeVectorAngles_deg;
 }
 
-const Eigen::Vector3f& ExperimentSettings::getReciprocalLatticeVectorAnglesNormalized_deg() const
+const Eigen::Array3f& ExperimentSettings::getReciprocalLatticeVectorAnglesNormalized_deg() const
 {
     if (!latticeParametersKnown) {
         stringstream errStream;
@@ -365,7 +365,7 @@ const Eigen::Vector3f& ExperimentSettings::getReciprocalLatticeVectorAnglesNorma
     return reciprocalLatticeVectorAnglesNormalized_deg;
 }
 
-const Eigen::Vector3f& ExperimentSettings::getReciprocalLatticeVectorLengths_1A() const
+const Eigen::Array3f& ExperimentSettings::getReciprocalLatticeVectorLengths_1A() const
 {
     if (!latticeParametersKnown) {
         stringstream errStream;

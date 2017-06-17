@@ -45,13 +45,13 @@ public:
 
     const Lattice& getSampleRealLattice_A() const;
     const Lattice& getSampleReciprocalLattice_1A() const;
-    const Eigen::Vector3f& getRealLatticeVectorLengths_A() const;
-    const Eigen::Vector3f& getRealLatticeVectorAngles_deg() const;
-    const Eigen::Vector3f& getRealLatticeVectorAnglesNormalized_deg() const;
+    const Eigen::Array3f& getRealLatticeVectorLengths_A() const;
+    const Eigen::Array3f& getRealLatticeVectorAngles_deg() const;
+    const Eigen::Array3f& getRealLatticeVectorAnglesNormalized_deg() const;
     float getRealLatticeDeterminant_A3() const;
-    const Eigen::Vector3f& getReciprocalLatticeVectorLengths_1A() const;
-    const Eigen::Vector3f& getReciprocalLatticeVectorAngles_deg() const;
-    const Eigen::Vector3f& getReciprocalLatticeVectorAnglesNormalized_deg() const;
+    const Eigen::Array3f& getReciprocalLatticeVectorLengths_1A() const;
+    const Eigen::Array3f& getReciprocalLatticeVectorAngles_deg() const;
+    const Eigen::Array3f& getReciprocalLatticeVectorAnglesNormalized_deg() const;
     float getReciprocalLatticeDeterminant_1A3() const;
     float getTolerance() const;
 
@@ -64,7 +64,7 @@ public:
     float getMinReciprocalLatticeDeterminant_1A3() const;
     float getMinReciprocalLatticeVectorLength_1A() const;
 
-    const Eigen::VectorXf& getDifferentRealLatticeVectorLengths_A() const;
+    const Eigen::ArrayXf& getDifferentRealLatticeVectorLengths_A() const;
     
 private:
     void constructFromGeometryFileValues(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
@@ -95,19 +95,19 @@ private:
     //if latticeParametersKnown
     Lattice sampleRealLattice_A;
     Lattice sampleReciprocalLattice_1A;
-    Eigen::Vector3f realLatticeVectorLengths_A;
-    Eigen::Vector3f realLatticeVectorAngles_deg;
-    Eigen::Vector3f realLatticeVectorAnglesNormalized_deg;
+    Eigen::Array3f realLatticeVectorLengths_A;
+    Eigen::Array3f realLatticeVectorAngles_deg;
+    Eigen::Array3f realLatticeVectorAnglesNormalized_deg;
     float realLatticeDeterminant_A3;
-    Eigen::Vector3f reciprocalLatticeVectorLengths_1A;
-    Eigen::Vector3f reciprocalLatticeVectorAngles_deg;
-    Eigen::Vector3f reciprocalLatticeVectorAnglesNormalized_deg;
+    Eigen::Array3f reciprocalLatticeVectorLengths_1A;
+    Eigen::Array3f reciprocalLatticeVectorAngles_deg;
+    Eigen::Array3f reciprocalLatticeVectorAnglesNormalized_deg;
     float reciprocalLatticeDeterminant_1A3;
     float latticeParametersTolerance;
 
     
     //if latticeParametersKnown, trivial. if not, set to min and max vector length 
-    Eigen::VectorXf differentRealLatticeVectorLengths_A;
+    Eigen::ArrayXf differentRealLatticeVectorLengths_A;
 
 public:
 
