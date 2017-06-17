@@ -9,6 +9,7 @@
 #define INDEXERPLAIN_H_
 
 #include <IndexerBase.h>
+#include "HillClimbingOptimizer.h"
 
 class IndexerPlain: public IndexerBase {
 public:
@@ -25,7 +26,9 @@ public:
         few,
         standard,
         many,
-        manyMany
+        manyMany,
+        extremelyMany,
+        custom
     };
 
     IndexerPlain(const ExperimentSettings& experimentSettings);

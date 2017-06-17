@@ -140,9 +140,30 @@ void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCo
 
     switch (gradientDescentIterationsCount) {
         case GradientDescentIterationsCount::verryFew:
+            global.initialIterationCount = 10;
+            global.calmDownIterationCount = 3;
+            global.calmDownFactor = 0.65;
+            global.localFitIterationCount = 4;
+            global.localCalmDownIterationCount = 3;
+            global.localCalmDownFactor = 0.65;
 
+            global.stepComputationAccuracyConstants.gamma = 0.75;
+            global.stepComputationAccuracyConstants.maxStep = meanRealLatticeVectorLength / 15;
+            global.stepComputationAccuracyConstants.minStep = meanRealLatticeVectorLength / 150;
+            global.stepComputationAccuracyConstants.directionChangeFactor = 2;
             break;
         case GradientDescentIterationsCount::few:
+            global.initialIterationCount = 20;
+            global.calmDownIterationCount = 4;
+            global.calmDownFactor = 0.73;
+            global.localFitIterationCount = 6;
+            global.localCalmDownIterationCount = 5;
+            global.localCalmDownFactor = 0.73;
+
+            global.stepComputationAccuracyConstants.gamma = 0.7;
+            global.stepComputationAccuracyConstants.maxStep = meanRealLatticeVectorLength / 18;
+            global.stepComputationAccuracyConstants.minStep = meanRealLatticeVectorLength / 180;
+            global.stepComputationAccuracyConstants.directionChangeFactor = 1.5;
 
             break;
         case GradientDescentIterationsCount::standard:
@@ -158,25 +179,62 @@ void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCo
             global.stepComputationAccuracyConstants.minStep = meanRealLatticeVectorLength / 200;
             global.stepComputationAccuracyConstants.directionChangeFactor = 1.5;
 
-            peaks.initialIterationCount = 0;
-            peaks.calmDownIterationCount = 0;
-            peaks.calmDownFactor = 0;
-            peaks.localFitIterationCount = 10;
-            peaks.localCalmDownIterationCount = 20;
-            peaks.localCalmDownFactor = 0.85;
-
-            peaks.stepComputationAccuracyConstants.gamma = 0.1;
-            peaks.stepComputationAccuracyConstants.maxStep = meanRealLatticeVectorLength / 2000;
-            peaks.stepComputationAccuracyConstants.minStep = meanRealLatticeVectorLength / 20000;
-            peaks.stepComputationAccuracyConstants.directionChangeFactor = 2.5;
             break;
         case GradientDescentIterationsCount::many:
+            global.initialIterationCount = 60;
+            global.calmDownIterationCount = 8;
+            global.calmDownFactor = 0.83;
+            global.localFitIterationCount = 10;
+            global.localCalmDownIterationCount = 9;
+            global.localCalmDownFactor = 0.83;
+
+            global.stepComputationAccuracyConstants.gamma = 0.65;
+            global.stepComputationAccuracyConstants.maxStep = meanRealLatticeVectorLength / 20;
+            global.stepComputationAccuracyConstants.minStep = meanRealLatticeVectorLength / 200;
+            global.stepComputationAccuracyConstants.directionChangeFactor = 1.5;
 
             break;
         case GradientDescentIterationsCount::manyMany:
+            global.initialIterationCount = 90;
+            global.calmDownIterationCount = 10;
+            global.calmDownFactor = 0.85;
+            global.localFitIterationCount = 15;
+            global.localCalmDownIterationCount = 15;
+            global.localCalmDownFactor = 0.9;
+
+            global.stepComputationAccuracyConstants.gamma = 0.60;
+            global.stepComputationAccuracyConstants.maxStep = meanRealLatticeVectorLength / 23;
+            global.stepComputationAccuracyConstants.minStep = meanRealLatticeVectorLength / 230;
+            global.stepComputationAccuracyConstants.directionChangeFactor = 1.5;
 
             break;
+        case GradientDescentIterationsCount::extremelyMany:
+            global.initialIterationCount = 200;
+            global.calmDownIterationCount = 15;
+            global.calmDownFactor = 0.9;
+            global.localFitIterationCount = 15;
+            global.localCalmDownIterationCount = 15;
+            global.localCalmDownFactor = 0.9;
 
+            global.stepComputationAccuracyConstants.gamma = 0.60;
+            global.stepComputationAccuracyConstants.maxStep = meanRealLatticeVectorLength / 23;
+            global.stepComputationAccuracyConstants.minStep = meanRealLatticeVectorLength / 230;
+            global.stepComputationAccuracyConstants.directionChangeFactor = 1.5;
+
+            break;
+        case GradientDescentIterationsCount::custom:
+            global.initialIterationCount = 40;
+            global.calmDownIterationCount = 5;
+            global.calmDownFactor = 0.8;
+            global.localFitIterationCount = 8;
+            global.localCalmDownIterationCount = 6;
+            global.localCalmDownFactor = 0.8;
+
+            global.stepComputationAccuracyConstants.gamma = 0.65;
+            global.stepComputationAccuracyConstants.maxStep = meanRealLatticeVectorLength / 20;
+            global.stepComputationAccuracyConstants.minStep = meanRealLatticeVectorLength / 200;
+            global.stepComputationAccuracyConstants.directionChangeFactor = 1.5;
+            break;
     }
 
     global.functionSelection = 1;
@@ -186,4 +244,16 @@ void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCo
     peaks.functionSelection = 9;
     peaks.optionalFunctionArgument = 8;
     peaks.maxCloseToPeakDeviation = maxCloseToPeakDeviation;
+
+    peaks.initialIterationCount = 0;
+    peaks.calmDownIterationCount = 0;
+    peaks.calmDownFactor = 0;
+    peaks.localFitIterationCount = 10;
+    peaks.localCalmDownIterationCount = 30;
+    peaks.localCalmDownFactor = 0.9;
+
+    peaks.stepComputationAccuracyConstants.gamma = 0.1;
+    peaks.stepComputationAccuracyConstants.maxStep = meanRealLatticeVectorLength / 2000;
+    peaks.stepComputationAccuracyConstants.minStep = meanRealLatticeVectorLength / 20000;
+    peaks.stepComputationAccuracyConstants.directionChangeFactor = 2.5;
 }

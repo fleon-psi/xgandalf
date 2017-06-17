@@ -9,6 +9,7 @@
 #define INDEXERAUTOCORRPREFIT_H_
 
 #include <IndexerBase.h>
+#include "HillClimbingOptimizer.h"
 
 class IndexerAutocorrPrefit: public IndexerBase {
 public:

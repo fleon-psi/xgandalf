@@ -14,7 +14,6 @@
 #include "ExperimentSettings.h"
 #include "SamplePointsGenerator.h"
 #include "DetectorToReciprocalSpaceTransform.h"
-#include "HillClimbingOptimizer.h"
 #include "SparsePeakFinder.h"
 #include "Dbscan.h"
 
