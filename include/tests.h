@@ -8,7 +8,7 @@
 #ifndef TESTS_H_
 #define TESTS_H_
 
-
+void test_filterSamplePointsForNorm();
 void test_indexerAutocorrPrefit();
 void test_indexerPlain();
 void test_dbscan();

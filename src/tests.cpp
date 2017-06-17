@@ -25,11 +25,34 @@
 #include "Dbscan.h"
 #include "IndexerPlain.h"
 #include "IndexerAutocorrPrefit.h"
+#include "samplePointsFiltering.h"
 
 using namespace std;
 using namespace Eigen;
 
 static ExperimentSettings getExperimentSettingLys();
+
+void test_filterSamplePointsForNorm()
+{
+    vector< Matrix3Xf > samplePoints(100);
+    for (int i = 0; i < 100; ++i) {
+        loadEigenMatrixFromDisk(samplePoints[i], "workfolder/samplePoints");
+    }
+
+    ArrayXf allowedNorms;
+    loadEigenMatrixFromDisk(allowedNorms, "workfolder/allowedNorms");
+
+    chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
+    for (int i = 0; i < 100; ++i) {
+        filterSamplePointsForNorm(samplePoints[i], allowedNorms, 0.03);
+    }
+    chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+    cout << "duration: " << duration << "ms" << endl << endl;
+
+    ofstream out1("workfolder/samplePointsFiltered");
+    out1 << samplePoints[0];
+}
 
 void test_indexerAutocorrPrefit()
 {
