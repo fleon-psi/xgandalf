@@ -16,17 +16,24 @@ set(SOURCES src/Dbscan.cpp
             src/DetectorToReciprocalSpaceTransform.cpp
             src/ExperimentSettings.cpp
             src/HillClimbingOptimizer.cpp
-            src/Indexer.cpp
+            src/IndexerAutocorrPrefit.cpp
+			src/IndexerBase.cpp
+			src/IndexerPlain.cpp
             src/InverseSpaceTransform.cpp
             src/Lattice.cpp
             src/LatticeAssembler.cpp
             src/pointAutocorrelation.cpp
+			src/samplePointsFiltering.cpp
             src/SamplePointsGenerator.cpp 
             src/SparsePeakFinder.cpp
+			src/tests.cpp
+			
+			src/main.cpp
             )
  
 
-add_library(indexer SHARED ${SOURCES})
+#add_library(indexer SHARED ${SOURCES})
+add_executable(indexer ${SOURCES})
 
 set_target_properties(indexer PROPERTIES
     CXX_STANDARD 11
