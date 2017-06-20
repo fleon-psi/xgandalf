@@ -65,7 +65,7 @@ public:
     float getMinReciprocalLatticeVectorLength_1A() const;
 
     const Eigen::ArrayXf& getDifferentRealLatticeVectorLengths_A() const;
-    
+
 private:
     void constructFromGeometryFileValues(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
             float pixelLength_m, float detectorRadius_pixel);
@@ -105,14 +105,10 @@ private:
     float reciprocalLatticeDeterminant_1A3;
     float latticeParametersTolerance;
 
-    
     //if latticeParametersKnown, trivial. if not, set to min and max vector length 
     Eigen::ArrayXf differentRealLatticeVectorLengths_A;
 
 public:
-
-
-
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         ;
 };

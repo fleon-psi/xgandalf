@@ -89,7 +89,6 @@ private:
     void filterCandidateBasesByMeanRelativeDefect(uint32_t maxToTakeCount);
 
 public:
-
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         ;
 };
