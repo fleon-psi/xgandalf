@@ -1,11 +1,12 @@
-Debug/
-
-Release/
-
-cmakeBuild/
+/build-vc
+/.vs
 
 .cproject
-
+.project
+.settings
+Release/
+Debug/
+cmakeBuild/
 workfolder/
 
-.settings/
+CMakeSettings.json
