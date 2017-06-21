@@ -1,0 +1,30 @@
+{
+  "configurations": [
+    {
+      "name": "x64_Debug",
+      "generator": "Visual Studio 15 2017 Win64",
+      "configurationType": "Debug",
+      "buildRoot": "${workspaceRoot}\\build-vc\\${name}",
+      "cmakeCommandArgs": "",
+      "variables": [
+        {
+          "name": "DEigen3_DIR",
+          "value: "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4"
+        }
+      ]
+    },
+    {
+      "name": "x64_Release",
+      "generator": "Visual Studio 15 2017 Win64",
+      "configurationType": "Release",
+      "buildRoot": "${workspaceRoot}\\build-vc\\${name}",
+      "cmakeCommandArgs": "",
+      "variables": [
+        {
+          "name": "DEigen3_DIR",
+          "value: "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4"
+        }
+      ]
+    },
+ ]
+}
