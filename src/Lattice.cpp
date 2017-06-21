@@ -12,6 +12,8 @@
 #include <assert.h>
 #include <math.h>
 
+#define M_1_PI 0.318309886183790671538
+
 using namespace std;
 using namespace Eigen;
 

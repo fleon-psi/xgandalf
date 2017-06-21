@@ -6,7 +6,6 @@
 // Description : Hello World in C++, Ansi-style
 //============================================================================
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include <iostream>
@@ -30,9 +29,9 @@ using namespace Eigen;
 
 int main()
 {
-    test_filterSamplePointsForNorm();
-//    test_indexerAutocorrPrefit();
-//    test_indexerPlain();
+    //test_filterSamplePointsForNorm();
+    //test_indexerAutocorrPrefit();
+    test_indexerPlain();
 
     return 0;
 }
