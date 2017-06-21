@@ -8,31 +8,41 @@
 
 #include <cmath>
 
-#include <iostream>
-#include <fstream> 
-#include <chrono>
+#include "HillClimbingOptimizer.h"
+#include "InverseSpaceTransform.h"
+#include "Lattice.h"
+#include "LatticeAssembler.h"
+#include "SamplePointsGenerator.h"
+#include "SparsePeakFinder.h"
+#include "eigenDiskImport.h"
+#include "pointAutocorrelation.h"
+#include "tests.h"
 #include <Eigen/Dense>
+#include <chrono>
+#include <cstdio>
+#include <fstream>
+#include <iostream>
 #include <sstream>
 #include <string>
-#include "Lattice.h"
-#include "SamplePointsGenerator.h"
-#include "InverseSpaceTransform.h"
-#include "HillClimbingOptimizer.h"
-#include "eigenDiskImport.h"
-#include "SparsePeakFinder.h"
-#include "LatticeAssembler.h"
-#include "tests.h"
-#include "pointAutocorrelation.h"
 
 using namespace std;
 using namespace Eigen;
 
 int main()
 {
-    //test_filterSamplePointsForNorm();
-    //test_indexerAutocorrPrefit();
-    test_indexerPlain();
+    try
+    {
+        // test_filterSamplePointsForNorm();
+        // test_indexerAutocorrPrefit();
+        test_indexerPlain();
+    }
+    catch (exception& e)
+    {
+        cout << e.what();
+    }
+
+
+    getchar();
 
     return 0;
 }
-

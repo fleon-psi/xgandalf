@@ -8,8 +8,21 @@
       "cmakeCommandArgs": "",
       "variables": [
         {
-          "name": "DEigen3_DIR",
-          "value: "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4"
+          "name": "Eigen3_DIR",
+          "value": "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4"
+        }
+      ]
+    },
+    {
+      "name": "x64_RelWithDebInfo",
+      "generator": "Visual Studio 15 2017 Win64",
+      "configurationType": "RelWithDebInfo",
+      "buildRoot": "${workspaceRoot}\\build-vc\\${name}",
+      "cmakeCommandArgs": "",
+      "variables": [
+        {
+          "name": "Eigen3_DIR",
+          "value": "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4"
         }
       ]
     },
@@ -21,8 +34,8 @@
       "cmakeCommandArgs": "",
       "variables": [
         {
-          "name": "DEigen3_DIR",
-          "value: "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4"
+          "name": "Eigen3_DIR",
+          "value": "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4"
         }
       ]
     },

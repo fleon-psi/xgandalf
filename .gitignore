@@ -1,6 +1,8 @@
 /build-vc
 /.vs
 
+*.vspx
+*.psess
 .cproject
 .project
 .settings

@@ -10,6 +10,12 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
         "MinSizeRel" "RelWithDebInfo")
 endif()
  
+# Test whether the compiler is Microsoft Visual C(++).
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2 /wd4305 /wd4244")
+endif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+ 
+ 
 include_directories(include)
 
 set(SOURCES src/Dbscan.cpp
@@ -65,7 +71,5 @@ install(
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "Eigen/*" EXCLUDE
-    PATTERN "matlabLikeFunctions.h" EXCLUDE
-    PATTERN "sortingByOtherValues.h" EXCLUDE
 )
 
