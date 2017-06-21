@@ -8,6 +8,7 @@
       "cmakeCommandArgs": "",
       "variables": [
         {
+<<<<<<< HEAD
           "name": "Eigen3_DIR",
           "value": "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4"
         }
@@ -23,6 +24,10 @@
         {
           "name": "Eigen3_DIR",
           "value": "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4"
+=======
+          "name": "DEigen3_DIR",
+          "value: "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4"
+>>>>>>> a418e5304c9cfe6ad4f1737df49dbbb649117de5
         }
       ]
     },
@@ -34,8 +39,13 @@
       "cmakeCommandArgs": "",
       "variables": [
         {
+<<<<<<< HEAD
           "name": "Eigen3_DIR",
           "value": "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4"
+=======
+          "name": "DEigen3_DIR",
+          "value: "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4"
+>>>>>>> a418e5304c9cfe6ad4f1737df49dbbb649117de5
         }
       ]
     },
