@@ -10,14 +10,14 @@
 using namespace Eigen;
 using namespace std;
 
-IndexerPlain::IndexerPlain(const ExperimentSettings& experimentSettings) :
-        IndexerBase(experimentSettings)
+IndexerPlain::IndexerPlain(const ExperimentSettings& experimentSettings)
+    : IndexerBase(experimentSettings)
 {
     precompute();
 }
 
-IndexerPlain::IndexerPlain(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath) :
-        IndexerBase(experimentSettings, precomputedSamplePointsPath)
+IndexerPlain::IndexerPlain(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath)
+    : IndexerBase(experimentSettings, precomputedSamplePointsPath)
 {
     precompute();
 }
@@ -44,7 +44,8 @@ void IndexerPlain::precompute()
     accuracyConstants_LatticeAssembler.maxCountPassingRelativeDefectFilter = 50;
     accuracyConstants_LatticeAssembler.minPointsOnLattice = 5;
     //    latticeAssembler.setDeterminantRange(experimentSettings.getMinRealLatticeDeterminant_A3(), experimentSettings.getMaxRealLatticeDeterminant_A3());
-    latticeAssembler.setDeterminantRange(experimentSettings.getRealLatticeDeterminant_A3() * 0.8, experimentSettings.getRealLatticeDeterminant_A3() * 1.2);	//debug
+    latticeAssembler.setDeterminantRange(experimentSettings.getRealLatticeDeterminant_A3() * 0.8,
+                                         experimentSettings.getRealLatticeDeterminant_A3() * 1.2); // debug
     latticeAssembler.setAccuracyConstants(accuracyConstants_LatticeAssembler);
     latticeAssembler.setKnownLatticeParameters(experimentSettings.getSampleRealLattice_A(), experimentSettings.getTolerance());
 }
@@ -53,7 +54,8 @@ void IndexerPlain::setSamplingPitch(SamplingPitch samplingPitch)
 {
     float unitPitch = 0;
 
-    switch (samplingPitch) {
+    switch (samplingPitch)
+    {
         case SamplingPitch::extremelyLoose:
             unitPitch = 0.10;
             break;
@@ -76,11 +78,14 @@ void IndexerPlain::setSamplingPitch(SamplingPitch samplingPitch)
 
 void IndexerPlain::setSamplingPitch(float unitPitch)
 {
-    if (experimentSettings.isLatticeParametersKnown()) {
+    if (experimentSettings.isLatticeParametersKnown())
+    {
         float tolerance = min(unitPitch, experimentSettings.getTolerance());
 
         samplePointsGenerator.getTightGrid(precomputedSamplePoints, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
-    } else {
+    }
+    else
+    {
         float minRadius = experimentSettings.getMinRealLatticeVectorLength_A() * 0.98;
         float maxRadius = experimentSettings.getMaxRealLatticeVectorLength_A() * 1.02;
 
@@ -88,9 +93,10 @@ void IndexerPlain::setSamplingPitch(float unitPitch)
     }
 }
 
-void IndexerPlain::index(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m)
+void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m)
 {
-    if (precomputedSamplePoints.size() == 0) {
+    if (precomputedSamplePoints.size() == 0)
+    {
         precompute();
     }
 
@@ -116,19 +122,20 @@ void IndexerPlain::index(std::vector< Lattice >& assembledLattices, const Eigen:
     inverseSpaceTransform.setPointsToTransform(reciprocalPeaks_A);
     inverseSpaceTransform.performTransform(samplePoints);
 
-    vector< LatticeAssembler::assembledLatticeStatistics_t > assembledLatticesStatistics;
+    vector<LatticeAssembler::assembledLatticeStatistics_t> assembledLatticesStatistics;
     Matrix3Xf& candidateVectors = samplePoints;
     RowVectorXf& candidateVectorWeights = inverseSpaceTransform.getInverseTransformEvaluation();
-    vector< vector< uint16_t > >& pointIndicesOnVector = inverseSpaceTransform.getPointsCloseToEvaluationPositions_indices();
-    latticeAssembler.assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors,
-            candidateVectorWeights, pointIndicesOnVector, reciprocalPeaks_A);
+    vector<vector<uint16_t>>& pointIndicesOnVector = inverseSpaceTransform.getPointsCloseToEvaluationPositions_indices();
+    latticeAssembler.assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors, candidateVectorWeights, pointIndicesOnVector,
+                                      reciprocalPeaks_A);
 
-//    cout << assembledLatticesStatistics[0].meanDefect << " " << assembledLatticesStatistics[0].meanRelativeDefect << " "
-//            << assembledLatticesStatistics[0].occupiedLatticePointsCount << " " << assembledLatticesStatistics.size() << endl << assembledLattices[0].det()
-//            << endl;
+    //    cout << assembledLatticesStatistics[0].meanDefect << " " << assembledLatticesStatistics[0].meanRelativeDefect << " "
+    //            << assembledLatticesStatistics[0].occupiedLatticePointsCount << " " << assembledLatticesStatistics.size() << endl <<
+    //            assembledLattices[0].det()
+    //            << endl;
 
-//    ofstream ofs("workfolder/samplePoints", ofstream::out);
-//    ofs << samplePoints.transpose().eval();
+    //    ofstream ofs("workfolder/samplePoints", ofstream::out);
+    //    ofs << samplePoints.transpose().eval();
 }
 
 void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCount gradientDescentIterationsCount)
@@ -138,7 +145,8 @@ void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCo
 
     float meanRealLatticeVectorLength = experimentSettings.getDifferentRealLatticeVectorLengths_A().mean();
 
-    switch (gradientDescentIterationsCount) {
+    switch (gradientDescentIterationsCount)
+    {
         case GradientDescentIterationsCount::verryFew:
             global.initialIterationCount = 10;
             global.calmDownIterationCount = 3;

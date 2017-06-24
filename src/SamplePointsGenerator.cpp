@@ -5,17 +5,17 @@
  *      Author: Yaro
  */
 
-#include <SamplePointsGenerator.h>
-#include <iterator>
-#include <fstream>
-#include <vector>
-#include <algorithm>
 #include "BadInputException.h"
-#include "eigenSTLContainers.h"
 #include "eigenDiskImport.h"
-
-#include <iostream>
+#include "eigenSTLContainers.h"
+#include <SamplePointsGenerator.h>
+#include <algorithm>
 #include <fstream>
+#include <iterator>
+#include <vector>
+
+#include <fstream>
+#include <iostream>
 
 using namespace std;
 using namespace Eigen;
@@ -24,8 +24,8 @@ SamplePointsGenerator::SamplePointsGenerator()
 {
     precomputedSamplePointsPath = "precomputedSamplePoints";
 }
-SamplePointsGenerator::SamplePointsGenerator(const std::string& precomputedSamplePointsPath) :
-        precomputedSamplePointsPath(precomputedSamplePointsPath)
+SamplePointsGenerator::SamplePointsGenerator(const std::string& precomputedSamplePointsPath)
+    : precomputedSamplePointsPath(precomputedSamplePointsPath)
 {
 }
 
@@ -36,6 +36,7 @@ inline static float getClosestArrayElement(ArrayXf arr, float value)
     return arr[minIndex];
 }
 
+// clang-format off
 void SamplePointsGenerator::loadPrecomputedSamplePoints(Matrix3Xf& samplePoints, float unitPitch, float tolerance)
 {
     Array< float, 1, Eigen::Dynamic > pitches, tolerances;
@@ -56,6 +57,7 @@ void SamplePointsGenerator::loadPrecomputedSamplePoints(Matrix3Xf& samplePoints,
     loadEigenMatrixFromDisk(samplePoints_T, fullPath.str());
     samplePoints = samplePoints_T.transpose();  //workaround, because sample points are stored in a better human readable way
 }
+// clang-format on
 
 void SamplePointsGenerator::getDenseGrid(Matrix3Xf& samplePoints, float unitPitch, float minRadius, float maxRadius)
 {
@@ -71,24 +73,29 @@ void SamplePointsGenerator::getDenseGrid(Matrix3Xf& samplePoints, float unitPitc
     ySamples.setLinSpaced(samplesPerRadius * 2, -maxRadius, maxRadius);
     zSamples.setLinSpaced(samplesPerRadius, 0, maxRadius);
 
-    for (int xIndex = 0; xIndex < xSamples.size(); xIndex++) {
-        for (int yIndex = 0; yIndex < ySamples.size(); yIndex++) {
-            for (int zIndex = 0; zIndex < zSamples.size(); zIndex++) {
+    for (int xIndex = 0; xIndex < xSamples.size(); xIndex++)
+    {
+        for (int yIndex = 0; yIndex < ySamples.size(); yIndex++)
+        {
+            for (int zIndex = 0; zIndex < zSamples.size(); zIndex++)
+            {
                 Vector3f samplePoint(xSamples[xIndex], ySamples[yIndex], zSamples[zIndex]);
                 float squaredNorm = samplePoint.squaredNorm();
-                if (squaredNorm >= minRadiusSquared && squaredNorm <= maxRadiusSquared) {
+                if (squaredNorm >= minRadiusSquared && squaredNorm <= maxRadiusSquared)
+                {
                     tmpSamplePoints.push_back(samplePoint);
                 }
             }
         }
     }
 
-    samplePoints = Map< Matrix3Xf >(tmpSamplePoints[0].data(), 3, tmpSamplePoints.size()); //copy
+    samplePoints = Map<Matrix3Xf>(tmpSamplePoints[0].data(), 3, tmpSamplePoints.size()); // copy
 }
 
 void SamplePointsGenerator::getTightGrid(Matrix3Xf& samplePoints, float unitPitch, float tolerance, const VectorXf radii)
 {
-    for (int i = 0; i < radii.size(); i++) {
+    for (int i = 0; i < radii.size(); i++)
+    {
         float radius = radii[i];
         float adaptedPitch = unitPitch / radii[i] * radii.maxCoeff();
 

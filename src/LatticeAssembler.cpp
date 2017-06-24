@@ -6,12 +6,12 @@
  */
 
 #include <LatticeAssembler.h>
-#include <ctype.h>
 #include <algorithm>
-#include <numeric>
+#include <ctype.h>
 #include <functional>
 #include <iterator>
 #include <limits>
+#include <numeric>
 
 #include <iostream>
 
@@ -21,7 +21,6 @@ using namespace std;
 LatticeAssembler::LatticeAssembler()
 {
     setStandardValues();
-
 }
 LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange)
 {
@@ -38,7 +37,7 @@ LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange, const accur
     setAccuracyConstants(accuracyConstants);
 }
 LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange, const Lattice& sampleRealLattice_A, float knownLatticeTolerance,
-        const accuracyConstants_t& accuracyConstants)
+                                   const accuracyConstants_t& accuracyConstants)
 {
     setDeterminantRange(determinantRange);
     setKnownLatticeParameters(sampleRealLattice_A, knownLatticeTolerance);
@@ -47,7 +46,7 @@ LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange, const Latti
 
 void LatticeAssembler::setStandardValues()
 {
-    determinantRange << 0, numeric_limits< float >::max();
+    determinantRange << 0, numeric_limits<float>::max();
 
     latticeParametersKnown = false;
     knownLatticeParametersTolerance = 0;
@@ -67,14 +66,15 @@ void LatticeAssembler::setKnownLatticeParameters(const Lattice& sampleRealLattic
     knownLatticeParametersTolerance = tolerance;
 }
 
-void LatticeAssembler::assembleLattices(vector< Lattice >& assembledLattices, Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights,
-        vector< vector< uint16_t > >& pointIndicesOnVector, Matrix3Xf& pointsToFitInReciprocalSpace)
+void LatticeAssembler::assembleLattices(vector<Lattice>& assembledLattices, Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights,
+                                        vector<vector<uint16_t>>& pointIndicesOnVector, Matrix3Xf& pointsToFitInReciprocalSpace)
 {
-    vector< assembledLatticeStatistics_t > assembledLatticesStatistics;
+    vector<assembledLatticeStatistics_t> assembledLatticesStatistics;
     assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors, candidateVectorWeights, pointIndicesOnVector,
-            pointsToFitInReciprocalSpace);
+                     pointsToFitInReciprocalSpace);
 }
 
+// clang-format off
 void LatticeAssembler::assembleLattices(vector< Lattice >& assembledLattices, vector< assembledLatticeStatistics_t >& assembledLatticesStatistics,
         Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights, vector< vector< uint16_t > >& pointIndicesOnVector,
         Matrix3Xf& pointsToFitInReciprocalSpace)
@@ -104,7 +104,9 @@ void LatticeAssembler::assembleLattices(vector< Lattice >& assembledLattices, ve
 
     selectBestLattices(assembledLattices, assembledLatticesStatistics, finalCandidateLattices);
 }
+// clang-format on
 
+// clang-format off
 void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, vector< assembledLatticeStatistics_t >& assembledLatticesStatistics,
         list< candidateLattice_t >& finalCandidateLattices)
 {
@@ -184,6 +186,7 @@ void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, 
     }
 
 }
+// clang-format on
 
 uint16_t LatticeAssembler::countUniqueColumns(const Matrix3Xf& millerIndices)
 {
@@ -191,23 +194,28 @@ uint16_t LatticeAssembler::countUniqueColumns(const Matrix3Xf& millerIndices)
 
     sortIndices.resize(millerIndices.cols());
     iota(sortIndices.begin(), sortIndices.end(), 0);
-    sort(sortIndices.begin(), sortIndices.end(), [&millerIndices](uint16_t i, uint16_t j) {return millerIndices(0,i) < millerIndices(0,j);});
+    sort(sortIndices.begin(), sortIndices.end(), [&millerIndices](uint16_t i, uint16_t j) { return millerIndices(0, i) < millerIndices(0, j); });
 
     Matrix3Xf millerIndices_sorted(3, millerIndices.cols() + 1);
-    for (int i = 0; i < millerIndices.cols(); ++i) {
+    for (int i = 0; i < millerIndices.cols(); ++i)
+    {
         millerIndices_sorted.col(i) = millerIndices.col(sortIndices[i]);
     }
-    millerIndices_sorted(0, millerIndices.cols()) = 0.5f; //not a valid miller index! This saves an out of bounds check in a later loop
+    millerIndices_sorted(0, millerIndices.cols()) = 0.5f; // not a valid miller index! This saves an out of bounds check in a later loop
 
-    for (int i = 0; i < millerIndices.cols(); ++i) {
+    for (int i = 0; i < millerIndices.cols(); ++i)
+    {
         bool isUnique = true;
-        for (int j = i + 1; millerIndices_sorted(0, i) == millerIndices_sorted(0, j); j++) {
-            if ((millerIndices_sorted(1, i) == millerIndices_sorted(1, j)) & (millerIndices_sorted(2, i) == millerIndices_sorted(2, j))) {
+        for (int j = i + 1; millerIndices_sorted(0, i) == millerIndices_sorted(0, j); j++)
+        {
+            if ((millerIndices_sorted(1, i) == millerIndices_sorted(1, j)) & (millerIndices_sorted(2, i) == millerIndices_sorted(2, j)))
+            {
                 isUnique = false;
                 break;
             }
         }
-        if (isUnique) {
+        if (isUnique)
+        {
             count++;
         }
     }
@@ -216,58 +224,67 @@ uint16_t LatticeAssembler::countUniqueColumns(const Matrix3Xf& millerIndices)
 }
 
 void LatticeAssembler::computeCandidateLattices(Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights,
-        vector< vector< uint16_t > >& pointIndicesOnVector)
+                                                vector<vector<uint16_t>>& pointIndicesOnVector)
 {
-//hand-crafted remove-if for three variables.
-    for (int i = candidateVectors.cols() - 1; i >= 0; i--) {
-        if (pointIndicesOnVector[i].size() < accuracyConstants.minPointsOnLattice) {
+    // hand-crafted remove-if for three variables.
+    for (int i = candidateVectors.cols() - 1; i >= 0; i--)
+    {
+        if (pointIndicesOnVector[i].size() < accuracyConstants.minPointsOnLattice)
+        {
             pointIndicesOnVector[i] = pointIndicesOnVector.back();
             pointIndicesOnVector.pop_back();
 
             candidateVectors.col(i) = candidateVectors.col(candidateVectors.cols() - 1);
-            candidateVectors.conservativeResize(NoChange, candidateVectors.cols() - 1); //possibly slow, because of call to realloc. can be avoided if needed
+            candidateVectors.conservativeResize(NoChange, candidateVectors.cols() - 1); // possibly slow, because of call to realloc. can be avoided if needed
 
             candidateVectorWeights[i] = candidateVectorWeights[candidateVectorWeights.size() - 1];
             candidateVectorWeights.conservativeResize(candidateVectorWeights.size() - 1);
         }
     }
 
-    for_each(pointIndicesOnVector.begin(), pointIndicesOnVector.end(), [](vector< uint16_t >& v) {sort(v.begin(),v.end());}); //needed for easier intersection computation later
+    // needed for easier intersection computation later
+    for_each(pointIndicesOnVector.begin(), pointIndicesOnVector.end(), [](vector<uint16_t>& v) { sort(v.begin(), v.end()); });
 
     candidateLattices.reserve(10000);
     int candidateVectorsCount = candidateVectors.cols();
-    for (uint16_t i = 0; i < candidateVectorsCount - 2; ++i) {
-        for (uint16_t j = (i + 1); j < candidateVectorsCount - 1; ++j) {
-            for (uint16_t k = (j + 1); k < candidateVectorsCount; ++k) {
+    for (uint16_t i = 0; i < candidateVectorsCount - 2; ++i)
+    {
+        for (uint16_t j = (i + 1); j < candidateVectorsCount - 1; ++j)
+        {
+            for (uint16_t k = (j + 1); k < candidateVectorsCount; ++k)
+            {
                 Lattice latticeToCheck(candidateVectors.col(i), candidateVectors.col(j), candidateVectors.col(k));
 
                 float absDet = abs(latticeToCheck.det());
-                if ((absDet < determinantRange[0]) | (absDet > determinantRange[1])) {
+                if ((absDet < determinantRange[0]) | (absDet > determinantRange[1]))
+                {
                     continue;
                 }
 
-                vector< uint16_t > pointIndicesOnTwoVectors(max(pointIndicesOnVector[i].size(), pointIndicesOnVector[j].size()));
-                auto it = set_intersection(pointIndicesOnVector[i].begin(), pointIndicesOnVector[i].end(),
-                        pointIndicesOnVector[j].begin(), pointIndicesOnVector[j].end(),
-                        pointIndicesOnTwoVectors.begin());
+                vector<uint16_t> pointIndicesOnTwoVectors(max(pointIndicesOnVector[i].size(), pointIndicesOnVector[j].size()));
+                auto it = set_intersection(pointIndicesOnVector[i].begin(), pointIndicesOnVector[i].end(), pointIndicesOnVector[j].begin(),
+                                           pointIndicesOnVector[j].end(), pointIndicesOnTwoVectors.begin());
                 uint16_t pointsOnBothVectorsCount = it - pointIndicesOnTwoVectors.begin();
-                if (pointsOnBothVectorsCount < accuracyConstants.minPointsOnLattice) {
+                if (pointsOnBothVectorsCount < accuracyConstants.minPointsOnLattice)
+                {
                     continue;
                 }
                 pointIndicesOnTwoVectors.resize(pointsOnBothVectorsCount);
 
-                vector< uint16_t > pointIndicesOnLatticeToCheck(max(pointIndicesOnTwoVectors.size(), pointIndicesOnVector[k].size()));
-                it = set_intersection(pointIndicesOnTwoVectors.begin(), pointIndicesOnTwoVectors.end(),
-                        pointIndicesOnVector[k].begin(), pointIndicesOnVector[k].end(),
-                        pointIndicesOnLatticeToCheck.begin());
+                vector<uint16_t> pointIndicesOnLatticeToCheck(max(pointIndicesOnTwoVectors.size(), pointIndicesOnVector[k].size()));
+                it = set_intersection(pointIndicesOnTwoVectors.begin(), pointIndicesOnTwoVectors.end(), pointIndicesOnVector[k].begin(),
+                                      pointIndicesOnVector[k].end(), pointIndicesOnLatticeToCheck.begin());
                 uint16_t pointsOnLatticeToCheckCount = it - pointIndicesOnLatticeToCheck.begin();
-                if (pointsOnLatticeToCheckCount < accuracyConstants.minPointsOnLattice) {
+                if (pointsOnLatticeToCheckCount < accuracyConstants.minPointsOnLattice)
+                {
                     continue;
                 }
                 pointIndicesOnLatticeToCheck.resize(pointsOnLatticeToCheckCount);
 
-                if (latticeParametersKnown) {
-                    if (!checkLatticeParameters(latticeToCheck)) {
+                if (latticeParametersKnown)
+                {
+                    if (!checkLatticeParameters(latticeToCheck))
+                    {
                         continue;
                     }
                 }
@@ -277,12 +294,13 @@ void LatticeAssembler::computeCandidateLattices(Matrix3Xf& candidateVectors, Row
                 newCandidateBasis.realSpaceLattice = latticeToCheck;
                 newCandidateBasis.weight = candidateVectorWeights[i] + candidateVectorWeights[j] + candidateVectorWeights[k];
                 newCandidateBasis.pointOnLatticeIndices.swap(pointIndicesOnLatticeToCheck);
-                newCandidateBasis.vectorIndices = {i,j,k};
+                newCandidateBasis.vectorIndices = {i, j, k};
             }
         }
     }
 }
 
+// clang-format off
 void LatticeAssembler::computeAssembledLatticeStatistics(candidateLattice_t& candidateLattice, const Matrix3Xf& pointsToFitInReciprocalSpace)
 {
     auto& pointOnLatticeIndices = candidateLattice.pointOnLatticeIndices;
@@ -308,31 +326,34 @@ void LatticeAssembler::computeAssembledLatticeStatistics(candidateLattice_t& can
     candidateLattice.assembledLatticeStatistics.meanDefect = ((predictedPoints - currentPointsToFitInReciprocalSpace).colwise().norm()).mean();
     candidateLattice.assembledLatticeStatistics.meanRelativeDefect = ((factorsToReachPoints - millerIndices).colwise().norm()).mean();
 }
+// clang-format on
 
 void LatticeAssembler::filterCandidateLatticesByWeight(uint32_t maxToTakeCount)
 {
-//    auto& candidateLattices = this->candidateLattices;  //needed for lambda function
+    //    auto& candidateLattices = this->candidateLattices;  //needed for lambda function
 
-    uint32_t toTakeCount = min(maxToTakeCount, (uint32_t) candidateLattices.size());
+    uint32_t toTakeCount = min(maxToTakeCount, (uint32_t)candidateLattices.size());
 
     sortIndices.resize(candidateLattices.size());
     iota(sortIndices.begin(), sortIndices.end(), 0);
     nth_element(sortIndices.begin(), sortIndices.begin() + toTakeCount - 1, sortIndices.end(),
-            [&](uint32_t i, uint32_t j) {return candidateLattices[i].weight > candidateLattices[j].weight;});  //descending
+                [&](uint32_t i, uint32_t j) { return candidateLattices[i].weight > candidateLattices[j].weight; }); // descending
 
     sortIndices.resize(toTakeCount);
     sort(sortIndices.begin(), sortIndices.end(),
-            [&](uint32_t i, uint32_t j) {return candidateLattices[i].weight > candidateLattices[j].weight;});  //descending
+         [&](uint32_t i, uint32_t j) { return candidateLattices[i].weight > candidateLattices[j].weight; }); // descending
 
-    vector< candidateLattice_t > candidateLatticesFiltered;
+    vector<candidateLattice_t> candidateLatticesFiltered;
     candidateLatticesFiltered.resize(toTakeCount);
-    for (uint32_t i = 0; i < toTakeCount; ++i) {
+    for (uint32_t i = 0; i < toTakeCount; ++i)
+    {
         candidateLatticesFiltered[i] = candidateLattices[sortIndices[i]];
     }
 
     candidateLattices.swap(candidateLatticesFiltered);
 }
 
+// clang-format off
 bool LatticeAssembler::checkLatticeParameters( Lattice& lattice)
 {
     lattice.minimize();
@@ -360,25 +381,27 @@ bool LatticeAssembler::checkLatticeParameters( Lattice& lattice)
 
     return latticeValid;
 }
+// clang-format on
 
 void LatticeAssembler::filterCandidateBasesByMeanRelativeDefect(uint32_t maxToTakeCount)
 {
-    uint32_t toTakeCount = min(maxToTakeCount, (uint32_t) candidateLattices.size());
+    uint32_t toTakeCount = min(maxToTakeCount, (uint32_t)candidateLattices.size());
 
     sortIndices.resize(candidateLattices.size());
     iota(sortIndices.begin(), sortIndices.end(), 0);
-    nth_element(sortIndices.begin(), sortIndices.begin() + toTakeCount - 1, sortIndices.end(),
-            [&](uint32_t i, uint32_t j)
-            {   return candidateLattices[i].assembledLatticeStatistics.meanRelativeDefect < candidateLattices[j].assembledLatticeStatistics.meanRelativeDefect;});
+    nth_element(sortIndices.begin(), sortIndices.begin() + toTakeCount - 1, sortIndices.end(), [&](uint32_t i, uint32_t j) {
+        return candidateLattices[i].assembledLatticeStatistics.meanRelativeDefect < candidateLattices[j].assembledLatticeStatistics.meanRelativeDefect;
+    });
 
     sortIndices.resize(toTakeCount);
-    sort(sortIndices.begin(), sortIndices.end(),
-            [&](uint32_t i, uint32_t j)
-            {   return candidateLattices[i].assembledLatticeStatistics.meanRelativeDefect < candidateLattices[j].assembledLatticeStatistics.meanRelativeDefect;});
+    sort(sortIndices.begin(), sortIndices.end(), [&](uint32_t i, uint32_t j) {
+        return candidateLattices[i].assembledLatticeStatistics.meanRelativeDefect < candidateLattices[j].assembledLatticeStatistics.meanRelativeDefect;
+    });
 
-    vector< candidateLattice_t > candidateLatticesFiltered;
+    vector<candidateLattice_t> candidateLatticesFiltered;
     candidateLatticesFiltered.resize(toTakeCount);
-    for (uint32_t i = 0; i < toTakeCount; ++i) {
+    for (uint32_t i = 0; i < toTakeCount; ++i)
+    {
         candidateLatticesFiltered[i] = candidateLattices[sortIndices[i]];
     }
 

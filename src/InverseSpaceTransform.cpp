@@ -322,7 +322,7 @@ void InverseSpaceTransform::setPointsToTransform(const Matrix3Xf& pointsToTransf
     this->pointsToTransform = pointsToTransform;
 
     if (pointsToTransform.cols() != pointsToTransformWeights.cols())
-    { //TODO: actually not a good choise...
+    { // TODO: actually not a good choise...
         pointsToTransformWeights_userPreset = RowVectorXf::Ones(pointsToTransform.cols());
         update_pointsToTransformWeights();
     }

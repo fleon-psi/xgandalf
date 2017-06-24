@@ -7,9 +7,9 @@
 
 #include <Lattice.h>
 #include <algorithm>
+#include <assert.h>
 #include <inttypes.h>
 #include <limits>
-#include <assert.h>
 #include <math.h>
 
 #define M_1_PI 0.318309886183790671538
@@ -26,8 +26,8 @@ Lattice::Lattice()
 {
 }
 
-Lattice::Lattice(const Matrix3f& basis) :
-        basis(basis)
+Lattice::Lattice(const Matrix3f& basis)
+    : basis(basis)
 {
 }
 Lattice::Lattice(const Vector3f& a, const Vector3f& b, const Vector3f& c)
@@ -37,11 +37,13 @@ Lattice::Lattice(const Vector3f& a, const Vector3f& b, const Vector3f& c)
 
 static inline void minimize2DLattice(Matrix3f& basis)
 {
-    if (basis.col(0).squaredNorm() < basis.col(1).squaredNorm()) {  //will always be true in the current arrangement!
+    if (basis.col(0).squaredNorm() < basis.col(1).squaredNorm())
+    { // will always be true in the current arrangement!
         basis.col(0).swap(basis.col(1));
     }
 
-    do {
+    do
+    {
         float r = round(basis.col(0).dot(basis.col(1)) / basis.col(1).squaredNorm());
         Vector3f tmp = basis.col(0) - r * basis.col(1);
 
@@ -52,7 +54,8 @@ static inline void minimize2DLattice(Matrix3f& basis)
 
 static inline void sortTwoColumns_ascending(Matrix3f& basis, Vector3f& squaredNorms, float colNumber1, float colNumber2)
 {
-    if (squaredNorms[colNumber1] > squaredNorms[colNumber2]) {
+    if (squaredNorms[colNumber1] > squaredNorms[colNumber2])
+    {
         basis.col(colNumber1).swap(basis.col(colNumber2));
 
         float tmp = squaredNorms[colNumber1];
@@ -63,7 +66,7 @@ static inline void sortTwoColumns_ascending(Matrix3f& basis, Vector3f& squaredNo
 
 static inline void sortColumnsByNorm_ascending(Matrix3f& basis)
 {
-//simple bubble sort implementation
+    // simple bubble sort implementation
     Vector3f squaredNorms = basis.colwise().squaredNorm();
     sortTwoColumns_ascending(basis, squaredNorms, 0, 1);
     sortTwoColumns_ascending(basis, squaredNorms, 1, 2);
@@ -84,34 +87,38 @@ static inline void getMinA(Matrix3f& basis, Vector3f& minA, float& minALengthSqu
     float y2 = -(b232 - b122 * b131) / (1 - b121 * b122);
     float y1 = -(b131 - b121 * b232) / (1 - b121 * b122);
 
-    minALengthSquared = numeric_limits< float >::max();
-    for (float i_1 = -1; i_1 <= 1; i_1++) {
-        for (float i_2 = -1; i_2 <= 1; i_2++) {
+    minALengthSquared = numeric_limits<float>::max();
+    for (float i_1 = -1; i_1 <= 1; i_1++)
+    {
+        for (float i_2 = -1; i_2 <= 1; i_2++)
+        {
             float x1 = round(y1 + i_1);
             float x2 = round(y2 + i_2);
-            if (abs(x1 - y1) <= 1 & abs(x2 - y2) <= 1) {
+            if (abs(x1 - y1) <= 1 & abs(x2 - y2) <= 1)
+            {
                 Vector3f a = b3 + x2 * b2 + x1 * b1;
                 float aLengthSquared = a.squaredNorm();
 
-                if (aLengthSquared < minALengthSquared) {
+                if (aLengthSquared < minALengthSquared)
+                {
                     minA = a;
                     minALengthSquared = aLengthSquared;
                 }
             }
         }
     }
-
 }
 
 // algorithm implemented after http://www.csie.nuk.edu.tw/~cychen/Lattices/A%203-Dimensional%20Lattice%20Reduction%20Algorithm.pdf
 Lattice& Lattice::minimize()
 {
-    assert(abs(basis.determinant()) >= 1e-10);  // nonsingular (value for normal crystal... can bee too high!)
+    assert(abs(basis.determinant()) >= 1e-10); // nonsingular (value for normal crystal... can bee too high!)
 
-    Vector3f minA(0, 0, 0); //initialization not required, but if not done, compiler issues warning
+    Vector3f minA(0, 0, 0); // initialization not required, but if not done, compiler issues warning
 
     bool terminationFlag = false;
-    while (terminationFlag == false) {
+    while (terminationFlag == false)
+    {
         sortColumnsByNorm_ascending(basis);
 
         minimize2DLattice(basis);
@@ -119,12 +126,14 @@ Lattice& Lattice::minimize()
         float minALengthSquared;
         getMinA(basis, minA, minALengthSquared);
 
-        if (minALengthSquared >= basis.col(2).squaredNorm()) {
+        if (minALengthSquared >= basis.col(2).squaredNorm())
+        {
             terminationFlag = true;
-        } else {
+        }
+        else
+        {
             basis.col(2) = minA;
         }
-
     }
 
     sortColumnsByNorm_ascending(basis);

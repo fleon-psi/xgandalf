@@ -7,21 +7,22 @@
 
 #include <HillClimbingOptimizer.h>
 #include <cstddef>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 using namespace Eigen;
 using namespace std;
 
-HillClimbingOptimizer::HillClimbingOptimizer() :
-        transform(), hillClimbingAccuracyConstants()
+HillClimbingOptimizer::HillClimbingOptimizer()
+    : transform()
+    , hillClimbingAccuracyConstants()
 {
 }
 
 void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransform, Matrix3Xf& positionsToOptimize)
 {
-//    std::ofstream ofs("workfolder/tmp", std::ofstream::out);
-//    ofs << positionsToOptimize.transpose().eval() << endl;
+    //    std::ofstream ofs("workfolder/tmp", std::ofstream::out);
+    //    ofs << positionsToOptimize.transpose().eval() << endl;
 
 
     float& gamma = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.gamma;
@@ -39,73 +40,76 @@ void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransfo
     const int localCalmDownIterationCount = hillClimbingAccuracyConstants.localCalmDownIterationCount;
     const float localCalmDownFactor = hillClimbingAccuracyConstants.localCalmDownFactor;
 
-	transform.setPointsToTransform(pointsToTransform);
-	uint32_t maxPositioncPerIteration = 500;	//TODO: find sweet spot. Maybe choose dependent on pointsToTransform.cols()
-	Matrix3Xf positionsToOptimize_local;
-	for (size_t positionsProcessedCount = 0; positionsProcessedCount <  positionsToOptimize.cols(); positionsProcessedCount += maxPositioncPerIteration)
-	{
-		uint32_t remainingPositionsCount = positionsToOptimize.cols() - positionsProcessedCount;
-		uint32_t positionsCount_local = min(maxPositioncPerIteration, remainingPositionsCount);
-		positionsToOptimize_local = positionsToOptimize.block(0, positionsProcessedCount, 3, positionsCount_local);
+    transform.setPointsToTransform(pointsToTransform);
+    uint32_t maxPositioncPerIteration = 500; // TODO: find sweet spot. Maybe choose dependent on pointsToTransform.cols()
+    Matrix3Xf positionsToOptimize_local;
+    for (size_t positionsProcessedCount = 0; positionsProcessedCount < positionsToOptimize.cols(); positionsProcessedCount += maxPositioncPerIteration)
+    {
+        uint32_t remainingPositionsCount = positionsToOptimize.cols() - positionsProcessedCount;
+        uint32_t positionsCount_local = min(maxPositioncPerIteration, remainingPositionsCount);
+        positionsToOptimize_local = positionsToOptimize.block(0, positionsProcessedCount, 3, positionsCount_local);
 
-		previousStepDirection = Matrix3Xf::Zero(3, positionsToOptimize_local.cols());
-		previousStepLength = Array< float, 1, Eigen::Dynamic >::Constant(1, positionsToOptimize_local.cols(), minStep + (maxStep - minStep) / 4);
+        previousStepDirection = Matrix3Xf::Zero(3, positionsToOptimize_local.cols());
+        previousStepLength = Array<float, 1, Eigen::Dynamic>::Constant(1, positionsToOptimize_local.cols(), minStep + (maxStep - minStep) / 4);
 
-		for (int i = 0; i < initialIterationCount; i++) {
-			transform.clearLocalTransformFlag();
-			transform.setRadialWeightingFlag();
-			bool useStepOrthogonalization = true;
+        for (int i = 0; i < initialIterationCount; i++)
+        {
+            transform.clearLocalTransformFlag();
+            transform.setRadialWeightingFlag();
+            bool useStepOrthogonalization = true;
 
-			performOptimizationStep(positionsToOptimize_local, useStepOrthogonalization);
-			//        ofs << positionsToOptimize.transpose().eval() << endl;
-		}
+            performOptimizationStep(positionsToOptimize_local, useStepOrthogonalization);
+            //        ofs << positionsToOptimize.transpose().eval() << endl;
+        }
 
-		for (int i = 0; i < calmDownIterationCount; i++) {
-			transform.clearLocalTransformFlag();
-			transform.setRadialWeightingFlag();
-			bool useStepOrthogonalization = true;
+        for (int i = 0; i < calmDownIterationCount; i++)
+        {
+            transform.clearLocalTransformFlag();
+            transform.setRadialWeightingFlag();
+            bool useStepOrthogonalization = true;
 
-			maxStep = maxStep * calmDownFactor;
-			minStep = minStep * calmDownFactor;
-			gamma = gamma * calmDownFactor;
+            maxStep = maxStep * calmDownFactor;
+            minStep = minStep * calmDownFactor;
+            gamma = gamma * calmDownFactor;
 
-			performOptimizationStep(positionsToOptimize_local, useStepOrthogonalization);
-			//        ofs << positionsToOptimize.transpose().eval() << endl;
-		}
+            performOptimizationStep(positionsToOptimize_local, useStepOrthogonalization);
+            //        ofs << positionsToOptimize.transpose().eval() << endl;
+        }
 
-		for (int i = 0; i < localFitIterationCount; i++) {
-			transform.setLocalTransformFlag();
-			transform.clearRadialWeightingFlag();
-			bool useStepOrthogonalization = true;
+        for (int i = 0; i < localFitIterationCount; i++)
+        {
+            transform.setLocalTransformFlag();
+            transform.clearRadialWeightingFlag();
+            bool useStepOrthogonalization = true;
 
-			performOptimizationStep(positionsToOptimize_local, useStepOrthogonalization);
-			//        ofs << positionsToOptimize.transpose().eval() << endl;
-		}
+            performOptimizationStep(positionsToOptimize_local, useStepOrthogonalization);
+            //        ofs << positionsToOptimize.transpose().eval() << endl;
+        }
 
-		for (int i = 0; i < localCalmDownIterationCount; i++) {
-			transform.setLocalTransformFlag();
-			transform.clearRadialWeightingFlag();
-			bool useStepOrthogonalization = false;
+        for (int i = 0; i < localCalmDownIterationCount; i++)
+        {
+            transform.setLocalTransformFlag();
+            transform.clearRadialWeightingFlag();
+            bool useStepOrthogonalization = false;
 
-			maxStep = maxStep * localCalmDownFactor;
-			minStep = minStep * localCalmDownFactor;
-			gamma = gamma * localCalmDownFactor;
+            maxStep = maxStep * localCalmDownFactor;
+            minStep = minStep * localCalmDownFactor;
+            gamma = gamma * localCalmDownFactor;
 
-			performOptimizationStep(positionsToOptimize_local, useStepOrthogonalization);
-			//        ofs << positionsToOptimize.transpose().eval() << endl;
-		}
+            performOptimizationStep(positionsToOptimize_local, useStepOrthogonalization);
+            //        ofs << positionsToOptimize.transpose().eval() << endl;
+        }
 
-		positionsToOptimize.block(0, positionsProcessedCount, 3, positionsCount_local) = positionsToOptimize_local;
-    
-		gamma = gamma_initial;
-		maxStep = maxStep_initial;
-		minStep = minStep_initial;
-	}
+        positionsToOptimize.block(0, positionsProcessedCount, 3, positionsCount_local) = positionsToOptimize_local;
+
+        gamma = gamma_initial;
+        maxStep = maxStep_initial;
+        minStep = minStep_initial;
+    }
 
     // can be optimized! Does not always need to compute slope, closeToPoints and gradient
     transform.performTransform(positionsToOptimize);
     lastInverseTransformEvaluation = transform.getInverseTransformEvaluation();
-
 }
 
 void HillClimbingOptimizer::performOptimizationStep(Matrix3Xf& positionsToOptimize, bool useStepOrthogonalization)
@@ -115,9 +119,9 @@ void HillClimbingOptimizer::performOptimizationStep(Matrix3Xf& positionsToOptimi
     RowVectorXf& closeToPointsCount = transform.getCloseToPointsCount();
     RowVectorXf& inverseTransformEvaluation = transform.getInverseTransformEvaluation();
     computeStep(gradient, closeToPointsCount, inverseTransformEvaluation, useStepOrthogonalization);
-//    cout << "step: " << endl << step << endl << endl;
+    //    cout << "step: " << endl << step << endl << endl;
     positionsToOptimize += step;
-//    cout << "positionsToOptimize: " << endl << positionsToOptimize << endl << endl;
+    //    cout << "positionsToOptimize: " << endl << positionsToOptimize << endl << endl;
 }
 
 void HillClimbingOptimizer::setPointsToTransformWeights(const RowVectorXf& pointsToTransformWeights)
@@ -135,40 +139,43 @@ RowVectorXf& HillClimbingOptimizer::getCloseToPointsCount()
     return transform.getCloseToPointsCount();
 }
 
-vector< vector< uint16_t > >& HillClimbingOptimizer::getPointsCloseToEvaluationPositions_indices()
+vector<vector<uint16_t>>& HillClimbingOptimizer::getPointsCloseToEvaluationPositions_indices()
 {
     return transform.getPointsCloseToEvaluationPositions_indices();
 }
 
 void HillClimbingOptimizer::computeStep(Matrix3Xf& gradient, RowVectorXf& closeToPointsCount, RowVectorXf& inverseTransformEvaluation,
-        bool useStepOrthogonalization)
+                                        bool useStepOrthogonalization)
 {
-    //reuse memory for processing for performance reasons
+    // reuse memory for processing for performance reasons
     Matrix3Xf& stepDirection = gradient;
     RowVectorXf& closeToPointsFactor = closeToPointsCount;
     RowVectorXf& functionEvaluationFactor = inverseTransformEvaluation;
 
     stepDirection = gradient.colwise().normalized();
-//    cout << "stepDirection " << endl << stepDirection << endl << endl<< previousStepDirection << endl << endl;
+    //    cout << "stepDirection " << endl << stepDirection << endl << endl<< previousStepDirection << endl << endl;
 
-    Array< float, 1, Dynamic > directionChange = (stepDirection.array() * previousStepDirection.array()).matrix().colwise().sum();
-//    cout << "dirChange " << endl << directionChange << endl << endl;
+    Array<float, 1, Dynamic> directionChange = (stepDirection.array() * previousStepDirection.array()).matrix().colwise().sum();
+    //    cout << "dirChange " << endl << directionChange << endl << endl;
 
-    Array< float, 1, Dynamic > stepDirectionFactor = ((directionChange + 1) / 2).square().square() * 1.5 + 0.5;   //directionChange in [-1 1]   
-    closeToPointsFactor = (closeToPointsCount.array() * (-1) + 0.8).square() * 6 + 0.5;   //closeToPoints in [0 1]
-    functionEvaluationFactor = ((inverseTransformEvaluation.array() * (-1) + 0.8) / 2).cube() * 4 + 0.3;   //functionEvaluation in [-1 1]
-//    cout << stepDirectionFactor << endl << endl << closeToPointsFactor << endl << endl << functionEvaluationFactor << endl;
+    Array<float, 1, Dynamic> stepDirectionFactor = ((directionChange + 1) / 2).square().square() * 1.5 + 0.5; // directionChange in [-1 1]
+    closeToPointsFactor = (closeToPointsCount.array() * (-1) + 0.8).square() * 6 + 0.5;                       // closeToPoints in [0 1]
+    functionEvaluationFactor = ((inverseTransformEvaluation.array() * (-1) + 0.8) / 2).cube() * 4 + 0.3;      // functionEvaluation in [-1 1]
+    //    cout << stepDirectionFactor << endl << endl << closeToPointsFactor << endl << endl << functionEvaluationFactor << endl;
 
-//    cout << "stepDirection " << endl << stepDirection << endl << endl;
-    if (useStepOrthogonalization) {
-        for (int i = 0; i < closeToPointsCount.size(); i++) {
-            if (directionChange(i) < -0.4) {
+    //    cout << "stepDirection " << endl << stepDirection << endl << endl;
+    if (useStepOrthogonalization)
+    {
+        for (int i = 0; i < closeToPointsCount.size(); i++)
+        {
+            if (directionChange(i) < -0.4)
+            {
                 stepDirection.col(i) = (stepDirection.col(i) + previousStepDirection.col(i)).normalized();
                 stepDirectionFactor(i) = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.directionChangeFactor;
             }
         }
     }
-//    cout << "stepDirection " << endl << stepDirection << endl << endl;
+    //    cout << "stepDirection " << endl << stepDirection << endl << endl;
 
     previousStepDirection = stepDirection;
 
@@ -176,9 +183,11 @@ void HillClimbingOptimizer::computeStep(Matrix3Xf& gradient, RowVectorXf& closeT
     const float maxStep = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.maxStep;
     const float gamma = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.gamma;
 
-    Array< float, 1, Eigen::Dynamic >& stepLength = previousStepLength;  //reuse memory
-    stepLength = ((0.5 * (minStep + (maxStep - minStep) * gamma) + 0.5 * previousStepLength)
-            * stepDirectionFactor * closeToPointsFactor.array() * functionEvaluationFactor.array()).min(maxStep).max(minStep);
+    Array<float, 1, Eigen::Dynamic>& stepLength = previousStepLength; // reuse memory
+    stepLength = ((0.5 * (minStep + (maxStep - minStep) * gamma) + 0.5 * previousStepLength) * stepDirectionFactor * closeToPointsFactor.array() *
+                  functionEvaluationFactor.array())
+                     .min(maxStep)
+                     .max(minStep);
 
     step = stepDirection.array().rowwise() * stepLength;
 }

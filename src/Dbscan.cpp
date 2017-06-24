@@ -6,14 +6,20 @@
  */
 
 #include <Dbscan.h>
-#include <sstream>
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 using namespace Eigen;
 
-Dbscan::Dbscan() :
-        squaredEpsilon(0), maxEpsilon(0), binWidth(0), binWidth_reciprocal(0), binsPerDimension(0), binCount(0), binCountMinus1(0)
+Dbscan::Dbscan()
+    : squaredEpsilon(0)
+    , maxEpsilon(0)
+    , binWidth(0)
+    , binWidth_reciprocal(0)
+    , binsPerDimension(0)
+    , binCount(0)
+    , binCountMinus1(0)
 {
 }
 
@@ -26,7 +32,8 @@ void Dbscan::init(float maxEpsilon, float maxPossiblePointNorm)
 {
     this->maxEpsilon = maxEpsilon;
 
-    if (maxEpsilon < maxPossiblePointNorm / 50) {
+    if (maxEpsilon < maxPossiblePointNorm / 50)
+    {
         cout << "dbscan histogram would take too much memory! Reducing performance in trade of memory!" << endl << endl;
         this->maxEpsilon = maxPossiblePointNorm / 50;
     }
@@ -44,16 +51,21 @@ void Dbscan::init(float maxEpsilon, float maxPossiblePointNorm)
     discretizationVolume.resize(binCount);
 
     const uint32_t typicalMaxPointsPerBin = 50;
-    for (auto& bin : discretizationVolume) {
+    for (auto& bin : discretizationVolume)
+    {
         bin.reserve(typicalMaxPointsPerBin);
     }
 
     neighbourBinIndexOffsets[0] = 0;
     int neighboursIndex = 1;
-    for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
-            for (int z = -1; z <= 1; z++) {
-                if (!(x == 0 && y == 0 && z == 0)) {
+    for (int x = -1; x <= 1; x++)
+    {
+        for (int y = -1; y <= 1; y++)
+        {
+            for (int z = -1; z <= 1; z++)
+            {
+                if (!(x == 0 && y == 0 && z == 0))
+                {
                     neighbourBinIndexOffsets[neighboursIndex] = x + y * strides.y() + z * strides.z();
                     neighboursIndex++;
                 }
@@ -65,9 +77,10 @@ void Dbscan::init(float maxEpsilon, float maxPossiblePointNorm)
     neighbourNeighbourhood.reserve(27 * typicalMaxPointsPerBin);
 }
 
-void Dbscan::computeClusters(vector< cluster_t >& clusters, const Matrix3Xf& points, uint16_t minPoints, float epsilon)
+void Dbscan::computeClusters(vector<cluster_t>& clusters, const Matrix3Xf& points, uint16_t minPoints, float epsilon)
 {
-    if (epsilon > maxEpsilon) {
+    if (epsilon > maxEpsilon)
+    {
         stringstream errStream;
         errStream << "epsilon must be smaller than maxEpsilon" << endl;
         errStream << "epsilon = " << epsilon << endl;
@@ -77,14 +90,17 @@ void Dbscan::computeClusters(vector< cluster_t >& clusters, const Matrix3Xf& poi
 
     squaredEpsilon = epsilon * epsilon;
 
-    clusters.reserve(50);   //just for performance
+    clusters.reserve(50); // just for performance
 
     fillDiscretizationVolume(points);
 
-    for (bin_t* bin_p : usedBins) {
+    for (bin_t* bin_p : usedBins)
+    {
         bin_t& bin = *bin_p;
-        for (uint32_t i = 0; i < bin.size(); ++i) {
-            if (bin[i].visited) {
+        for (uint32_t i = 0; i < bin.size(); ++i)
+        {
+            if (bin[i].visited)
+            {
                 continue;
             }
 
@@ -93,7 +109,8 @@ void Dbscan::computeClusters(vector< cluster_t >& clusters, const Matrix3Xf& poi
             currentPoint.markVisited();
 
             uint32_t neighboursCount = regionQuery(mainNeighbourhood, currentPoint);
-            if (neighboursCount >= minPoints) {
+            if (neighboursCount >= minPoints)
+            {
                 clusters.emplace_back();
                 clusters.back().reserve(5);
                 expandCluster(clusters.back(), mainNeighbourhood, currentPoint, minPoints);
@@ -104,40 +121,48 @@ void Dbscan::computeClusters(vector< cluster_t >& clusters, const Matrix3Xf& poi
     cleanUpDiscretizationVolume();
 }
 
-void Dbscan::expandCluster(cluster_t& cluster, std::vector< Neighbour >& neighbourhood, Neighbour& currentPoint, uint16_t minPoints)
+void Dbscan::expandCluster(cluster_t& cluster, std::vector<Neighbour>& neighbourhood, Neighbour& currentPoint, uint16_t minPoints)
 {
     cluster.push_back(currentPoint.pointIndex());
     currentPoint.markIsMemberOfCluster();
 
-    for (auto neighbour_i = neighbourhood.begin(); neighbour_i != neighbourhood.end(); ++neighbour_i) { //cannot be made a for each loop, since neighbourhood size changes
+    for (auto neighbour_i = neighbourhood.begin(); neighbour_i != neighbourhood.end(); ++neighbour_i)
+    { // cannot be made a for-each loop, since neighbourhood size changes
         auto& neighbour = *neighbour_i;
-        if (!neighbour.isVisited()) {
+        if (!neighbour.isVisited())
+        {
             neighbour.markVisited();
             uint32_t neighboursCount = regionQuery(neighbourNeighbourhood, neighbour);
-            if (neighboursCount >= minPoints) {
+            if (neighboursCount >= minPoints)
+            {
                 neighbourhood.insert(neighbourhood.end(), neighbourNeighbourhood.begin(), neighbourNeighbourhood.end());
             }
         }
-        if (!neighbour.isMemberOfCluster()) {
+        if (!neighbour.isMemberOfCluster())
+        {
             cluster.push_back(neighbour.pointIndex());
             neighbour.markIsMemberOfCluster();
         }
     }
 }
 
-uint32_t Dbscan::regionQuery(std::vector< Neighbour >& nieghbourhood, const Neighbour& currentPoint)
+uint32_t Dbscan::regionQuery(std::vector<Neighbour>& nieghbourhood, const Neighbour& currentPoint)
 {
     uint32_t validNeighboursCount = 0;
     nieghbourhood.clear();
 
     const Vector4f& currentPointPos = currentPoint.point();
-    for (int neighbourBinIndexOffset : neighbourBinIndexOffsets) {
+    for (int neighbourBinIndexOffset : neighbourBinIndexOffsets)
+    {
         bin_t& neighbourBin = *(currentPoint.bin + neighbourBinIndexOffset);
-        for (uint32_t i = 0; i < neighbourBin.size(); ++i) {
+        for (uint32_t i = 0; i < neighbourBin.size(); ++i)
+        {
             const Vector4f& neighbourPos = neighbourBin[i].point;
-            if ((currentPointPos - neighbourPos).squaredNorm() <= squaredEpsilon) {
+            if ((currentPointPos - neighbourPos).squaredNorm() <= squaredEpsilon)
+            {
                 validNeighboursCount++;
-                if (!neighbourBin[i].visitedAndMemberOfCluster) {
+                if (!neighbourBin[i].visitedAndMemberOfCluster)
+                {
                     nieghbourhood.emplace_back(&neighbourBin, &neighbourBin[i]);
                 }
             }
@@ -151,7 +176,8 @@ void Dbscan::fillDiscretizationVolume(const Eigen::Matrix3Xf& points)
 {
     uint32_t pointsCount = points.cols();
 
-    for (uint32_t i = 0; i < pointsCount; ++i) {
+    for (uint32_t i = 0; i < pointsCount; ++i)
+    {
         const Vector3f& point = points.col(i);
         const uint32_t index = getIndex(point);
         bin_t& bin = discretizationVolume[index];
@@ -170,7 +196,8 @@ void Dbscan::fillDiscretizationVolume(const Eigen::Matrix3Xf& points)
 
 void Dbscan::cleanUpDiscretizationVolume()
 {
-    for (bin_t* bin_p : usedBins) {
+    for (bin_t* bin_p : usedBins)
+    {
         (*bin_p).clear();
     }
 }

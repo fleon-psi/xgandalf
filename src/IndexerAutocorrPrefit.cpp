@@ -13,14 +13,14 @@
 using namespace Eigen;
 using namespace std;
 
-IndexerAutocorrPrefit::IndexerAutocorrPrefit(const ExperimentSettings& experimentSettings) :
-        IndexerBase(experimentSettings)
+IndexerAutocorrPrefit::IndexerAutocorrPrefit(const ExperimentSettings& experimentSettings)
+    : IndexerBase(experimentSettings)
 {
     precompute();
 }
 
-IndexerAutocorrPrefit::IndexerAutocorrPrefit(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath) :
-        IndexerBase(experimentSettings, precomputedSamplePointsPath)
+IndexerAutocorrPrefit::IndexerAutocorrPrefit(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath)
+    : IndexerBase(experimentSettings, precomputedSamplePointsPath)
 {
     precompute();
 }
@@ -46,7 +46,8 @@ void IndexerAutocorrPrefit::setSamplingPitch(SamplingPitch samplingPitch)
 {
     float unitPitch;
 
-    switch (samplingPitch) {
+    switch (samplingPitch)
+    {
         case SamplingPitch::extremelyLoose:
             unitPitch = 0.10;
             break;
@@ -63,7 +64,7 @@ void IndexerAutocorrPrefit::setSamplingPitch(SamplingPitch samplingPitch)
             unitPitch = 0.01;
             break;
         default:
-            unitPitch = 0.00; //can not happen!
+            unitPitch = 0.00; // can not happen!
     }
 
     setSamplingPitch(unitPitch);
@@ -71,11 +72,14 @@ void IndexerAutocorrPrefit::setSamplingPitch(SamplingPitch samplingPitch)
 
 void IndexerAutocorrPrefit::setSamplingPitch(float unitPitch)
 {
-    if (experimentSettings.isLatticeParametersKnown()) {
+    if (experimentSettings.isLatticeParametersKnown())
+    {
         float tolerance = min(unitPitch, experimentSettings.getTolerance());
 
         samplePointsGenerator.getTightGrid(precomputedSamplePoints, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
-    } else {
+    }
+    else
+    {
         float minRadius = experimentSettings.getMinRealLatticeVectorLength_A() * 0.98;
         float maxRadius = experimentSettings.getMaxRealLatticeVectorLength_A() * 1.02;
 
@@ -84,36 +88,40 @@ void IndexerAutocorrPrefit::setSamplingPitch(float unitPitch)
 }
 
 void IndexerAutocorrPrefit::getGoodAutocorrelationPoints(Matrix3Xf& goodAutocorrelationPoints, RowVectorXf& goodAutocorrelationPointWeights,
-        const Matrix3Xf& points, uint32_t maxAutocorrelationPointsCount)
+                                                         const Matrix3Xf& points, uint32_t maxAutocorrelationPointsCount)
 {
     Matrix3Xf autocorrelationPoints;
 
     getPointAutocorrelation(autocorrelationPoints, points, minNormInAutocorrelation, maxNormInAutocorrelation);
 
-    vector< Dbscan::cluster_t > clusters;
+    vector<Dbscan::cluster_t> clusters;
     uint16_t minPoints = 2;
     dbscan.computeClusters(clusters, autocorrelationPoints, minPoints, dbscanEpsilon);
 
-    sort(clusters.begin(), clusters.end(), [&](const Dbscan::cluster_t& i, const Dbscan::cluster_t& j) {return i.size() > j.size();});
+    sort(clusters.begin(), clusters.end(), [&](const Dbscan::cluster_t& i, const Dbscan::cluster_t& j) { return i.size() > j.size(); });
 
-    Array< uint8_t, 1, Dynamic > autocorrelationPointIsInCluster(autocorrelationPoints.cols());
+    Array<uint8_t, 1, Dynamic> autocorrelationPointIsInCluster(autocorrelationPoints.cols());
     autocorrelationPointIsInCluster.setZero();
-    for (auto& cluster : clusters) {
-        for (uint32_t index : cluster) {
+    for (auto& cluster : clusters)
+    {
+        for (uint32_t index : cluster)
+        {
             autocorrelationPointIsInCluster[index] = 1;
         }
     }
     uint32_t pointsOutsideOfClustersCount = autocorrelationPointIsInCluster.size() - autocorrelationPointIsInCluster.sum();
 
-    goodAutocorrelationPoints.resize(3, min(pointsOutsideOfClustersCount + (uint32_t) clusters.size(), maxAutocorrelationPointsCount));
+    goodAutocorrelationPoints.resize(3, min(pointsOutsideOfClustersCount + (uint32_t)clusters.size(), maxAutocorrelationPointsCount));
     goodAutocorrelationPointWeights.resize(goodAutocorrelationPoints.cols());
 
     uint32_t goodAutocorrelationPointsCount = 0;
 
-    uint32_t clusterMeansToTakeCount = min((uint32_t) goodAutocorrelationPoints.size(), (uint32_t) clusters.size());
-    for (; goodAutocorrelationPointsCount < clusterMeansToTakeCount; ++goodAutocorrelationPointsCount) {
+    uint32_t clusterMeansToTakeCount = min((uint32_t)goodAutocorrelationPoints.size(), (uint32_t)clusters.size());
+    for (; goodAutocorrelationPointsCount < clusterMeansToTakeCount; ++goodAutocorrelationPointsCount)
+    {
         Vector3f sum(0, 0, 0);
-        for (uint32_t index : clusters[goodAutocorrelationPointsCount]) {
+        for (uint32_t index : clusters[goodAutocorrelationPointsCount])
+        {
             sum += autocorrelationPoints.col(index);
         }
         Vector3f mean = sum / clusters[goodAutocorrelationPointsCount].size();
@@ -123,33 +131,38 @@ void IndexerAutocorrPrefit::getGoodAutocorrelationPoints(Matrix3Xf& goodAutocorr
     }
 
     uint32_t pointsOutsideOfClustersToTakeCount = goodAutocorrelationPoints.cols() - goodAutocorrelationPointsCount;
-    if (pointsOutsideOfClustersToTakeCount == 0) {
+    if (pointsOutsideOfClustersToTakeCount == 0)
+    {
         return;
     }
 
     EigenSTL::vector_Vector3f pointsOutsideOfClusters;
     pointsOutsideOfClusters.reserve(pointsOutsideOfClustersCount);
-    for (int i = 0; i < autocorrelationPoints.cols(); ++i) {
-        if (!autocorrelationPointIsInCluster[i]) {
+    for (int i = 0; i < autocorrelationPoints.cols(); ++i)
+    {
+        if (!autocorrelationPointIsInCluster[i])
+        {
             pointsOutsideOfClusters.push_back(autocorrelationPoints.col(i));
         }
     }
 
     nth_element(pointsOutsideOfClusters.begin(), pointsOutsideOfClusters.begin() + pointsOutsideOfClustersToTakeCount, pointsOutsideOfClusters.end(),
-            [&](const Vector3f& i, const Vector3f& j) {return i.squaredNorm() < j.squaredNorm();});
-//    sort(pointsOutsideOfClusters.begin(), pointsOutsideOfClusters.end(), /////////////DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//            [&](const Vector3f& i, const Vector3f& j) {return i.squaredNorm() < j.squaredNorm();});
+                [&](const Vector3f& i, const Vector3f& j) { return i.squaredNorm() < j.squaredNorm(); });
+    //    sort(pointsOutsideOfClusters.begin(), pointsOutsideOfClusters.end(),
+    //    /////////////DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //            [&](const Vector3f& i, const Vector3f& j) {return i.squaredNorm() < j.squaredNorm();});
 
-    for (uint32_t i = 0; i < pointsOutsideOfClustersToTakeCount; ++i, ++goodAutocorrelationPointsCount) {
+    for (uint32_t i = 0; i < pointsOutsideOfClustersToTakeCount; ++i, ++goodAutocorrelationPointsCount)
+    {
         goodAutocorrelationPoints.col(goodAutocorrelationPointsCount) = pointsOutsideOfClusters[i];
         goodAutocorrelationPointWeights[goodAutocorrelationPointsCount] = 1;
     }
 
-    goodAutocorrelationPointWeights.array().cube().sqrt(); //weighten bigger clusters more
+    goodAutocorrelationPointWeights.array().cube().sqrt(); // weighten bigger clusters more
 }
 
 void IndexerAutocorrPrefit::autocorrPrefit(const Matrix3Xf& reciprocalPeaks_A, Matrix3Xf& samplePoints,
-        HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_autocorr)
+                                           HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_autocorr)
 {
     Matrix3Xf autocorrelationReciprocalPeaks;
     RowVectorXf autocorrelationPointWeights;
@@ -158,7 +171,8 @@ void IndexerAutocorrPrefit::autocorrPrefit(const Matrix3Xf& reciprocalPeaks_A, M
 
     getGoodAutocorrelationPoints(autocorrelationReciprocalPeaks, autocorrelationPointWeights, reciprocalPeaks_A, maxAutocorrelationPointsCount);
 
-    if (autocorrelationReciprocalPeaks.cols() < 5) {
+    if (autocorrelationReciprocalPeaks.cols() < 5)
+    {
         return;
     }
 
@@ -203,18 +217,19 @@ void IndexerAutocorrPrefit::autocorrPrefit(const Matrix3Xf& reciprocalPeaks_A, M
     keepSamplePointsWithHighestEvaluation(samplePointsPeaks_standard98, samplePointsPeaksEvaluation_standard98, maxToTakeCount_98);
 
     uint32_t prefittedSamplePointsCount = samplePointsPeaks_autocorr11.cols() + samplePointsPeaks_autocorr98.cols() + samplePointsPeaks_standard98.cols();
-    if (prefittedSamplePointsCount < 3) {
+    if (prefittedSamplePointsCount < 3)
+    {
         return;
     }
 
     samplePoints.resize(3, prefittedSamplePointsCount);
     samplePoints << samplePointsPeaks_autocorr11, samplePointsPeaks_autocorr98, samplePointsPeaks_standard98;
-
 }
 
-void IndexerAutocorrPrefit::index(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m)
+void IndexerAutocorrPrefit::index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m)
 {
-    if (precomputedSamplePoints.size() == 0) {
+    if (precomputedSamplePoints.size() == 0)
+    {
         precompute();
     }
 
@@ -320,12 +335,10 @@ void IndexerAutocorrPrefit::index(std::vector< Lattice >& assembledLattices, con
     latticeAssembler.setAccuracyConstants(accuracyConstants_LatticeAssembler);
     latticeAssembler.setKnownLatticeParameters(experimentSettings.getSampleRealLattice_A(), experimentSettings.getTolerance());
 
-    vector< LatticeAssembler::assembledLatticeStatistics_t > assembledLatticesStatistics;
+    vector<LatticeAssembler::assembledLatticeStatistics_t> assembledLatticesStatistics;
     Matrix3Xf& candidateVectors = samplePoints;
     RowVectorXf& candidateVectorWeights = inverseSpaceTransform.getInverseTransformEvaluation();
-    vector< vector< uint16_t > >& pointIndicesOnVector = inverseSpaceTransform.getPointsCloseToEvaluationPositions_indices();
-    latticeAssembler.assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors,
-            candidateVectorWeights, pointIndicesOnVector, reciprocalPeaks_A);
-
+    vector<vector<uint16_t>>& pointIndicesOnVector = inverseSpaceTransform.getPointsCloseToEvaluationPositions_indices();
+    latticeAssembler.assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors, candidateVectorWeights, pointIndicesOnVector,
+                                      reciprocalPeaks_A);
 }
-

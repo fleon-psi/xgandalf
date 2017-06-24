@@ -20,7 +20,7 @@ void DetectorToReciprocalSpaceTransform::computeReciprocalPeaksFromDetectorPeaks
 {
     Matrix3Xf backprojectionDirectionVectors(3, detectorPeaks_m.cols());
     backprojectionDirectionVectors.row(0).setConstant(detectorDistance_m);
-    backprojectionDirectionVectors.row(1) = -1*detectorPeaks_m.row(0);  // detector x-coordinate is -y coordinate in reciprocal space
+    backprojectionDirectionVectors.row(1) = -1 * detectorPeaks_m.row(0); // detector x-coordinate is -y coordinate in reciprocal space
     backprojectionDirectionVectors.row(2) = detectorPeaks_m.row(1);
 
     reciprocalPeaks_A = backprojectionDirectionVectors.colwise().normalized() * reciprocal_lambda_1A;
