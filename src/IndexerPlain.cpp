@@ -44,7 +44,7 @@ void IndexerPlain::precompute()
     accuracyConstants_LatticeAssembler.maxCountPassingRelativeDefectFilter = 50;
     accuracyConstants_LatticeAssembler.minPointsOnLattice = 5;
     //    latticeAssembler.setDeterminantRange(experimentSettings.getMinRealLatticeDeterminant_A3(), experimentSettings.getMaxRealLatticeDeterminant_A3());
-    latticeAssembler.setDeterminantRange(experimentSettings.getRealLatticeDeterminant_A3() * 0.8, experimentSettings.getRealLatticeDeterminant_A3() * 1.2);
+    latticeAssembler.setDeterminantRange(experimentSettings.getRealLatticeDeterminant_A3() * 0.8, experimentSettings.getRealLatticeDeterminant_A3() * 1.2);	//debug
     latticeAssembler.setAccuracyConstants(accuracyConstants_LatticeAssembler);
     latticeAssembler.setKnownLatticeParameters(experimentSettings.getSampleRealLattice_A(), experimentSettings.getTolerance());
 }

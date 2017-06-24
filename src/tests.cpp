@@ -8,24 +8,24 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#include <iostream>
-#include <fstream> 
-#include <chrono>
+#include "Dbscan.h"
+#include "HillClimbingOptimizer.h"
+#include "IndexerAutocorrPrefit.h"
+#include "IndexerPlain.h"
+#include "InverseSpaceTransform.h"
+#include "Lattice.h"
+#include "LatticeAssembler.h"
+#include "SamplePointsGenerator.h"
+#include "SparsePeakFinder.h"
+#include "eigenDiskImport.h"
+#include "pointAutocorrelation.h"
+#include "samplePointsFiltering.h"
 #include <Eigen/Dense>
+#include <chrono>
+#include <fstream>
+#include <iostream>
 #include <sstream>
 #include <string>
-#include "Lattice.h"
-#include "SamplePointsGenerator.h"
-#include "InverseSpaceTransform.h"
-#include "HillClimbingOptimizer.h"
-#include "eigenDiskImport.h"
-#include "SparsePeakFinder.h"
-#include "LatticeAssembler.h"
-#include "pointAutocorrelation.h"
-#include "Dbscan.h"
-#include "IndexerPlain.h"
-#include "IndexerAutocorrPrefit.h"
-#include "samplePointsFiltering.h"
 
 using namespace std;
 using namespace Eigen;
@@ -34,8 +34,9 @@ static ExperimentSettings getExperimentSettingLys();
 
 void test_filterSamplePointsForNorm()
 {
-    vector< Matrix3Xf > samplePoints(100);
-    for (int i = 0; i < 100; ++i) {
+    vector<Matrix3Xf> samplePoints(100);
+    for (int i = 0; i < 100; ++i)
+    {
         loadEigenMatrixFromDisk(samplePoints[i], "workfolder/samplePoints");
     }
 
@@ -43,11 +44,12 @@ void test_filterSamplePointsForNorm()
     loadEigenMatrixFromDisk(allowedNorms, "workfolder/allowedNorms");
 
     chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 100; ++i)
+    {
         filterSamplePointsForNorm(samplePoints[i], allowedNorms, 0.03);
     }
     chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
     cout << "duration: " << duration << "ms" << endl << endl;
 
     ofstream out1("workfolder/samplePointsFiltered");
@@ -62,9 +64,11 @@ void test_indexerAutocorrPrefit()
 
     stringstream ss;
     int runNumber = 0;
-    chrono::duration< int64_t, milli >::rep totalDuration(0);
-    try {
-        while (1) {
+    chrono::duration<int64_t, milli>::rep totalDuration(0);
+    try
+    {
+        while (1)
+        {
             runNumber++;
 
             Matrix2Xf detectorPeaks_m;
@@ -75,12 +79,12 @@ void test_indexerAutocorrPrefit()
 
             cout << "runNumber " << runNumber << endl;
 
-            vector< Lattice > assembledLattices;
+            vector<Lattice> assembledLattices;
 
             chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
             indexer.index(assembledLattices, detectorPeaks_m);
             chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-            auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+            auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
             cout << "duration: " << duration << "ms" << endl << endl;
             totalDuration += duration;
 
@@ -88,18 +92,26 @@ void test_indexerAutocorrPrefit()
             ss.clear();
             ss << "workfolder/lattices__run" << runNumber;
             ofstream outfile(ss.str());
-            for (uint16_t i = 0; i < assembledLattices.size(); ++i) {
+            for (uint16_t i = 0; i < assembledLattices.size(); ++i)
+            {
                 outfile << assembledLattices[i] << endl << endl;
             }
             outfile.close();
         }
-    } catch (ifstream::failure& e) {
+    }
+    catch (CustomException& e)
+    {
+        cout << e.what();
+
+        cout << "custom exception caught" << endl;
         cout << "no more files left" << endl << endl;
         cout << "total duration: " << totalDuration << endl << endl;
-    } catch (CustomException& e) {
+    }
+    catch (exception& e)
+    {
         cout << e.what();
-    } catch (exception& e) {
-        cout << e.what();
+
+        cout << "general exception caught" << endl;
     }
 }
 
@@ -111,9 +123,11 @@ void test_indexerPlain()
 
     stringstream ss;
     int runNumber = 0;
-    chrono::duration< int64_t, milli >::rep totalDuration(0);
-    try {
-        while (1) {
+    chrono::duration<int64_t, milli>::rep totalDuration(0);
+    try
+    {
+        while (1)
+        {
             runNumber++;
 
             Matrix2Xf detectorPeaks_m;
@@ -124,12 +138,12 @@ void test_indexerPlain()
 
             cout << "runNumber " << runNumber << endl;
 
-            vector< Lattice > assembledLattices;
+            vector<Lattice> assembledLattices;
 
             chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
             indexer.index(assembledLattices, detectorPeaks_m);
             chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-            auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+            auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
             cout << "duration: " << duration << "ms" << endl << endl;
             totalDuration += duration;
 
@@ -137,18 +151,26 @@ void test_indexerPlain()
             ss.clear();
             ss << "workfolder/lattices__run" << runNumber;
             ofstream outfile(ss.str());
-            for (uint16_t i = 0; i < assembledLattices.size(); ++i) {
+            for (uint16_t i = 0; i < assembledLattices.size(); ++i)
+            {
                 outfile << assembledLattices[i] << endl << endl;
             }
             outfile.close();
         }
-    } catch (ifstream::failure& e) {
+    }
+    catch (CustomException& e)
+    {
+        cout << e.what();
+
+        cout << "custom exception caught" << endl;
         cout << "no more files left" << endl << endl;
         cout << "total duration: " << totalDuration << endl << endl;
-    } catch (CustomException& e) {
+    }
+    catch (exception& e)
+    {
         cout << e.what();
-    } catch (exception& e) {
-        cout << e.what();
+
+        cout << "general exception caught" << endl;
     }
 }
 
@@ -167,18 +189,21 @@ void test_dbscan()
 
     chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
 
-    vector< Dbscan::cluster_t > clusters;
+    vector<Dbscan::cluster_t> clusters;
     dbscan.computeClusters(clusters, points, minPoints, epsilon);
 
     chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
     cout << "duration: " << duration << "ms" << endl << endl;
 
     RowVectorXf clusterIndex = RowVectorXf::Zero(points.cols());
-    for (uint32_t i = 0; i < clusters.size(); ++i) {
+    for (uint32_t i = 0; i < clusters.size(); ++i)
+    {
         const auto& cluster = clusters[i];
-        for (uint32_t index : cluster) {
-            if (clusterIndex[index] != 0) {
+        for (uint32_t index : cluster)
+        {
+            if (clusterIndex[index] != 0)
+            {
                 cerr << "node belonging to two clusters!";
             }
             clusterIndex[index] = i + 1;
@@ -203,10 +228,10 @@ void test_pointAutocorrelation()
     loadEigenMatrixFromDisk(points, "workfolder/points");
 
     chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-//    getPointAutocorrelation(autocorrelationPoints, points, maxNormInAutocorrelation);
+    //    getPointAutocorrelation(autocorrelationPoints, points, maxNormInAutocorrelation);
     getPointAutocorrelation(autocorrelationPoints, centerPointIndices, shiftedPointIndices, points, minNormInAutocorrelation, maxNormInAutocorrelation);
     chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
     cout << "duration: " << duration << "ms" << endl << endl;
 
     ofstream out1("workfolder/autocorrelationPoints");
@@ -232,38 +257,41 @@ void test_latticeAssembler()
 
     Matrix3Xf candidateVectors;
     RowVectorXf candidateVectorWeights;
-    vector< std::vector< uint16_t > > pointIndicesOnVectors;
+    vector<std::vector<uint16_t>> pointIndicesOnVectors;
     Matrix3Xf pointsToFitInReciprocalSpace;
 
     loadEigenMatrixFromDisk(candidateVectors, "workfolder/candidateVectors");
     loadEigenMatrixFromDisk(candidateVectorWeights, "workfolder/candidateVectorWeights");
     pointIndicesOnVectors.reserve(candidateVectorWeights.size());
-    for (uint16_t i = 0; i < candidateVectorWeights.size(); ++i) {
+    for (uint16_t i = 0; i < candidateVectorWeights.size(); ++i)
+    {
         stringstream pathStream;
         pathStream << "workfolder/pointIndicesOnVector" << i;
         ifstream file(pathStream.str());
-        istream_iterator< uint16_t > startFile(file), end;
+        istream_iterator<uint16_t> startFile(file), end;
         pointIndicesOnVectors.emplace_back(startFile, end);
     }
     loadEigenMatrixFromDisk(pointsToFitInReciprocalSpace, "workfolder/pointsToFitInReciprocalSpace");
 
     chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
 
-    vector< Lattice > assembledLattices;
-    vector< LatticeAssembler::assembledLatticeStatistics_t > assembledLatticesStatistics;
+    vector<Lattice> assembledLattices;
+    vector<LatticeAssembler::assembledLatticeStatistics_t> assembledLatticesStatistics;
     latticeAssembler.assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors, candidateVectorWeights, pointIndicesOnVectors,
-            pointsToFitInReciprocalSpace);
+                                      pointsToFitInReciprocalSpace);
 
     chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
     cout << "duration: " << duration << "ms" << endl << endl;
 
-    for (uint16_t i = 0; i < assembledLattices.size(); ++i) {
+    for (uint16_t i = 0; i < assembledLattices.size(); ++i)
+    {
         cout << assembledLattices[i] << endl << endl;
 
-        cout << "meanDefect: " << assembledLatticesStatistics[i].meanDefect << endl <<
-                "meanRelativeDefect: " << assembledLatticesStatistics[i].meanRelativeDefect << endl <<
-                "occupiedLatticePointsCount: " << assembledLatticesStatistics[i].occupiedLatticePointsCount << endl << endl;
+        cout << "meanDefect: " << assembledLatticesStatistics[i].meanDefect << endl
+             << "meanRelativeDefect: " << assembledLatticesStatistics[i].meanRelativeDefect << endl
+             << "occupiedLatticePointsCount: " << assembledLatticesStatistics[i].occupiedLatticePointsCount << endl
+             << endl;
     }
 }
 
@@ -288,7 +316,7 @@ void test_sparsePeakFinder()
     chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
     sparsePeakFinder.findPeaks_fast(pointPositions, pointValues);
     chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
     cout << "duration: " << duration << "ms" << endl;
 
     std::ofstream ofs("workfolder/peakPositions", std::ofstream::out);
@@ -296,7 +324,6 @@ void test_sparsePeakFinder()
 
     std::ofstream ofs1("workfolder/peakValues", std::ofstream::out);
     ofs1 << pointValues.transpose().eval();
-
 }
 
 void test_hillClimbing()
@@ -311,7 +338,7 @@ void test_hillClimbing()
     samplePointsGenerator.getTightGrid(positionsToOptimize, unitPitch, tolerance, radii);
     loadEigenMatrixFromDisk(pointsToTransform, "workfolder/positionsToTransform");
 
-//    positionsToOptimize = positionsToOptimize.col(0).eval();
+    //    positionsToOptimize = positionsToOptimize.col(0).eval();
 
     HillClimbingOptimizer optimizer;
 
@@ -337,7 +364,7 @@ void test_hillClimbing()
     chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
     optimizer.performOptimization(pointsToTransform, positionsToOptimize);
     chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast< chrono::milliseconds >(t2 - t1).count();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
     cout << "duration: " << duration << "ms" << endl;
 
     std::ofstream ofs("workfolder/optimizedPoints", std::ofstream::out);
@@ -369,11 +396,11 @@ void test_computeStep()
     t.setPointsToTransform(pointsToTransform);
     t.performTransform(positionsToEvaluate);
 
-//    cout << t.getInverseTransformEvaluation() << endl << endl << t.getGradient() << endl << endl << t.getCloseToPointsCount() << endl;
+    //    cout << t.getInverseTransformEvaluation() << endl << endl << t.getGradient() << endl << endl << t.getCloseToPointsCount() << endl;
 
     HillClimbingOptimizer h;
     h.previousStepDirection = (Matrix3Xf(3, 4) << 0.5789, 0.6826, 0.3688, 0.6340, 0.4493, 0.0735, 0.8089, 0.3796, 0.6804, 0.7271, 0.4578, 0.6737).finished();
-    h.previousStepLength = (Array< float, 1, Eigen::Dynamic >(1, 4) << 0.1, 3, 2, 4).finished();
+    h.previousStepLength = (Array<float, 1, Eigen::Dynamic>(1, 4) << 0.1, 3, 2, 4).finished();
 
     HillClimbingOptimizer::stepComputationAccuracyConstants_t stepComputationAccuracyConstants;
     stepComputationAccuracyConstants.directionChangeFactor = 3;
@@ -410,10 +437,12 @@ void test_InverseSpaceTransform()
 
     cout << t.getInverseTransformEvaluation() << endl << endl << t.getGradient() << endl << endl << t.getCloseToPointsCount() << endl;
 
-    std::vector< std::vector< uint16_t > >& peaksCloseToEvaluationPositions_indices = t.getPointsCloseToEvaluationPositions_indices();
-    for (uint32_t i = 0; i < peaksCloseToEvaluationPositions_indices.size(); i++) {
+    std::vector<std::vector<uint16_t>>& peaksCloseToEvaluationPositions_indices = t.getPointsCloseToEvaluationPositions_indices();
+    for (uint32_t i = 0; i < peaksCloseToEvaluationPositions_indices.size(); i++)
+    {
         cout << endl << i << ": ";
-        for (uint32_t j = 0; j < peaksCloseToEvaluationPositions_indices[i].size(); j++) {
+        for (uint32_t j = 0; j < peaksCloseToEvaluationPositions_indices[i].size(); j++)
+        {
             cout << peaksCloseToEvaluationPositions_indices[i][j];
         }
     }
@@ -434,10 +463,10 @@ static ExperimentSettings getExperimentSettingLys()
     Vector3f c_star(+0.1601091, +0.0156280, -0.2065220);
     Matrix3f basis;
     basis << a_star, b_star, c_star;
-    basis = basis / 10; //nm to A
+    basis = basis / 10; // nm to A
     Lattice sampleReciprocalLattice_1A(basis);
     float tolerance = 0.02;
 
-    return ExperimentSettings(coffset_m, clen_mm, beamEenergy_eV, divergenceAngle_deg, nonMonochromaticity,
-            pixelLength_m, detectorRadius_pixel, sampleReciprocalLattice_1A, tolerance);
+    return ExperimentSettings(coffset_m, clen_mm, beamEenergy_eV, divergenceAngle_deg, nonMonochromaticity, pixelLength_m, detectorRadius_pixel,
+                              sampleReciprocalLattice_1A, tolerance);
 }

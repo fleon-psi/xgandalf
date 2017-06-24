@@ -89,7 +89,7 @@ static inline void getMinA(Matrix3f& basis, Vector3f& minA, float& minALengthSqu
         for (float i_2 = -1; i_2 <= 1; i_2++) {
             float x1 = round(y1 + i_1);
             float x2 = round(y2 + i_2);
-            if (abs(x1 - y1) <= 1 && abs(x2 - y2) <= 1) {
+            if (abs(x1 - y1) <= 1 & abs(x2 - y2) <= 1) {
                 Vector3f a = b3 + x2 * b2 + x1 * b1;
                 float aLengthSquared = a.squaredNorm();
 

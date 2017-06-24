@@ -24,3 +24,4 @@ NamespaceIndentation: All
 PointerAlignment: Left
 IndentCaseLabels: true
 MaxEmptyLinesToKeep: 2
+ReflowComments: true

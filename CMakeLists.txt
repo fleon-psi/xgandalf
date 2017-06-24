@@ -33,7 +33,7 @@ set(SOURCES src/Dbscan.cpp
             src/SamplePointsGenerator.cpp 
             src/SparsePeakFinder.cpp
 			src/tests.cpp
-			
+
 			src/main.cpp
             )
  

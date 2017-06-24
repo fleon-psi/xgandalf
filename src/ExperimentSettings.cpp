@@ -5,8 +5,8 @@
  *      Author: Yaro
  */
 
-#include <assert.h>
 #include <ExperimentSettings.h>
+#include <assert.h>
 #include <sstream>
 
 #include <cmath>
@@ -17,8 +17,10 @@ using namespace std;
 using namespace Eigen;
 
 ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
-        float pixelLength_m, float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A) :
-        latticeParametersKnown(false), minRealLatticeVectorLength_A(minRealLatticeVectorLength_A), maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A)
+                                       float pixelLength_m, float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A)
+    : latticeParametersKnown(false)
+    , minRealLatticeVectorLength_A(minRealLatticeVectorLength_A)
+    , maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A)
 {
     constructFromGeometryFileValues(coffset_m, clen_mm, beamEenergy_eV, divergenceAngle_deg, nonMonochromaticity, pixelLength_m, detectorRadius_pixel);
 
@@ -35,9 +37,11 @@ ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float bea
     differentRealLatticeVectorLengths_A[1] = maxRealLatticeVectorLength_A;
 }
 
-ExperimentSettings::ExperimentSettings(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
-        float nonMonochromaticity, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A) :
-        latticeParametersKnown(false), minRealLatticeVectorLength_A(minRealLatticeVectorLength_A), maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A)
+ExperimentSettings::ExperimentSettings(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
+                                       float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A)
+    : latticeParametersKnown(false)
+    , minRealLatticeVectorLength_A(minRealLatticeVectorLength_A)
+    , maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A)
 {
     constructFromPrecomputedValues(detectorDistance_m, detectorRadius_m, divergenceAngle_deg, nonMonochromaticity);
 
@@ -55,10 +59,13 @@ ExperimentSettings::ExperimentSettings(float detectorDistance_m, float detectorR
 }
 
 ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
-        float pixelLength_m, float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A,
-        float minRealLatticeDeterminant_A3, float maxRealLatticeDeterminant_A3) :
-        latticeParametersKnown(false), minRealLatticeVectorLength_A(minRealLatticeVectorLength_A), maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A),
-                minRealLatticeDeterminant_A3(minRealLatticeDeterminant_A3), maxRealLatticeDeterminant_A3(maxRealLatticeDeterminant_A3)
+                                       float pixelLength_m, float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A,
+                                       float minRealLatticeDeterminant_A3, float maxRealLatticeDeterminant_A3)
+    : latticeParametersKnown(false)
+    , minRealLatticeVectorLength_A(minRealLatticeVectorLength_A)
+    , maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A)
+    , minRealLatticeDeterminant_A3(minRealLatticeDeterminant_A3)
+    , maxRealLatticeDeterminant_A3(maxRealLatticeDeterminant_A3)
 {
     constructFromGeometryFileValues(coffset_m, clen_mm, beamEenergy_eV, divergenceAngle_deg, nonMonochromaticity, pixelLength_m, detectorRadius_pixel);
 
@@ -73,9 +80,13 @@ ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float bea
 }
 
 ExperimentSettings::ExperimentSettings(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
-        float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3, float maxRealLatticeDeterminant_A3) :
-        latticeParametersKnown(false), minRealLatticeVectorLength_A(minRealLatticeVectorLength_A), maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A),
-                minRealLatticeDeterminant_A3(minRealLatticeDeterminant_A3), maxRealLatticeDeterminant_A3(maxRealLatticeDeterminant_A3)
+                                       float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3,
+                                       float maxRealLatticeDeterminant_A3)
+    : latticeParametersKnown(false)
+    , minRealLatticeVectorLength_A(minRealLatticeVectorLength_A)
+    , maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A)
+    , minRealLatticeDeterminant_A3(minRealLatticeDeterminant_A3)
+    , maxRealLatticeDeterminant_A3(maxRealLatticeDeterminant_A3)
 {
     constructFromPrecomputedValues(detectorDistance_m, detectorRadius_m, divergenceAngle_deg, nonMonochromaticity);
 
@@ -90,17 +101,20 @@ ExperimentSettings::ExperimentSettings(float detectorDistance_m, float detectorR
 }
 
 ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
-        float pixelLength_m, float detectorRadius_pixel, const Lattice& sampleReciprocalLattice_1A, float tolerance) :
-        latticeParametersKnown(true), sampleReciprocalLattice_1A(sampleReciprocalLattice_1A), latticeParametersTolerance(tolerance)
+                                       float pixelLength_m, float detectorRadius_pixel, const Lattice& sampleReciprocalLattice_1A, float tolerance)
+    : latticeParametersKnown(true)
+    , sampleReciprocalLattice_1A(sampleReciprocalLattice_1A)
+    , latticeParametersTolerance(tolerance)
 {
     constructFromGeometryFileValues(coffset_m, clen_mm, beamEenergy_eV, divergenceAngle_deg, nonMonochromaticity, pixelLength_m, detectorRadius_pixel);
     deduceValuesFromSampleReciprocalLattice();
-
 }
 
 ExperimentSettings::ExperimentSettings(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
-        const Lattice& sampleReciprocalLattice_1A, float tolerance) :
-        latticeParametersKnown(true), sampleReciprocalLattice_1A(sampleReciprocalLattice_1A), latticeParametersTolerance(tolerance)
+                                       const Lattice& sampleReciprocalLattice_1A, float tolerance)
+    : latticeParametersKnown(true)
+    , sampleReciprocalLattice_1A(sampleReciprocalLattice_1A)
+    , latticeParametersTolerance(tolerance)
 {
     constructFromPrecomputedValues(detectorDistance_m, detectorRadius_m, divergenceAngle_deg, nonMonochromaticity);
     deduceValuesFromSampleReciprocalLattice();
@@ -121,33 +135,42 @@ void ExperimentSettings::deduceValuesFromSampleReciprocalLattice()
     reciprocalLatticeVectorAnglesNormalized_deg = sampleReciprocalLattice_1A.getBasisVectorAnglesNormalized();
     reciprocalLatticeDeterminant_1A3 = abs(sampleReciprocalLattice_1A.det());
 
-    //norms are ordered due to minimization of matrix
-    assert(reciprocalLatticeVectorLengths_1A[0] <= reciprocalLatticeVectorLengths_1A[1]
-            && reciprocalLatticeVectorLengths_1A[1] <= reciprocalLatticeVectorLengths_1A[2]);
+    // norms are ordered due to minimization of matrix
+    assert(reciprocalLatticeVectorLengths_1A[0] <= reciprocalLatticeVectorLengths_1A[1] &&
+           reciprocalLatticeVectorLengths_1A[1] <= reciprocalLatticeVectorLengths_1A[2]);
     assert(realLatticeVectorLengths_A[0] <= realLatticeVectorLengths_A[1] && realLatticeVectorLengths_A[1] <= realLatticeVectorLengths_A[2]);
 
     float minSimilarityFactor = 0.96;
-    if (realLatticeVectorLengths_A[0] / realLatticeVectorLengths_A[1] > minSimilarityFactor) {
-        if (realLatticeVectorLengths_A[1] / realLatticeVectorLengths_A[2] > minSimilarityFactor) {
+    if (realLatticeVectorLengths_A[0] / realLatticeVectorLengths_A[1] > minSimilarityFactor)
+    {
+        if (realLatticeVectorLengths_A[1] / realLatticeVectorLengths_A[2] > minSimilarityFactor)
+        {
             differentRealLatticeVectorLengths_A.resize(1);
             differentRealLatticeVectorLengths_A[0] = realLatticeVectorLengths_A.mean();
-        } else {
+        }
+        else
+        {
             differentRealLatticeVectorLengths_A.resize(2);
             differentRealLatticeVectorLengths_A[0] = realLatticeVectorLengths_A.head(2).mean();
             differentRealLatticeVectorLengths_A[1] = realLatticeVectorLengths_A[2];
         }
-    } else if (realLatticeVectorLengths_A[1] / realLatticeVectorLengths_A[2] > minSimilarityFactor) {
+    }
+    else if (realLatticeVectorLengths_A[1] / realLatticeVectorLengths_A[2] > minSimilarityFactor)
+    {
         differentRealLatticeVectorLengths_A.resize(2);
         differentRealLatticeVectorLengths_A[0] = realLatticeVectorLengths_A[0];
         differentRealLatticeVectorLengths_A[1] = realLatticeVectorLengths_A.tail(2).mean();
-    } else {
+    }
+    else
+    {
         differentRealLatticeVectorLengths_A = realLatticeVectorLengths_A;
     }
 
     minRealLatticeVectorLength_A = realLatticeVectorLengths_A.minCoeff() * (1 - latticeParametersTolerance);
     maxRealLatticeVectorLength_A = realLatticeVectorLengths_A.maxCoeff() * (1 + latticeParametersTolerance);
-    minRealLatticeDeterminant_A3 = realLatticeDeterminant_A3 * (1 - latticeParametersTolerance);
-    maxRealLatticeDeterminant_A3 = realLatticeDeterminant_A3 * (1 + latticeParametersTolerance);
+    minRealLatticeDeterminant_A3 =
+        realLatticeDeterminant_A3 * pow((1 - latticeParametersTolerance), 3); // TODO: check: possibly better (1 - latticeParametersTolerance)
+    maxRealLatticeDeterminant_A3 = realLatticeDeterminant_A3 * pow((1 + latticeParametersTolerance), 3);
     minReciprocalLatticeVectorLength_1A = reciprocalLatticeVectorLengths_1A.minCoeff() * (1 - latticeParametersTolerance);
     maxReciprocalLatticeVectorLength_1A = reciprocalLatticeVectorLengths_1A.maxCoeff() * (1 + latticeParametersTolerance);
     minReciprocalLatticeDeterminant_1A3 = reciprocalLatticeDeterminant_1A3 * (1 - latticeParametersTolerance);
@@ -155,7 +178,7 @@ void ExperimentSettings::deduceValuesFromSampleReciprocalLattice()
 }
 
 void ExperimentSettings::constructFromGeometryFileValues(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg,
-        float nonMonochromaticity, float pixelLength_m, float detectorRadius_pixel)
+                                                         float nonMonochromaticity, float pixelLength_m, float detectorRadius_pixel)
 {
     this->nonMonochromaticity = nonMonochromaticity;
 
@@ -164,8 +187,8 @@ void ExperimentSettings::constructFromGeometryFileValues(float coffset_m, float 
     divergenceAngle_rad = divergenceAngle_deg * M_PI / 180;
     maxResolutionAngle_rad = atan(detectorRadius_m / detectorDistance_m);
 
-    float h_Plank = 4.135667662e-15; //Planck constant [eV*s]
-    float c_light = 299792458; //speed of light [m/s]
+    float h_Plank = 4.135667662e-15; // Planck constant [eV*s]
+    float c_light = 299792458;       // speed of light [m/s]
     lambda_A = h_Plank * c_light / beamEenergy_eV * 1e10;
     lambdaShort_A = lambda_A * (1 - nonMonochromaticity / 2);
     lambdaLong_A = lambda_A * (1 + nonMonochromaticity / 2);
@@ -175,8 +198,7 @@ void ExperimentSettings::constructFromGeometryFileValues(float coffset_m, float 
     reciprocal_lambdaLong_1A = 1 / lambdaLong_A;
 }
 
-void ExperimentSettings::constructFromPrecomputedValues(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
-        float nonMonochromaticity)
+void ExperimentSettings::constructFromPrecomputedValues(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity)
 {
     this->detectorDistance_m = detectorDistance_m;
     this->detectorRadius_m = detectorRadius_m;
@@ -276,7 +298,8 @@ float ExperimentSettings::getNonMonochromaticity() const
 
 float ExperimentSettings::getRealLatticeDeterminant_A3() const
 {
-    if (!latticeParametersKnown) {
+    if (!latticeParametersKnown)
+    {
         stringstream errStream;
         errStream << "Function can only be used, if the lattice parameters are known" << endl;
         throw WrongUsageException(errStream.str());
@@ -287,7 +310,8 @@ float ExperimentSettings::getRealLatticeDeterminant_A3() const
 
 const Eigen::Array3f& ExperimentSettings::getRealLatticeVectorAngles_deg() const
 {
-    if (!latticeParametersKnown) {
+    if (!latticeParametersKnown)
+    {
         stringstream errStream;
         errStream << "Function can only be used, if the lattice parameters are known" << endl;
         throw WrongUsageException(errStream.str());
@@ -298,7 +322,8 @@ const Eigen::Array3f& ExperimentSettings::getRealLatticeVectorAngles_deg() const
 
 const Eigen::Array3f& ExperimentSettings::getRealLatticeVectorAnglesNormalized_deg() const
 {
-    if (!latticeParametersKnown) {
+    if (!latticeParametersKnown)
+    {
         stringstream errStream;
         errStream << "Function can only be used, if the lattice parameters are known" << endl;
         throw WrongUsageException(errStream.str());
@@ -309,7 +334,8 @@ const Eigen::Array3f& ExperimentSettings::getRealLatticeVectorAnglesNormalized_d
 
 const Eigen::Array3f& ExperimentSettings::getRealLatticeVectorLengths_A() const
 {
-    if (!latticeParametersKnown) {
+    if (!latticeParametersKnown)
+    {
         stringstream errStream;
         errStream << "Function can only be used, if the lattice parameters are known" << endl;
         throw WrongUsageException(errStream.str());
@@ -335,7 +361,8 @@ float ExperimentSettings::getReciprocalLambdaShort_1A() const
 
 float ExperimentSettings::getReciprocalLatticeDeterminant_1A3() const
 {
-    if (!latticeParametersKnown) {
+    if (!latticeParametersKnown)
+    {
         stringstream errStream;
         errStream << "Function can only be used, if the lattice parameters are known" << endl;
         throw WrongUsageException(errStream.str());
@@ -346,7 +373,8 @@ float ExperimentSettings::getReciprocalLatticeDeterminant_1A3() const
 
 const Eigen::Array3f& ExperimentSettings::getReciprocalLatticeVectorAngles_deg() const
 {
-    if (!latticeParametersKnown) {
+    if (!latticeParametersKnown)
+    {
         stringstream errStream;
         errStream << "Function can only be used, if the lattice parameters are known" << endl;
         throw WrongUsageException(errStream.str());
@@ -357,7 +385,8 @@ const Eigen::Array3f& ExperimentSettings::getReciprocalLatticeVectorAngles_deg()
 
 const Eigen::Array3f& ExperimentSettings::getReciprocalLatticeVectorAnglesNormalized_deg() const
 {
-    if (!latticeParametersKnown) {
+    if (!latticeParametersKnown)
+    {
         stringstream errStream;
         errStream << "Function can only be used, if the lattice parameters are known" << endl;
         throw WrongUsageException(errStream.str());
@@ -368,7 +397,8 @@ const Eigen::Array3f& ExperimentSettings::getReciprocalLatticeVectorAnglesNormal
 
 const Eigen::Array3f& ExperimentSettings::getReciprocalLatticeVectorLengths_1A() const
 {
-    if (!latticeParametersKnown) {
+    if (!latticeParametersKnown)
+    {
         stringstream errStream;
         errStream << "Function can only be used, if the lattice parameters are known" << endl;
         throw WrongUsageException(errStream.str());
@@ -379,7 +409,8 @@ const Eigen::Array3f& ExperimentSettings::getReciprocalLatticeVectorLengths_1A()
 
 const Lattice& ExperimentSettings::getSampleRealLattice_A() const
 {
-    if (!latticeParametersKnown) {
+    if (!latticeParametersKnown)
+    {
         stringstream errStream;
         errStream << "Function can only be used, if the lattice parameters are known" << endl;
         throw WrongUsageException(errStream.str());
@@ -390,7 +421,8 @@ const Lattice& ExperimentSettings::getSampleRealLattice_A() const
 
 const Lattice& ExperimentSettings::getSampleReciprocalLattice_1A() const
 {
-    if (!latticeParametersKnown) {
+    if (!latticeParametersKnown)
+    {
         stringstream errStream;
         errStream << "Function can only be used, if the lattice parameters are known" << endl;
         throw WrongUsageException(errStream.str());
@@ -401,7 +433,8 @@ const Lattice& ExperimentSettings::getSampleReciprocalLattice_1A() const
 
 float ExperimentSettings::getTolerance() const
 {
-    if (!latticeParametersKnown) {
+    if (!latticeParametersKnown)
+    {
         stringstream errStream;
         errStream << "Function can only be used, if the lattice parameters are known" << endl;
         throw WrongUsageException(errStream.str());

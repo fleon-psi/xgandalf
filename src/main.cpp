@@ -32,7 +32,7 @@ int main()
 {
     try
     {
-        // test_filterSamplePointsForNorm();
+        //test_filterSamplePointsForNorm();
         // test_indexerAutocorrPrefit();
         test_indexerPlain();
     }
