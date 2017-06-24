@@ -23,7 +23,6 @@ void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransfo
 //    std::ofstream ofs("workfolder/tmp", std::ofstream::out);
 //    ofs << positionsToOptimize.transpose().eval() << endl;
 
-    transform.setPointsToTransform(pointsToTransform);
 
     float& gamma = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.gamma;
     float& maxStep = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.maxStep;
@@ -40,60 +39,73 @@ void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransfo
     const int localCalmDownIterationCount = hillClimbingAccuracyConstants.localCalmDownIterationCount;
     const float localCalmDownFactor = hillClimbingAccuracyConstants.localCalmDownFactor;
 
-    previousStepDirection = Matrix3Xf::Zero(3, positionsToOptimize.cols());
-    previousStepLength = Array< float, 1, Eigen::Dynamic >::Constant(1, positionsToOptimize.cols(), minStep + (maxStep - minStep) / 4);
+	transform.setPointsToTransform(pointsToTransform);
+	uint32_t maxPositioncPerIteration = 500;	//TODO: find sweet spot. Maybe choose dependent on pointsToTransform.cols()
+	Matrix3Xf positionsToOptimize_local;
+	for (size_t positionsProcessedCount = 0; positionsProcessedCount <  positionsToOptimize.cols(); positionsProcessedCount += maxPositioncPerIteration)
+	{
+		uint32_t remainingPositionsCount = positionsToOptimize.cols() - positionsProcessedCount;
+		uint32_t positionsCount_local = min(maxPositioncPerIteration, remainingPositionsCount);
+		positionsToOptimize_local = positionsToOptimize.block(0, positionsProcessedCount, 3, positionsCount_local);
 
-    for (int i = 0; i < initialIterationCount; i++) {
-        transform.clearLocalTransformFlag();
-        transform.setRadialWeightingFlag();
-        bool useStepOrthogonalization = true;
+		previousStepDirection = Matrix3Xf::Zero(3, positionsToOptimize_local.cols());
+		previousStepLength = Array< float, 1, Eigen::Dynamic >::Constant(1, positionsToOptimize_local.cols(), minStep + (maxStep - minStep) / 4);
 
-        performOptimizationStep(positionsToOptimize, useStepOrthogonalization);
-//        ofs << positionsToOptimize.transpose().eval() << endl;
-    }
+		for (int i = 0; i < initialIterationCount; i++) {
+			transform.clearLocalTransformFlag();
+			transform.setRadialWeightingFlag();
+			bool useStepOrthogonalization = true;
 
-    for (int i = 0; i < calmDownIterationCount; i++) {
-        transform.clearLocalTransformFlag();
-        transform.setRadialWeightingFlag();
-        bool useStepOrthogonalization = true;
+			performOptimizationStep(positionsToOptimize_local, useStepOrthogonalization);
+			//        ofs << positionsToOptimize.transpose().eval() << endl;
+		}
 
-        maxStep = maxStep * calmDownFactor;
-        minStep = minStep * calmDownFactor;
-        gamma = gamma * calmDownFactor;
+		for (int i = 0; i < calmDownIterationCount; i++) {
+			transform.clearLocalTransformFlag();
+			transform.setRadialWeightingFlag();
+			bool useStepOrthogonalization = true;
 
-        performOptimizationStep(positionsToOptimize, useStepOrthogonalization);
-//        ofs << positionsToOptimize.transpose().eval() << endl;
-    }
+			maxStep = maxStep * calmDownFactor;
+			minStep = minStep * calmDownFactor;
+			gamma = gamma * calmDownFactor;
 
-    for (int i = 0; i < localFitIterationCount; i++) {
-        transform.setLocalTransformFlag();
-        transform.clearRadialWeightingFlag();
-        bool useStepOrthogonalization = true;
+			performOptimizationStep(positionsToOptimize_local, useStepOrthogonalization);
+			//        ofs << positionsToOptimize.transpose().eval() << endl;
+		}
 
-        performOptimizationStep(positionsToOptimize, useStepOrthogonalization);
-//        ofs << positionsToOptimize.transpose().eval() << endl;
-    }
+		for (int i = 0; i < localFitIterationCount; i++) {
+			transform.setLocalTransformFlag();
+			transform.clearRadialWeightingFlag();
+			bool useStepOrthogonalization = true;
 
-    for (int i = 0; i < localCalmDownIterationCount; i++) {
-        transform.setLocalTransformFlag();
-        transform.clearRadialWeightingFlag();
-        bool useStepOrthogonalization = false;
+			performOptimizationStep(positionsToOptimize_local, useStepOrthogonalization);
+			//        ofs << positionsToOptimize.transpose().eval() << endl;
+		}
 
-        maxStep = maxStep * localCalmDownFactor;
-        minStep = minStep * localCalmDownFactor;
-        gamma = gamma * localCalmDownFactor;
+		for (int i = 0; i < localCalmDownIterationCount; i++) {
+			transform.setLocalTransformFlag();
+			transform.clearRadialWeightingFlag();
+			bool useStepOrthogonalization = false;
 
-        performOptimizationStep(positionsToOptimize, useStepOrthogonalization);
-//        ofs << positionsToOptimize.transpose().eval() << endl;
-    }
+			maxStep = maxStep * localCalmDownFactor;
+			minStep = minStep * localCalmDownFactor;
+			gamma = gamma * localCalmDownFactor;
+
+			performOptimizationStep(positionsToOptimize_local, useStepOrthogonalization);
+			//        ofs << positionsToOptimize.transpose().eval() << endl;
+		}
+
+		positionsToOptimize.block(0, positionsProcessedCount, 3, positionsCount_local) = positionsToOptimize_local;
+    
+		gamma = gamma_initial;
+		maxStep = maxStep_initial;
+		minStep = minStep_initial;
+	}
 
     // can be optimized! Does not always need to compute slope, closeToPoints and gradient
     transform.performTransform(positionsToOptimize);
     lastInverseTransformEvaluation = transform.getInverseTransformEvaluation();
 
-    gamma = gamma_initial;
-    maxStep = maxStep_initial;
-    minStep = minStep_initial;
 }
 
 void HillClimbingOptimizer::performOptimizationStep(Matrix3Xf& positionsToOptimize, bool useStepOrthogonalization)
