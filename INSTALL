@@ -3,7 +3,7 @@
             download latest version of eigen3 from eigen.tuxfamily.org/ 
             and install it using cmake.
             If Eigen3 is not found automatically (and the internal one is used), 
-            add -DEigen3_DIR=<path to eigen3> to cmake invocation
+            add -DEigen3_DIR=<path to Eigen3Config.cmake> to cmake invocation
 
             
 Create directory where to build (e.g. cmakeBuild/).

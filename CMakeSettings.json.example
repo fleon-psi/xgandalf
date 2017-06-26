@@ -9,7 +9,11 @@
       "variables": [
         {
           "name": "Eigen3_DIR",
-          "value": "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4"
+          "value": "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4\\share\\eigen3\\cmake"
+        },
+        {
+          "name": "BOOST_ROOT",
+          "value": "C:\\Programmieren\\Cpp\\boost\\boost_1_63_0"
         }
       ]
     },
@@ -22,7 +26,11 @@
       "variables": [
         {
           "name": "Eigen3_DIR",
-          "value": "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4"
+          "value": "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4\\share\\eigen3\\cmake"
+        },
+        {
+          "name": "BOOST_ROOT",
+          "value": "C:\\Programmieren\\Cpp\\boost\\boost_1_63_0"
         }
       ]
     },
@@ -35,7 +43,11 @@
       "variables": [
         {
           "name": "Eigen3_DIR",
-          "value": "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4"
+          "value": "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4\\share\\eigen3\\cmake"
+        },
+        {
+          "name": "BOOST_ROOT",
+          "value": "C:\\Programmieren\\Cpp\\boost\\boost_1_63_0"
         }
       ]
     },
