@@ -24,14 +24,13 @@ void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransfo
     //    std::ofstream ofs("workfolder/tmp", std::ofstream::out);
     //    ofs << positionsToOptimize.transpose().eval() << endl;
 
-
     float& gamma = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.gamma;
     float& maxStep = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.maxStep;
     float& minStep = hillClimbingAccuracyConstants.stepComputationAccuracyConstants.minStep;
 
-    float gamma_initial = gamma;
-    float maxStep_initial = maxStep;
-    float minStep_initial = minStep;
+    const float gamma_initial = gamma;
+    const float maxStep_initial = maxStep;
+    const float minStep_initial = minStep;
 
     const int initialIterationCount = hillClimbingAccuracyConstants.initialIterationCount;
     const int calmDownIterationCount = hillClimbingAccuracyConstants.calmDownIterationCount;
@@ -41,12 +40,12 @@ void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransfo
     const float localCalmDownFactor = hillClimbingAccuracyConstants.localCalmDownFactor;
 
     transform.setPointsToTransform(pointsToTransform);
-    uint32_t maxPositioncPerIteration = 500; // TODO: find sweet spot. Maybe choose dependent on pointsToTransform.cols()
+    const uint32_t maxPositionsPerIteration = 100; // TODO: find sweet spot. Maybe choose dependent on pointsToTransform.cols()
     Matrix3Xf positionsToOptimize_local;
-    for (size_t positionsProcessedCount = 0; positionsProcessedCount < positionsToOptimize.cols(); positionsProcessedCount += maxPositioncPerIteration)
+    for (size_t positionsProcessedCount = 0; positionsProcessedCount < positionsToOptimize.cols(); positionsProcessedCount += maxPositionsPerIteration)
     {
         uint32_t remainingPositionsCount = positionsToOptimize.cols() - positionsProcessedCount;
-        uint32_t positionsCount_local = min(maxPositioncPerIteration, remainingPositionsCount);
+        uint32_t positionsCount_local = min(maxPositionsPerIteration, remainingPositionsCount);
         positionsToOptimize_local = positionsToOptimize.block(0, positionsProcessedCount, 3, positionsCount_local);
 
         previousStepDirection = Matrix3Xf::Zero(3, positionsToOptimize_local.cols());

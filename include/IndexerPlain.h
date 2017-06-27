@@ -53,6 +53,7 @@ private:
     float maxCloseToPointDeviation;
 
     HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_global;
+    HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_additionalGlobal;
     HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_peaks;
     LatticeAssembler::accuracyConstants_t accuracyConstants_LatticeAssembler;
 };

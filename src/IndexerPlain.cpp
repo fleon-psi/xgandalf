@@ -108,22 +108,41 @@ void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::M
     // global hill climbing
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_global);
     hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, samplePoints);
+    RowVectorXf globalHillClimbingPointEvaluation = hillClimbingOptimizer.getLastInverseTransformEvaluation();
+    Matrix3Xf globalHillClimbingSamplePoints = samplePoints;
+
+    // additional global hill climbing
+    hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_additionalGlobal);
+    hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, samplePoints);
+    RowVectorXf& additionalGlobalHillClimbingPointEvaluation = hillClimbingOptimizer.getLastInverseTransformEvaluation();
+    Matrix3Xf& additionalGlobalHillClimbingSamplePoints = samplePoints;
 
     // find peaks
-    uint32_t maxPeaksToTakeCount = 50;
-    sparsePeakFinder.findPeaks_fast(samplePoints, hillClimbingOptimizer.getLastInverseTransformEvaluation());
-    keepSamplePointsWithHighestEvaluation(samplePoints, hillClimbingOptimizer.getLastInverseTransformEvaluation(), maxPeaksToTakeCount);
+    uint32_t maxGlobalPeaksToTakeCount = 50;
+    sparsePeakFinder.findPeaks_fast(globalHillClimbingSamplePoints, globalHillClimbingPointEvaluation);
+    keepSamplePointsWithHighestEvaluation(globalHillClimbingSamplePoints, globalHillClimbingPointEvaluation, maxGlobalPeaksToTakeCount);
+
+	uint32_t maxAdditionalGlobalPeaksToTakeCount = 50;
+    sparsePeakFinder.findPeaks_fast(additionalGlobalHillClimbingSamplePoints, additionalGlobalHillClimbingPointEvaluation);
+    keepSamplePointsWithHighestEvaluation(additionalGlobalHillClimbingSamplePoints, additionalGlobalHillClimbingPointEvaluation, maxAdditionalGlobalPeaksToTakeCount);
+
+	Matrix3Xf peakSamplePoints(3, globalHillClimbingSamplePoints.cols() + additionalGlobalHillClimbingSamplePoints.cols());
+	peakSamplePoints << globalHillClimbingSamplePoints, additionalGlobalHillClimbingSamplePoints;
 
     // peaks hill climbing
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_peaks);
-    hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, samplePoints);
+    hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, peakSamplePoints);
+
+	// final peaks extra evaluation
+    inverseSpaceTransform.setPointsToTransform(reciprocalPeaks_A);
+    inverseSpaceTransform.performTransform(peakSamplePoints);
+
+	// find peaks , TODO: check, whether better performance without peak finding here
+	//sparsePeakFinder.findPeaks_fast(peakSamplePoints, inverseSpaceTransform.getInverseTransformEvaluation());
 
     // assemble lattices
-    inverseSpaceTransform.setPointsToTransform(reciprocalPeaks_A);
-    inverseSpaceTransform.performTransform(samplePoints);
-
     vector<LatticeAssembler::assembledLatticeStatistics_t> assembledLatticesStatistics;
-    Matrix3Xf& candidateVectors = samplePoints;
+    Matrix3Xf& candidateVectors = peakSamplePoints;
     RowVectorXf& candidateVectorWeights = inverseSpaceTransform.getInverseTransformEvaluation();
     vector<vector<uint16_t>>& pointIndicesOnVector = inverseSpaceTransform.getPointsCloseToEvaluationPositions_indices();
     latticeAssembler.assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors, candidateVectorWeights, pointIndicesOnVector,
@@ -141,6 +160,7 @@ void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::M
 void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCount gradientDescentIterationsCount)
 {
     HillClimbingOptimizer::hillClimbingAccuracyConstants_t& global = hillClimbing_accuracyConstants_global;
+    HillClimbingOptimizer::hillClimbingAccuracyConstants_t& additionalGlobal = hillClimbing_accuracyConstants_additionalGlobal;
     HillClimbingOptimizer::hillClimbingAccuracyConstants_t& peaks = hillClimbing_accuracyConstants_peaks;
 
     float meanRealLatticeVectorLength = experimentSettings.getDifferentRealLatticeVectorLengths_A().mean();
@@ -248,6 +268,22 @@ void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCo
     global.functionSelection = 1;
     global.optionalFunctionArgument = 1;
     global.maxCloseToPointDeviation = maxCloseToPointDeviation;
+
+    additionalGlobal.functionSelection = 9;
+    additionalGlobal.optionalFunctionArgument = 8;
+    additionalGlobal.maxCloseToPointDeviation = maxCloseToPointDeviation;
+
+    additionalGlobal.initialIterationCount = 0;
+    additionalGlobal.calmDownIterationCount = 0;
+    additionalGlobal.calmDownFactor = 0;
+    additionalGlobal.localFitIterationCount = 4;
+    additionalGlobal.localCalmDownIterationCount = 3;
+    additionalGlobal.localCalmDownFactor = 0.7;
+
+    additionalGlobal.stepComputationAccuracyConstants.gamma = 0.65;
+    additionalGlobal.stepComputationAccuracyConstants.maxStep = meanRealLatticeVectorLength / 50;
+    additionalGlobal.stepComputationAccuracyConstants.minStep = meanRealLatticeVectorLength / 20000;
+    additionalGlobal.stepComputationAccuracyConstants.directionChangeFactor = 2.5;
 
     peaks.functionSelection = 9;
     peaks.optionalFunctionArgument = 8;
