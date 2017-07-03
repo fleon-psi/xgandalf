@@ -8,20 +8,27 @@
 #ifndef INDEXERPLAIN_H_
 #define INDEXERPLAIN_H_
 
-#include <IndexerBase.h>
 #include "HillClimbingOptimizer.h"
+#include <IndexerBase.h>
 
-class IndexerPlain: public IndexerBase {
-public:
-    enum class SamplingPitch {
+class IndexerPlain : public IndexerBase
+{
+  public:
+    enum class SamplingPitch
+    {
         extremelyLoose,
         loose,
         standard,
         dense,
-        extremelyDense
+        extremelyDense,
+
+        standardWithSeondaryMillerIndices,
+        denseWithSeondaryMillerIndices,
+        extremelyDenseWithSeondaryMillerIndices
     };
 
-    enum class GradientDescentIterationsCount {
+    enum class GradientDescentIterationsCount
+    {
         verryFew,
         few,
         standard,
@@ -34,14 +41,14 @@ public:
     IndexerPlain(const ExperimentSettings& experimentSettings);
     IndexerPlain(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath);
 
-    void index(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m);
+    void index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m);
 
     void setSamplingPitch(SamplingPitch samplingPitch);
-    void setSamplingPitch(float unitPitch);
+    void setSamplingPitch(float unitPitch, bool coverSecondaryMillerIndices);
 
     void setGradientDescentIterationsCount(GradientDescentIterationsCount gradientDescentIterationsCount);
 
-private:
+  private:
     void precompute();
 
     Eigen::Matrix3Xf precomputedSamplePoints;

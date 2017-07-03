@@ -142,7 +142,7 @@ Lattice& Lattice::minimize()
     return *this;
 }
 
-Vector3f Lattice::getBasisVectorAngles() const
+Vector3f Lattice::getBasisVectorAngles_deg() const
 {
     const Vector3f& a = basis.col(0);
     const Vector3f& b = basis.col(1);
@@ -156,7 +156,7 @@ Vector3f Lattice::getBasisVectorAngles() const
     return angles;
 }
 
-Vector3f Lattice::getBasisVectorAnglesNormalized() const
+Vector3f Lattice::getBasisVectorAnglesNormalized_deg() const
 {
     const Vector3f& a = basis.col(0);
     const Vector3f& b = basis.col(1);

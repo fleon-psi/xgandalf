@@ -34,8 +34,8 @@ public:
         return basis.colwise().norm();
     }
 
-    Eigen::Vector3f getBasisVectorAngles() const;
-    Eigen::Vector3f getBasisVectorAnglesNormalized() const;
+    Eigen::Vector3f getBasisVectorAngles_deg() const;
+    Eigen::Vector3f getBasisVectorAnglesNormalized_deg() const;
 
     inline Lattice getReciprocalLattice() const
     {

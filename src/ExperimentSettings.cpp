@@ -127,12 +127,12 @@ void ExperimentSettings::deduceValuesFromSampleReciprocalLattice()
     sampleRealLattice_A = sampleReciprocalLattice_1A.getReciprocalLattice().minimize();
 
     realLatticeVectorLengths_A = sampleRealLattice_A.getBasisVectorNorms();
-    realLatticeVectorAngles_deg = sampleRealLattice_A.getBasisVectorAngles();
-    realLatticeVectorAnglesNormalized_deg = sampleRealLattice_A.getBasisVectorAnglesNormalized();
+    realLatticeVectorAngles_deg = sampleRealLattice_A.getBasisVectorAngles_deg();
+    realLatticeVectorAnglesNormalized_deg = sampleRealLattice_A.getBasisVectorAnglesNormalized_deg();
     realLatticeDeterminant_A3 = abs(sampleRealLattice_A.det());
     reciprocalLatticeVectorLengths_1A = sampleReciprocalLattice_1A.getBasisVectorNorms();
-    reciprocalLatticeVectorAngles_deg = sampleReciprocalLattice_1A.getBasisVectorAngles();
-    reciprocalLatticeVectorAnglesNormalized_deg = sampleReciprocalLattice_1A.getBasisVectorAnglesNormalized();
+    reciprocalLatticeVectorAngles_deg = sampleReciprocalLattice_1A.getBasisVectorAngles_deg();
+    reciprocalLatticeVectorAnglesNormalized_deg = sampleReciprocalLattice_1A.getBasisVectorAnglesNormalized_deg();
     reciprocalLatticeDeterminant_1A3 = abs(sampleReciprocalLattice_1A.det());
 
     // norms are ordered due to minimization of matrix

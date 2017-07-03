@@ -61,7 +61,7 @@ void LatticeAssembler::setStandardValues()
 void LatticeAssembler::setKnownLatticeParameters(const Lattice& sampleRealLattice_A, float tolerance)
 {
     latticeParametersKnown = true;
-    knownLatticeParameters << sampleRealLattice_A.getBasisVectorNorms(), sampleRealLattice_A.getBasisVectorAnglesNormalized();
+    knownLatticeParameters << sampleRealLattice_A.getBasisVectorNorms(), sampleRealLattice_A.getBasisVectorAnglesNormalized_deg();
     knownLatticeParametersInverse = 1.0f / knownLatticeParameters;
     knownLatticeParametersTolerance = tolerance;
 }
@@ -359,7 +359,7 @@ bool LatticeAssembler::checkLatticeParameters( Lattice& lattice)
     lattice.minimize();
 
     Vector3f n = lattice.getBasisVectorNorms();
-    Vector3f a = lattice.getBasisVectorAnglesNormalized();
+    Vector3f a = lattice.getBasisVectorAnglesNormalized_deg();
 
     Array< float, 6, 6 > allPermutations;
 

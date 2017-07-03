@@ -6,6 +6,8 @@
  */
 
 #include <IndexerPlain.h>
+#include <algorithm>
+#include <vector>
 
 using namespace Eigen;
 using namespace std;
@@ -53,6 +55,7 @@ void IndexerPlain::precompute()
 void IndexerPlain::setSamplingPitch(SamplingPitch samplingPitch)
 {
     float unitPitch = 0;
+    bool coverSecondaryMillerIndices = false;
 
     switch (samplingPitch)
     {
@@ -71,25 +74,71 @@ void IndexerPlain::setSamplingPitch(SamplingPitch samplingPitch)
         case SamplingPitch::extremelyDense:
             unitPitch = 0.01;
             break;
+
+        case SamplingPitch::standardWithSeondaryMillerIndices:
+            unitPitch = 0.05;
+            coverSecondaryMillerIndices = true;
+            break;
+        case SamplingPitch::denseWithSeondaryMillerIndices:
+            unitPitch = 0.025;
+            coverSecondaryMillerIndices = true;
+            break;
+        case SamplingPitch::extremelyDenseWithSeondaryMillerIndices:
+            unitPitch = 0.01;
+            coverSecondaryMillerIndices = true;
+            break;
     }
 
-    setSamplingPitch(unitPitch);
+    setSamplingPitch(unitPitch, coverSecondaryMillerIndices);
 }
 
-void IndexerPlain::setSamplingPitch(float unitPitch)
+void IndexerPlain::setSamplingPitch(float unitPitch, bool coverSecondaryMillerIndices)
 {
     if (experimentSettings.isLatticeParametersKnown())
     {
         float tolerance = min(unitPitch, experimentSettings.getTolerance());
 
-        samplePointsGenerator.getTightGrid(precomputedSamplePoints, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
+        if (!coverSecondaryMillerIndices)
+        {
+            samplePointsGenerator.getTightGrid(precomputedSamplePoints, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
+        }
+        else
+        {
+            auto sampleReaalBasis = experimentSettings.getSampleRealLattice_A().getBasis();
+
+            vector<float> radii(6);
+            radii[0] = sampleReaalBasis.col(0).norm();
+            radii[1] = sampleReaalBasis.col(1).norm();
+            radii[2] = sampleReaalBasis.col(2).norm();
+            radii[3] = (sampleReaalBasis.col(0) + sampleReaalBasis.col(1)).norm();
+            radii[4] = (sampleReaalBasis.col(1) + sampleReaalBasis.col(2)).norm();
+            radii[5] = (sampleReaalBasis.col(2) + sampleReaalBasis.col(0)).norm();
+
+            sort(radii.begin(), radii.end());
+            auto it = std::unique(radii.begin(), radii.end());
+            radii.resize(std::distance(radii.begin(), it));
+
+            ArrayXf radii_array = Eigen::Map<ArrayXf>(radii.data(), radii.size(), 1);
+
+            samplePointsGenerator.getTightGrid(precomputedSamplePoints, unitPitch, tolerance, radii_array);
+        }
     }
     else
     {
-        float minRadius = experimentSettings.getMinRealLatticeVectorLength_A() * 0.98;
-        float maxRadius = experimentSettings.getMaxRealLatticeVectorLength_A() * 1.02;
+        if (!coverSecondaryMillerIndices)
+        {
+            float minRadius = experimentSettings.getMinRealLatticeVectorLength_A() * 0.98;
+            float maxRadius = experimentSettings.getMaxRealLatticeVectorLength_A() * 1.02;
 
-        samplePointsGenerator.getDenseGrid(precomputedSamplePoints, unitPitch, minRadius, maxRadius);
+            samplePointsGenerator.getDenseGrid(precomputedSamplePoints, unitPitch, minRadius, maxRadius);
+        }
+        else
+        {
+            float minRadius = experimentSettings.getMinRealLatticeVectorLength_A() * 0.98;
+            float maxRadius = 2 * experimentSettings.getMaxRealLatticeVectorLength_A() * 1.02;
+
+            samplePointsGenerator.getDenseGrid(precomputedSamplePoints, unitPitch, minRadius, maxRadius);
+        }
     }
 }
 
@@ -122,23 +171,24 @@ void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::M
     sparsePeakFinder.findPeaks_fast(globalHillClimbingSamplePoints, globalHillClimbingPointEvaluation);
     keepSamplePointsWithHighestEvaluation(globalHillClimbingSamplePoints, globalHillClimbingPointEvaluation, maxGlobalPeaksToTakeCount);
 
-	uint32_t maxAdditionalGlobalPeaksToTakeCount = 50;
+    uint32_t maxAdditionalGlobalPeaksToTakeCount = 50;
     sparsePeakFinder.findPeaks_fast(additionalGlobalHillClimbingSamplePoints, additionalGlobalHillClimbingPointEvaluation);
-    keepSamplePointsWithHighestEvaluation(additionalGlobalHillClimbingSamplePoints, additionalGlobalHillClimbingPointEvaluation, maxAdditionalGlobalPeaksToTakeCount);
+    keepSamplePointsWithHighestEvaluation(additionalGlobalHillClimbingSamplePoints, additionalGlobalHillClimbingPointEvaluation,
+                                          maxAdditionalGlobalPeaksToTakeCount);
 
-	Matrix3Xf peakSamplePoints(3, globalHillClimbingSamplePoints.cols() + additionalGlobalHillClimbingSamplePoints.cols());
-	peakSamplePoints << globalHillClimbingSamplePoints, additionalGlobalHillClimbingSamplePoints;
+    Matrix3Xf peakSamplePoints(3, globalHillClimbingSamplePoints.cols() + additionalGlobalHillClimbingSamplePoints.cols());
+    peakSamplePoints << globalHillClimbingSamplePoints, additionalGlobalHillClimbingSamplePoints;
 
     // peaks hill climbing
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_peaks);
     hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, peakSamplePoints);
 
-	// final peaks extra evaluation
+    // final peaks extra evaluation
     inverseSpaceTransform.setPointsToTransform(reciprocalPeaks_A);
     inverseSpaceTransform.performTransform(peakSamplePoints);
 
-	// find peaks , TODO: check, whether better performance without peak finding here
-	//sparsePeakFinder.findPeaks_fast(peakSamplePoints, inverseSpaceTransform.getInverseTransformEvaluation());
+    // find peaks , TODO: check, whether better performance without peak finding here
+    // sparsePeakFinder.findPeaks_fast(peakSamplePoints, inverseSpaceTransform.getInverseTransformEvaluation());
 
     // assemble lattices
     vector<LatticeAssembler::assembledLatticeStatistics_t> assembledLatticesStatistics;
