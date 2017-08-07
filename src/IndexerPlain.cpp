@@ -217,7 +217,7 @@ void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCo
 
     switch (gradientDescentIterationsCount)
     {
-        case GradientDescentIterationsCount::verryFew:
+        case GradientDescentIterationsCount::exremelyFew:
             global.initialIterationCount = 10;
             global.calmDownIterationCount = 3;
             global.calmDownFactor = 0.65;

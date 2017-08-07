@@ -120,6 +120,7 @@ void test_indexerPlain()
     ExperimentSettings experimentSettings = getExperimentSettingLys();
 
     IndexerPlain indexer(experimentSettings);
+	indexer.setSamplingPitch(IndexerPlain::SamplingPitch::standardWithSeondaryMillerIndices);
 
     stringstream ss;
     int runNumber = 0;

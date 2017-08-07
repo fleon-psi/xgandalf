@@ -94,6 +94,8 @@ void SamplePointsGenerator::getDenseGrid(Matrix3Xf& samplePoints, float unitPitc
 
 void SamplePointsGenerator::getTightGrid(Matrix3Xf& samplePoints, float unitPitch, float tolerance, const VectorXf radii)
 {
+	samplePoints.resize(3, 0);
+
     for (int i = 0; i < radii.size(); i++)
     {
         float radius = radii[i];

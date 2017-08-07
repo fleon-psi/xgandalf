@@ -12,7 +12,7 @@ endif()
  
 # Test whether the compiler is Microsoft Visual C(++).
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2 /wd4305 /wd4244")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2 /wd4305 /wd4244 /wd4099")
 endif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
  
 set(BOOST_ALL_NO_LIB 1)
@@ -36,6 +36,9 @@ set(SOURCES src/Dbscan.cpp
             src/SamplePointsGenerator.cpp 
             src/SparsePeakFinder.cpp
 			src/tests.cpp
+
+			src/adaptions/crystfel/IndexerPlain.cpp
+			src/adaptions/crystfel/ExperimentSettings.cpp
 
 			src/main.cpp
             )
