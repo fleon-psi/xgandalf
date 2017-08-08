@@ -27,10 +27,63 @@
 #include <sstream>
 #include <string>
 
+#include "adaptions/crystfel/IndexerPlain.h"
+
 using namespace std;
 using namespace Eigen;
 
 static ExperimentSettings getExperimentSettingLys();
+
+void testCrystfelAdaption()
+{
+    float coffset_m = 0.567855;
+    float clen_mm = -439.9992;
+    float beamEenergy_eV = 8.0010e+03;
+    float divergenceAngle_deg = 0.05 * M_PI / 180;
+    float nonMonochromaticity = 0.005;
+    float pixelLength_m = 110e-6;
+    float detectorRadius_pixel = 750;
+    float tolerance = 0.02;
+
+    float detectorDistance_m = clen_mm * 1e-3 + coffset_m;
+    float detectorRadius_m = detectorRadius_pixel * pixelLength_m;
+
+    Lattice_t sampleReciprocalLattice_1A = {+0.00945252, -0.00433391, +0.00644485, -0.00298714, -0.01177522,
+                                            -0.00374347, +0.01601091, +0.00156280, -0.02065220};
+
+    ExperimentSettings* experimentSettings = ExperimentSettings_new(beamEenergy_eV, detectorDistance_m, detectorRadius_m, divergenceAngle_deg,
+                                                                    nonMonochromaticity, sampleReciprocalLattice_1A, tolerance);
+    // ExperimentSettings tmp = getExperimentSettingLys();
+    // ExperimentSettings* experimentSettings = &tmp;
+
+    char precomputedSamplePointsPath[] = "C:\\DesyFiles\\workspaces\\VisualStudio_workspace\\indexer\\precomputedSamplePoints";
+    samplingPitch_t samplingPitch = SAMPLING_PITCH_standard;
+    gradientDescentIterationsCount_t gradientDescentIterationsCount = GRADIENT_DESCENT_ITERATION_COUNT_standard;
+    IndexerPlain* indexer = IndexerPlain_new(experimentSettings, precomputedSamplePointsPath);
+    IndexerPlain_setSamplingPitch(indexer, samplingPitch);
+    IndexerPlain_setGradientDescentIterationsCount(indexer, gradientDescentIterationsCount);
+
+    float coordinates_x[20] = {0.027768, 0.02768,  0.0089125, -0.007797, -0.041511, -0.037719,  0.015493, 0.033985, 0.080738,  -0.053092,
+                               0.027281, 0.059692, 0.051299,  0.071658,  0.015745,  -0.0099817, 0.026852, 0.034215, -0.037346, -0.025099};
+    float coordinates_y[20] = {-0.052672, -0.072924, -0.054435, -0.081549, -0.0025696, -0.071839, -0.049375, 0.062652,  -0.0067283, 0.062291,
+                               -0.036252, -0.051579, 0.011029,  0.0039782, 0.059389,   0.038869,  -0.030329, -0.014595, -0.014957,  0.013217};
+    int peakCount = 20;
+    detectorPeaks_m_t detectorPeaks_m = {coordinates_x, coordinates_y, peakCount};
+
+    const int maxAssambledLatticesCount = 2;
+    Lattice_t assembledLattices[maxAssambledLatticesCount];
+    int assembledLatticesCount;
+    IndexerPlain_index(indexer, assembledLattices, &assembledLatticesCount, maxAssambledLatticesCount, &detectorPeaks_m);
+
+    printf("assembledLatticesCount: %d\n\na: %f %f %f\nb: %f %f %f\nc: %f %f %f\n", assembledLatticesCount, assembledLattices[0].ax, assembledLattices[0].ay,
+           assembledLattices[0].az, assembledLattices[0].bx, assembledLattices[0].by, assembledLattices[0].bz, assembledLattices[0].cx, assembledLattices[0].cy,
+           assembledLattices[0].cz);
+
+
+    IndexerPlain_delete(indexer);
+    ExperimentSettings_delete(experimentSettings);
+}
+
 
 void test_filterSamplePointsForNorm()
 {
@@ -120,7 +173,7 @@ void test_indexerPlain()
     ExperimentSettings experimentSettings = getExperimentSettingLys();
 
     IndexerPlain indexer(experimentSettings);
-	indexer.setSamplingPitch(IndexerPlain::SamplingPitch::standardWithSeondaryMillerIndices);
+    indexer.setSamplingPitch(IndexerPlain::SamplingPitch::standardWithSeondaryMillerIndices);
 
     stringstream ss;
     int runNumber = 0;

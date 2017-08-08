@@ -9,8 +9,10 @@ extern "C" {
 
 typedef struct ExperimentSettings ExperimentSettings;
 
-ExperimentSettings* ExperimentSettings_new(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
+ExperimentSettings* ExperimentSettings_new(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
                                            const Lattice_t sampleReciprocalLattice_1A, float tolerance);
+
+void ExperimentSettings_delete(ExperimentSettings* experimentSettings);
 
 #ifdef __cplusplus
 }

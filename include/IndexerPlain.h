@@ -29,7 +29,7 @@ class IndexerPlain : public IndexerBase
 
     enum class GradientDescentIterationsCount
     {
-		exremelyFew,
+        exremelyFew,
         few,
         standard,
         many,

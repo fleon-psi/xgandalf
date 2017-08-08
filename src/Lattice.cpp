@@ -13,7 +13,10 @@
 #include <limits>
 #include <math.h>
 
+#ifndef M_1_PI
 #define M_1_PI 0.318309886183790671538
+#endif // !M_1_PI
+
 
 using namespace std;
 using namespace Eigen;

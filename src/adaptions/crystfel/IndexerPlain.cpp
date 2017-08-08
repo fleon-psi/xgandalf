@@ -2,11 +2,15 @@
 #include "IndexerPlain.h"
 
 
-extern "C" IndexerPlain* IndexerPlain_new(ExperimentSettings* experimentSettings)
+extern "C" IndexerPlain* IndexerPlain_new(ExperimentSettings* experimentSettings, char* precomputedSamplePointsPath)
 {
-    return new IndexerPlain(*experimentSettings);
+    return new IndexerPlain(*experimentSettings, precomputedSamplePointsPath);
 }
 
+void IndexerPlain_delete(IndexerPlain* indexerPlain)
+{
+    delete indexerPlain;
+}
 
 extern "C" void IndexerPlain_setSamplingPitch(IndexerPlain* indexerPlain, samplingPitch_t samplingPitch)
 {
@@ -81,7 +85,7 @@ extern "C" void IndexerPlain_setGradientDescentIterationsCount(IndexerPlain* ind
 
 
 extern "C" void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assembledLattices, int* assembledLatticesCount, int maxAssambledLatticesCount,
-           const detectorPeaks_m_t* detectorPeaks_m)
+                                   const detectorPeaks_m_t* detectorPeaks_m)
 {
     Eigen::Matrix2Xf detectorPeaks_m_matrix(2, detectorPeaks_m->peakCount);
     for (int i = 0; i < detectorPeaks_m->peakCount; i++)

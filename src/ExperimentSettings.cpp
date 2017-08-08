@@ -16,47 +16,47 @@
 using namespace std;
 using namespace Eigen;
 
-ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
-                                       float pixelLength_m, float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A)
-    : latticeParametersKnown(false)
-    , minRealLatticeVectorLength_A(minRealLatticeVectorLength_A)
-    , maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A)
-{
-    constructFromGeometryFileValues(coffset_m, clen_mm, beamEenergy_eV, divergenceAngle_deg, nonMonochromaticity, pixelLength_m, detectorRadius_pixel);
-
-    minRealLatticeDeterminant_A3 = pow(minRealLatticeVectorLength_A, 3);
-    maxRealLatticeDeterminant_A3 = pow(maxRealLatticeVectorLength_A, 3);
-
-    minReciprocalLatticeVectorLength_1A = 1 / maxRealLatticeVectorLength_A;
-    maxReciprocalLatticeVectorLength_1A = 1 / minRealLatticeVectorLength_A;
-    minReciprocalLatticeDeterminant_1A3 = 1 / maxRealLatticeDeterminant_A3;
-    maxReciprocalLatticeDeterminant_1A3 = 1 / minRealLatticeDeterminant_A3;
-
-    differentRealLatticeVectorLengths_A.resize(2);
-    differentRealLatticeVectorLengths_A[0] = minRealLatticeVectorLength_A;
-    differentRealLatticeVectorLengths_A[1] = maxRealLatticeVectorLength_A;
-}
-
-ExperimentSettings::ExperimentSettings(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
-                                       float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A)
-    : latticeParametersKnown(false)
-    , minRealLatticeVectorLength_A(minRealLatticeVectorLength_A)
-    , maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A)
-{
-    constructFromPrecomputedValues(detectorDistance_m, detectorRadius_m, divergenceAngle_deg, nonMonochromaticity);
-
-    minRealLatticeDeterminant_A3 = pow(minRealLatticeVectorLength_A, 3);
-    maxRealLatticeDeterminant_A3 = pow(maxRealLatticeVectorLength_A, 3);
-
-    minReciprocalLatticeVectorLength_1A = 1 / maxRealLatticeVectorLength_A;
-    maxReciprocalLatticeVectorLength_1A = 1 / minRealLatticeVectorLength_A;
-    minReciprocalLatticeDeterminant_1A3 = 1 / maxRealLatticeDeterminant_A3;
-    maxReciprocalLatticeDeterminant_1A3 = 1 / minRealLatticeDeterminant_A3;
-
-    differentRealLatticeVectorLengths_A.resize(2);
-    differentRealLatticeVectorLengths_A[0] = minRealLatticeVectorLength_A;
-    differentRealLatticeVectorLengths_A[1] = maxRealLatticeVectorLength_A;
-}
+//ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
+//                                       float pixelLength_m, float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A)
+//    : latticeParametersKnown(false)
+//    , minRealLatticeVectorLength_A(minRealLatticeVectorLength_A)
+//    , maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A)
+//{
+//    constructFromGeometryFileValues(coffset_m, clen_mm, beamEenergy_eV, divergenceAngle_deg, nonMonochromaticity, pixelLength_m, detectorRadius_pixel);
+//
+//    minRealLatticeDeterminant_A3 = pow(minRealLatticeVectorLength_A, 3);
+//    maxRealLatticeDeterminant_A3 = pow(maxRealLatticeVectorLength_A, 3);
+//
+//    minReciprocalLatticeVectorLength_1A = 1 / maxRealLatticeVectorLength_A;
+//    maxReciprocalLatticeVectorLength_1A = 1 / minRealLatticeVectorLength_A;
+//    minReciprocalLatticeDeterminant_1A3 = 1 / maxRealLatticeDeterminant_A3;
+//    maxReciprocalLatticeDeterminant_1A3 = 1 / minRealLatticeDeterminant_A3;
+//
+//    differentRealLatticeVectorLengths_A.resize(2);
+//    differentRealLatticeVectorLengths_A[0] = minRealLatticeVectorLength_A;
+//    differentRealLatticeVectorLengths_A[1] = maxRealLatticeVectorLength_A;
+//}
+//
+//ExperimentSettings::ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
+//                                       float nonMonochromaticity, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A)
+//    : latticeParametersKnown(false)
+//    , minRealLatticeVectorLength_A(minRealLatticeVectorLength_A)
+//    , maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A)
+//{
+//    constructFromPrecomputedValues(beamEenergy_eV, detectorDistance_m, detectorRadius_m, divergenceAngle_deg, nonMonochromaticity);
+//
+//    minRealLatticeDeterminant_A3 = pow(minRealLatticeVectorLength_A, 3);
+//    maxRealLatticeDeterminant_A3 = pow(maxRealLatticeVectorLength_A, 3);
+//
+//    minReciprocalLatticeVectorLength_1A = 1 / maxRealLatticeVectorLength_A;
+//    maxReciprocalLatticeVectorLength_1A = 1 / minRealLatticeVectorLength_A;
+//    minReciprocalLatticeDeterminant_1A3 = 1 / maxRealLatticeDeterminant_A3;
+//    maxReciprocalLatticeDeterminant_1A3 = 1 / minRealLatticeDeterminant_A3;
+//
+//    differentRealLatticeVectorLengths_A.resize(2);
+//    differentRealLatticeVectorLengths_A[0] = minRealLatticeVectorLength_A;
+//    differentRealLatticeVectorLengths_A[1] = maxRealLatticeVectorLength_A;
+//}
 
 ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
                                        float pixelLength_m, float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A,
@@ -79,16 +79,16 @@ ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float bea
     differentRealLatticeVectorLengths_A[1] = maxRealLatticeVectorLength_A;
 }
 
-ExperimentSettings::ExperimentSettings(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
-                                       float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3,
-                                       float maxRealLatticeDeterminant_A3)
+ExperimentSettings::ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
+                                       float nonMonochromaticity, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A,
+                                       float minRealLatticeDeterminant_A3, float maxRealLatticeDeterminant_A3)
     : latticeParametersKnown(false)
     , minRealLatticeVectorLength_A(minRealLatticeVectorLength_A)
     , maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A)
     , minRealLatticeDeterminant_A3(minRealLatticeDeterminant_A3)
     , maxRealLatticeDeterminant_A3(maxRealLatticeDeterminant_A3)
 {
-    constructFromPrecomputedValues(detectorDistance_m, detectorRadius_m, divergenceAngle_deg, nonMonochromaticity);
+    constructFromPrecomputedValues(beamEenergy_eV, detectorDistance_m, detectorRadius_m, divergenceAngle_deg, nonMonochromaticity);
 
     minReciprocalLatticeVectorLength_1A = 1 / maxRealLatticeVectorLength_A;
     maxReciprocalLatticeVectorLength_1A = 1 / minRealLatticeVectorLength_A;
@@ -110,13 +110,13 @@ ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float bea
     deduceValuesFromSampleReciprocalLattice();
 }
 
-ExperimentSettings::ExperimentSettings(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
-                                       const Lattice& sampleReciprocalLattice_1A, float tolerance)
+ExperimentSettings::ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
+                                       float nonMonochromaticity, const Lattice& sampleReciprocalLattice_1A, float tolerance)
     : latticeParametersKnown(true)
     , sampleReciprocalLattice_1A(sampleReciprocalLattice_1A)
     , latticeParametersTolerance(tolerance)
 {
-    constructFromPrecomputedValues(detectorDistance_m, detectorRadius_m, divergenceAngle_deg, nonMonochromaticity);
+    constructFromPrecomputedValues(beamEenergy_eV, detectorDistance_m, detectorRadius_m, divergenceAngle_deg, nonMonochromaticity);
     deduceValuesFromSampleReciprocalLattice();
 }
 
@@ -198,12 +198,25 @@ void ExperimentSettings::constructFromGeometryFileValues(float coffset_m, float 
     reciprocal_lambdaLong_1A = 1 / lambdaLong_A;
 }
 
-void ExperimentSettings::constructFromPrecomputedValues(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity)
+void ExperimentSettings::constructFromPrecomputedValues(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
+                                                        float nonMonochromaticity)
 {
     this->detectorDistance_m = detectorDistance_m;
     this->detectorRadius_m = detectorRadius_m;
-    divergenceAngle_rad = divergenceAngle_deg * M_PI / 180;
     this->nonMonochromaticity = nonMonochromaticity;
+
+    divergenceAngle_rad = divergenceAngle_deg * M_PI / 180;
+	maxResolutionAngle_rad = atan(detectorRadius_m / detectorDistance_m);
+
+    float h_Plank = 4.135667662e-15; // Planck constant [eV*s]
+    float c_light = 299792458;       // speed of light [m/s]
+    lambda_A = h_Plank * c_light / beamEenergy_eV * 1e10;
+    lambdaShort_A = lambda_A * (1 - nonMonochromaticity / 2);
+    lambdaLong_A = lambda_A * (1 + nonMonochromaticity / 2);
+
+    reciprocal_lambda_1A = 1 / lambda_A;
+    reciprocal_lambdaShort_1A = 1 / lambdaShort_A;
+    reciprocal_lambdaLong_1A = 1 / lambdaLong_A;
 }
 
 float ExperimentSettings::getDetectorDistance_m() const

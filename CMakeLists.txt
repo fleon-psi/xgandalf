@@ -44,8 +44,8 @@ set(SOURCES src/Dbscan.cpp
             )
  
 
-#add_library(indexer SHARED ${SOURCES})
-add_executable(indexer ${SOURCES})
+add_library(indexer SHARED ${SOURCES})
+#add_executable(indexer ${SOURCES})
 
 set_target_properties(indexer PROPERTIES
     CXX_STANDARD 11

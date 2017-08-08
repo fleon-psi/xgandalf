@@ -9,6 +9,7 @@
 Release/
 Debug/
 cmakeBuild/
+gcc_build/
 workfolder/
 
 CMakeSettings.json

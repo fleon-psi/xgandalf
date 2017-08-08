@@ -11,23 +11,25 @@
 #include "Lattice.h"
 #include "WrongUsageException.h"
 
-class ExperimentSettings {
-public:
-    ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
-            float pixelLength_m, float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A);
-    ExperimentSettings(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
-            float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A);
+class ExperimentSettings
+{
+  public:
+    //ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity, float pixelLength_m,
+    //                   float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A);
+    //ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
+    //                   float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A);
 
-    ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
-            float pixelLength_m, float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A,
-            float minRealLatticeDeterminant_A3, float maxRealLatticeDeterminant_A3);
-    ExperimentSettings(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
-            float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3, float maxRealLatticeDeterminant_A3);
+    ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity, float pixelLength_m,
+                       float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3,
+                       float maxRealLatticeDeterminant_A3);
+    ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
+                       float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3,
+                       float maxRealLatticeDeterminant_A3);
 
-    ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
-            float pixelLength_m, float detectorRadius_pixel, const Lattice& sampleReciprocalLattice_1A, float tolerance);
-    ExperimentSettings(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
-            const Lattice& sampleReciprocalLattice_1A, float tolerance);
+    ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity, float pixelLength_m,
+                       float detectorRadius_pixel, const Lattice& sampleReciprocalLattice_1A, float tolerance);
+    ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
+                       const Lattice& sampleReciprocalLattice_1A, float tolerance);
 
     float getDetectorDistance_m() const;
     float getDetectorRadius_m() const;
@@ -66,11 +68,11 @@ public:
 
     const Eigen::ArrayXf& getDifferentRealLatticeVectorLengths_A() const;
 
-private:
+  private:
     void constructFromGeometryFileValues(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
-            float pixelLength_m, float detectorRadius_pixel);
-    void constructFromPrecomputedValues(float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
-            float nonMonochromaticity);
+                                         float pixelLength_m, float detectorRadius_pixel);
+    void constructFromPrecomputedValues(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
+                                        float nonMonochromaticity);
     void deduceValuesFromSampleReciprocalLattice();
 
     float detectorDistance_m;
@@ -92,7 +94,7 @@ private:
     float minReciprocalLatticeDeterminant_1A3;
     float maxReciprocalLatticeDeterminant_1A3;
 
-    //if latticeParametersKnown
+    // if latticeParametersKnown
     Lattice sampleRealLattice_A;
     Lattice sampleReciprocalLattice_1A;
     Eigen::Array3f realLatticeVectorLengths_A;
@@ -105,12 +107,11 @@ private:
     float reciprocalLatticeDeterminant_1A3;
     float latticeParametersTolerance;
 
-    //if latticeParametersKnown, trivial. if not, set to min and max vector length 
+    // if latticeParametersKnown, trivial. if not, set to min and max vector length
     Eigen::ArrayXf differentRealLatticeVectorLengths_A;
 
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        ;
+  public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 };
 
 #endif /* EXPERIMENTSETTINGS_H_ */

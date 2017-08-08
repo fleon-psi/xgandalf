@@ -330,13 +330,11 @@ void LatticeAssembler::computeAssembledLatticeStatistics(candidateLattice_t& can
 
 void LatticeAssembler::filterCandidateLatticesByWeight(uint32_t maxToTakeCount)
 {
-    //    auto& candidateLattices = this->candidateLattices;  //needed for lambda function
-
     uint32_t toTakeCount = min(maxToTakeCount, (uint32_t)candidateLattices.size());
 
     sortIndices.resize(candidateLattices.size());
     iota(sortIndices.begin(), sortIndices.end(), 0);
-    nth_element(sortIndices.begin(), sortIndices.begin() + toTakeCount - 1, sortIndices.end(),
+    nth_element(sortIndices.begin(), sortIndices.begin() + toTakeCount, sortIndices.end(),
                 [&](uint32_t i, uint32_t j) { return candidateLattices[i].weight > candidateLattices[j].weight; }); // descending
 
     sortIndices.resize(toTakeCount);
@@ -389,7 +387,7 @@ void LatticeAssembler::filterCandidateBasesByMeanRelativeDefect(uint32_t maxToTa
 
     sortIndices.resize(candidateLattices.size());
     iota(sortIndices.begin(), sortIndices.end(), 0);
-    nth_element(sortIndices.begin(), sortIndices.begin() + toTakeCount - 1, sortIndices.end(), [&](uint32_t i, uint32_t j) {
+    nth_element(sortIndices.begin(), sortIndices.begin() + toTakeCount, sortIndices.end(), [&](uint32_t i, uint32_t j) {
         return candidateLattices[i].assembledLatticeStatistics.meanRelativeDefect < candidateLattices[j].assembledLatticeStatistics.meanRelativeDefect;
     });
 

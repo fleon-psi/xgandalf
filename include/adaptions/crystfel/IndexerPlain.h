@@ -40,7 +40,8 @@ typedef struct
 
 typedef struct IndexerPlain IndexerPlain;
 
-IndexerPlain* IndexerPlain_new(ExperimentSettings* experimentSettings);
+IndexerPlain* IndexerPlain_new(ExperimentSettings* experimentSettings, char* precomputedSamplePointsPath);
+void IndexerPlain_delete(IndexerPlain* indexerPlain);
 
 void IndexerPlain_setSamplingPitch(IndexerPlain* indexerPlain, samplingPitch_t samplingPitch);
 void IndexerPlain_setGradientDescentIterationsCount(IndexerPlain* indexerPlain, gradientDescentIterationsCount_t gradientDescentIterationsCount);
