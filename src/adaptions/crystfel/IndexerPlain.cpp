@@ -85,7 +85,7 @@ extern "C" void IndexerPlain_setGradientDescentIterationsCount(IndexerPlain* ind
 
 
 extern "C" void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assembledLattices, int* assembledLatticesCount, int maxAssambledLatticesCount,
-                                    reciprocalPeaks_1_per_A_t reciprocalPeaks_1_per_A)
+                                   reciprocalPeaks_1_per_A_t reciprocalPeaks_1_per_A)
 {
     Eigen::Matrix3Xf reciprocalPeaks_1_per_A_matrix(3, reciprocalPeaks_1_per_A.peakCount);
     for (int i = 0; i < reciprocalPeaks_1_per_A.peakCount; i++)
@@ -113,33 +113,6 @@ extern "C" void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assemb
     }
 }
 
-extern "C" void IndexerPlain_indexReciprocal(IndexerPlain* indexerPlain, Lattice_t* assembledLattices, int* assembledLatticesCount,
-                                             int maxAssambledLatticesCount, const reciprocalPeaks_1_per_A_t* reciprocalPeaks_m)
-{
-    Eigen::Matrix3Xf reciprocalPeaks_m_matrix(2, reciprocalPeaks_m->peakCount);
-    for (int i = 0; i < reciprocalPeaks_m->peakCount; i++)
-    {
-        reciprocalPeaks_m_matrix.col(i) << reciprocalPeaks_m->coordinates_x[i], reciprocalPeaks_m->coordinates_y[i], reciprocalPeaks_m->coordinates_z[i];
-    }
-
-    std::vector<Lattice> assembledLatticesVector;
-    indexerPlain->index(assembledLatticesVector, reciprocalPeaks_m_matrix);
-
-    for (*assembledLatticesCount = 0; *assembledLatticesCount < assembledLatticesVector.size() && *assembledLatticesCount < maxAssambledLatticesCount;
-         (*assembledLatticesCount)++)
-    {
-        Eigen::Matrix3f basis = assembledLatticesVector[*assembledLatticesCount].getBasis();
-        assembledLattices[*assembledLatticesCount].ax = basis(0, 0);
-        assembledLattices[*assembledLatticesCount].ay = basis(1, 0);
-        assembledLattices[*assembledLatticesCount].az = basis(2, 0);
-        assembledLattices[*assembledLatticesCount].bx = basis(0, 1);
-        assembledLattices[*assembledLatticesCount].by = basis(1, 1);
-        assembledLattices[*assembledLatticesCount].bz = basis(2, 1);
-        assembledLattices[*assembledLatticesCount].cx = basis(0, 2);
-        assembledLattices[*assembledLatticesCount].cy = basis(1, 2);
-        assembledLattices[*assembledLatticesCount].cz = basis(2, 2);
-    }
-}
 
 extern "C" void backProjectDetectorPeaks(reciprocalPeaks_1_per_A_t* reciprocalPeaks_1_per_A, const ExperimentSettings* experimentSettings,
                                          const float* coordinates_x, const float* coordinates_y, int peakCount)

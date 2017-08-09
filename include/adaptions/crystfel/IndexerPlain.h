@@ -41,11 +41,8 @@ void IndexerPlain_delete(IndexerPlain* indexerPlain);
 void IndexerPlain_setSamplingPitch(IndexerPlain* indexerPlain, samplingPitch_t samplingPitch);
 void IndexerPlain_setGradientDescentIterationsCount(IndexerPlain* indexerPlain, gradientDescentIterationsCount_t gradientDescentIterationsCount);
 
-
 void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assembledLattices, int* assembledLatticesCount, int maxAssambledLatticesCount,
                         reciprocalPeaks_1_per_A_t reciprocalPeaks_1_per_A);
-void IndexerPlain_indexReciprocal(IndexerPlain* indexerPlain, Lattice_t* assembledLattices, int* assembledLatticesCount, int maxAssambledLatticesCount,
-                                  const reciprocalPeaks_1_per_A_t* reciprocalPeaks_m);
 
 void backProjectDetectorPeaks(reciprocalPeaks_1_per_A_t* reciprocalPeaks_1_per_A, const ExperimentSettings* experimentSettings, const float* coordinates_x,
                               const float* coordinates_y, int peakCount);
