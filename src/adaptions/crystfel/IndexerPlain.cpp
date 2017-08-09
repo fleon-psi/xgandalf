@@ -7,7 +7,7 @@ extern "C" IndexerPlain* IndexerPlain_new(ExperimentSettings* experimentSettings
     return new IndexerPlain(*experimentSettings, precomputedSamplePointsPath);
 }
 
-void IndexerPlain_delete(IndexerPlain* indexerPlain)
+extern "C" void IndexerPlain_delete(IndexerPlain* indexerPlain)
 {
     delete indexerPlain;
 }
@@ -85,21 +85,22 @@ extern "C" void IndexerPlain_setGradientDescentIterationsCount(IndexerPlain* ind
 
 
 extern "C" void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assembledLattices, int* assembledLatticesCount, int maxAssambledLatticesCount,
-                                   const detectorPeaks_m_t* detectorPeaks_m)
+                                    reciprocalPeaks_1_per_A_t reciprocalPeaks_1_per_A)
 {
-    Eigen::Matrix2Xf detectorPeaks_m_matrix(2, detectorPeaks_m->peakCount);
-    for (int i = 0; i < detectorPeaks_m->peakCount; i++)
+    Eigen::Matrix3Xf reciprocalPeaks_1_per_A_matrix(3, reciprocalPeaks_1_per_A.peakCount);
+    for (int i = 0; i < reciprocalPeaks_1_per_A.peakCount; i++)
     {
-        detectorPeaks_m_matrix.col(i) << detectorPeaks_m->coordinates_x[i], detectorPeaks_m->coordinates_y[i];
+        reciprocalPeaks_1_per_A_matrix.col(i) << reciprocalPeaks_1_per_A.coordinates_x[i], reciprocalPeaks_1_per_A.coordinates_y[i],
+            reciprocalPeaks_1_per_A.coordinates_z[i];
     }
 
     std::vector<Lattice> assembledLatticesVector;
-    indexerPlain->index(assembledLatticesVector, detectorPeaks_m_matrix);
+    indexerPlain->index(assembledLatticesVector, reciprocalPeaks_1_per_A_matrix);
 
     for (*assembledLatticesCount = 0; *assembledLatticesCount < assembledLatticesVector.size() && *assembledLatticesCount < maxAssambledLatticesCount;
          (*assembledLatticesCount)++)
     {
-        const Eigen::Matrix3f& basis = assembledLatticesVector[*assembledLatticesCount].getBasis();
+        Eigen::Matrix3f basis = assembledLatticesVector[*assembledLatticesCount].getBasis();
         assembledLattices[*assembledLatticesCount].ax = basis(0, 0);
         assembledLattices[*assembledLatticesCount].ay = basis(1, 0);
         assembledLattices[*assembledLatticesCount].az = basis(2, 0);
@@ -110,4 +111,56 @@ extern "C" void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assemb
         assembledLattices[*assembledLatticesCount].cy = basis(1, 2);
         assembledLattices[*assembledLatticesCount].cz = basis(2, 2);
     }
+}
+
+extern "C" void IndexerPlain_indexReciprocal(IndexerPlain* indexerPlain, Lattice_t* assembledLattices, int* assembledLatticesCount,
+                                             int maxAssambledLatticesCount, const reciprocalPeaks_1_per_A_t* reciprocalPeaks_m)
+{
+    Eigen::Matrix3Xf reciprocalPeaks_m_matrix(2, reciprocalPeaks_m->peakCount);
+    for (int i = 0; i < reciprocalPeaks_m->peakCount; i++)
+    {
+        reciprocalPeaks_m_matrix.col(i) << reciprocalPeaks_m->coordinates_x[i], reciprocalPeaks_m->coordinates_y[i], reciprocalPeaks_m->coordinates_z[i];
+    }
+
+    std::vector<Lattice> assembledLatticesVector;
+    indexerPlain->index(assembledLatticesVector, reciprocalPeaks_m_matrix);
+
+    for (*assembledLatticesCount = 0; *assembledLatticesCount < assembledLatticesVector.size() && *assembledLatticesCount < maxAssambledLatticesCount;
+         (*assembledLatticesCount)++)
+    {
+        Eigen::Matrix3f basis = assembledLatticesVector[*assembledLatticesCount].getBasis();
+        assembledLattices[*assembledLatticesCount].ax = basis(0, 0);
+        assembledLattices[*assembledLatticesCount].ay = basis(1, 0);
+        assembledLattices[*assembledLatticesCount].az = basis(2, 0);
+        assembledLattices[*assembledLatticesCount].bx = basis(0, 1);
+        assembledLattices[*assembledLatticesCount].by = basis(1, 1);
+        assembledLattices[*assembledLatticesCount].bz = basis(2, 1);
+        assembledLattices[*assembledLatticesCount].cx = basis(0, 2);
+        assembledLattices[*assembledLatticesCount].cy = basis(1, 2);
+        assembledLattices[*assembledLatticesCount].cz = basis(2, 2);
+    }
+}
+
+extern "C" void backProjectDetectorPeaks(reciprocalPeaks_1_per_A_t* reciprocalPeaks_1_per_A, const ExperimentSettings* experimentSettings,
+                                         const float* coordinates_x, const float* coordinates_y, int peakCount)
+{
+    DetectorToReciprocalSpaceTransform detectorToReciprocalSpaceTransform(*experimentSettings);
+    Eigen::Matrix3Xf reciprocalPeaks_1_per_A_matrix;
+
+    Eigen::Matrix2Xf detectorPeaks_m(2, peakCount);
+    for (int i = 0; i < peakCount; i++)
+    {
+        detectorPeaks_m.col(i) << coordinates_x[i], coordinates_y[i];
+    }
+
+    detectorToReciprocalSpaceTransform.computeReciprocalPeaksFromDetectorPeaks(reciprocalPeaks_1_per_A_matrix, detectorPeaks_m);
+
+    int peakNumber;
+    for (peakNumber = 0; peakNumber < peakCount && peakNumber < MAX_PEAK_COUNT_FOR_INDEXER; peakNumber++)
+    {
+        reciprocalPeaks_1_per_A->coordinates_x[peakNumber] = reciprocalPeaks_1_per_A_matrix(0, peakNumber);
+        reciprocalPeaks_1_per_A->coordinates_y[peakNumber] = reciprocalPeaks_1_per_A_matrix(1, peakNumber);
+        reciprocalPeaks_1_per_A->coordinates_z[peakNumber] = reciprocalPeaks_1_per_A_matrix(2, peakNumber);
+    }
+    reciprocalPeaks_1_per_A->peakCount = peakNumber;
 }

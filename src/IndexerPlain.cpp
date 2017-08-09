@@ -142,7 +142,7 @@ void IndexerPlain::setSamplingPitch(float unitPitch, bool coverSecondaryMillerIn
     }
 }
 
-void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m)
+void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A)
 {
     if (precomputedSamplePoints.size() == 0)
     {
@@ -151,18 +151,15 @@ void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::M
 
     Matrix3Xf samplePoints = precomputedSamplePoints;
 
-    Matrix3Xf reciprocalPeaks_A;
-    detectorToReciprocalSpaceTransform.computeReciprocalPeaksFromDetectorPeaks(reciprocalPeaks_A, detectorPeaks_m);
-
     // global hill climbing
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_global);
-    hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, samplePoints);
+    hillClimbingOptimizer.performOptimization(reciprocalPeaks_1_per_A, samplePoints);
     RowVectorXf globalHillClimbingPointEvaluation = hillClimbingOptimizer.getLastInverseTransformEvaluation();
     Matrix3Xf globalHillClimbingSamplePoints = samplePoints;
 
     // additional global hill climbing
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_additionalGlobal);
-    hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, samplePoints);
+    hillClimbingOptimizer.performOptimization(reciprocalPeaks_1_per_A, samplePoints);
     RowVectorXf& additionalGlobalHillClimbingPointEvaluation = hillClimbingOptimizer.getLastInverseTransformEvaluation();
     Matrix3Xf& additionalGlobalHillClimbingSamplePoints = samplePoints;
 
@@ -181,10 +178,10 @@ void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::M
 
     // peaks hill climbing
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_peaks);
-    hillClimbingOptimizer.performOptimization(reciprocalPeaks_A, peakSamplePoints);
+    hillClimbingOptimizer.performOptimization(reciprocalPeaks_1_per_A, peakSamplePoints);
 
     // final peaks extra evaluation
-    inverseSpaceTransform.setPointsToTransform(reciprocalPeaks_A);
+    inverseSpaceTransform.setPointsToTransform(reciprocalPeaks_1_per_A);
     inverseSpaceTransform.performTransform(peakSamplePoints);
 
     // find peaks , TODO: check, whether better performance without peak finding here
@@ -195,8 +192,9 @@ void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::M
     Matrix3Xf& candidateVectors = peakSamplePoints;
     RowVectorXf& candidateVectorWeights = inverseSpaceTransform.getInverseTransformEvaluation();
     vector<vector<uint16_t>>& pointIndicesOnVector = inverseSpaceTransform.getPointsCloseToEvaluationPositions_indices();
+    Matrix3Xf reciprocalPeaksCopy_1_per_A = reciprocalPeaks_1_per_A;
     latticeAssembler.assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors, candidateVectorWeights, pointIndicesOnVector,
-                                      reciprocalPeaks_A);
+                                      reciprocalPeaksCopy_1_per_A);
 
     //    cout << assembledLatticesStatistics[0].meanDefect << " " << assembledLatticesStatistics[0].meanRelativeDefect << " "
     //            << assembledLatticesStatistics[0].occupiedLatticePointsCount << " " << assembledLatticesStatistics.size() << endl <<

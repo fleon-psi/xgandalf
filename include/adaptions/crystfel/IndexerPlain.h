@@ -3,6 +3,7 @@
 #define ADAPTIONS_CRYSTFEL_INDEXER_PLAIN_H
 
 #include "adaptions/crystfel/ExperimentSettings.h"
+#include "adaptions/crystfel/indexerData.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,12 +32,6 @@ typedef enum GradientDescentIterationsCount {
     GRADIENT_DESCENT_ITERATION_COUNT_custom
 } gradientDescentIterationsCount_t;
 
-typedef struct
-{
-    float* coordinates_x;
-    float* coordinates_y;
-    int peakCount;
-} detectorPeaks_m_t;
 
 typedef struct IndexerPlain IndexerPlain;
 
@@ -48,7 +43,12 @@ void IndexerPlain_setGradientDescentIterationsCount(IndexerPlain* indexerPlain, 
 
 
 void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assembledLattices, int* assembledLatticesCount, int maxAssambledLatticesCount,
-                        const detectorPeaks_m_t* detectorPeaks_m);
+                        reciprocalPeaks_1_per_A_t reciprocalPeaks_1_per_A);
+void IndexerPlain_indexReciprocal(IndexerPlain* indexerPlain, Lattice_t* assembledLattices, int* assembledLatticesCount, int maxAssambledLatticesCount,
+                                  const reciprocalPeaks_1_per_A_t* reciprocalPeaks_m);
+
+void backProjectDetectorPeaks(reciprocalPeaks_1_per_A_t* reciprocalPeaks_1_per_A, const ExperimentSettings* experimentSettings, const float* coordinates_x,
+                              const float* coordinates_y, int peakCount);
 
 
 #ifdef __cplusplus

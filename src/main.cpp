@@ -35,7 +35,7 @@ int main()
         // test_filterSamplePointsForNorm();
         // test_indexerAutocorrPrefit();
         // test_indexerPlain();
-        testCrystfelAdaption();
+        test_crystfelAdaption();
     }
     catch (exception& e)
     {

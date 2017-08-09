@@ -17,14 +17,12 @@ using namespace std;
 
 IndexerBase::IndexerBase(const ExperimentSettings& experimentSettings)
     : experimentSettings(experimentSettings)
-    , detectorToReciprocalSpaceTransform(experimentSettings)
 {
 }
 
 IndexerBase::IndexerBase(const ExperimentSettings& experimentSettings, const string& precomputedSamplePointsPath)
     : experimentSettings(experimentSettings)
     , samplePointsGenerator(precomputedSamplePointsPath)
-    , detectorToReciprocalSpaceTransform(experimentSettings)
 {
 }
 
@@ -50,7 +48,7 @@ void IndexerBase::keepSamplePointsWithHighestEvaluation(Eigen::Matrix3Xf& sample
 
     sortIndices.resize(samplePointsEvaluation.size());
     iota(sortIndices.begin(), sortIndices.end(), 0);
-    nth_element(sortIndices.begin(), sortIndices.begin() + toTakeCount - 1, sortIndices.end(),
+    nth_element(sortIndices.begin(), sortIndices.begin() + toTakeCount, sortIndices.end(),
                 [&](uint32_t i, uint32_t j) { return samplePointsEvaluation[i] > samplePointsEvaluation[j]; });
 
     sortIndices.resize(toTakeCount);
@@ -67,3 +65,5 @@ void IndexerBase::keepSamplePointsWithHighestEvaluation(Eigen::Matrix3Xf& sample
     samplePoints.swap(samplePoints_filtered);
     samplePointsEvaluation.swap(samplePointsEvaluation_filtered);
 }
+
+

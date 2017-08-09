@@ -34,12 +34,12 @@ using namespace Eigen;
 
 static ExperimentSettings getExperimentSettingLys();
 
-void testCrystfelAdaption()
+void test_crystfelAdaption()
 {
     float coffset_m = 0.567855;
     float clen_mm = -439.9992;
     float beamEenergy_eV = 8.0010e+03;
-    float divergenceAngle_deg = 0.05 * M_PI / 180;
+    float divergenceAngle_deg = 0.05;
     float nonMonochromaticity = 0.005;
     float pixelLength_m = 110e-6;
     float detectorRadius_pixel = 750;
@@ -48,13 +48,11 @@ void testCrystfelAdaption()
     float detectorDistance_m = clen_mm * 1e-3 + coffset_m;
     float detectorRadius_m = detectorRadius_pixel * pixelLength_m;
 
-    Lattice_t sampleReciprocalLattice_1A = {+0.00945252, -0.00433391, +0.00644485, -0.00298714, -0.01177522,
-                                            -0.00374347, +0.01601091, +0.00156280, -0.02065220};
+    Lattice_t sampleReciprocalLattice_1A = {+0.00945252f, -0.00433391f, +0.00644485f, -0.00298714f, -0.01177522f,
+                                            -0.00374347f, +0.01601091f, +0.00156280f, -0.02065220f};
 
     ExperimentSettings* experimentSettings = ExperimentSettings_new(beamEenergy_eV, detectorDistance_m, detectorRadius_m, divergenceAngle_deg,
                                                                     nonMonochromaticity, sampleReciprocalLattice_1A, tolerance);
-    // ExperimentSettings tmp = getExperimentSettingLys();
-    // ExperimentSettings* experimentSettings = &tmp;
 
     char precomputedSamplePointsPath[] = "C:\\DesyFiles\\workspaces\\VisualStudio_workspace\\indexer\\precomputedSamplePoints";
     samplingPitch_t samplingPitch = SAMPLING_PITCH_standard;
@@ -63,25 +61,27 @@ void testCrystfelAdaption()
     IndexerPlain_setSamplingPitch(indexer, samplingPitch);
     IndexerPlain_setGradientDescentIterationsCount(indexer, gradientDescentIterationsCount);
 
-    float coordinates_x[20] = {0.027768, 0.02768,  0.0089125, -0.007797, -0.041511, -0.037719,  0.015493, 0.033985, 0.080738,  -0.053092,
-                               0.027281, 0.059692, 0.051299,  0.071658,  0.015745,  -0.0099817, 0.026852, 0.034215, -0.037346, -0.025099};
-    float coordinates_y[20] = {-0.052672, -0.072924, -0.054435, -0.081549, -0.0025696, -0.071839, -0.049375, 0.062652,  -0.0067283, 0.062291,
-                               -0.036252, -0.051579, 0.011029,  0.0039782, 0.059389,   0.038869,  -0.030329, -0.014595, -0.014957,  0.013217};
+    float coordinates_x[20] = {0.027768f, 0.02768f,  0.0089125f, -0.007797f, -0.041511f, -0.037719f,  0.015493f, 0.033985f, 0.080738f,  -0.053092f,
+                               0.027281f, 0.059692f, 0.051299f,  0.071658f,  0.015745f,  -0.0099817f, 0.026852f, 0.034215f, -0.037346f, -0.025099f};
+    float coordinates_y[20] = {-0.052672f, -0.072924f, -0.054435f, -0.081549f, -0.0025696f, -0.071839f, -0.049375f, 0.062652f,  -0.0067283f, 0.062291f,
+                               -0.036252f, -0.051579f, 0.011029f,  0.0039782f, 0.059389f,   0.038869f,  -0.030329f, -0.014595f, -0.014957f,  0.013217f};
     int peakCount = 20;
-    detectorPeaks_m_t detectorPeaks_m = {coordinates_x, coordinates_y, peakCount};
+    reciprocalPeaks_1_per_A_t reciprocalPeaks_1_per_A;
+    allocReciprocalPeaks(&reciprocalPeaks_1_per_A);
+    backProjectDetectorPeaks(&reciprocalPeaks_1_per_A, experimentSettings, coordinates_x, coordinates_y, peakCount);
+    ExperimentSettings_delete(experimentSettings);
 
     const int maxAssambledLatticesCount = 2;
     Lattice_t assembledLattices[maxAssambledLatticesCount];
     int assembledLatticesCount;
-    IndexerPlain_index(indexer, assembledLattices, &assembledLatticesCount, maxAssambledLatticesCount, &detectorPeaks_m);
+    IndexerPlain_index(indexer, assembledLattices, &assembledLatticesCount, maxAssambledLatticesCount, reciprocalPeaks_1_per_A);
 
     printf("assembledLatticesCount: %d\n\na: %f %f %f\nb: %f %f %f\nc: %f %f %f\n", assembledLatticesCount, assembledLattices[0].ax, assembledLattices[0].ay,
            assembledLattices[0].az, assembledLattices[0].bx, assembledLattices[0].by, assembledLattices[0].bz, assembledLattices[0].cx, assembledLattices[0].cy,
            assembledLattices[0].cz);
 
-
+    freeReciprocalPeaks(reciprocalPeaks_1_per_A);
     IndexerPlain_delete(indexer);
-    ExperimentSettings_delete(experimentSettings);
 }
 
 
@@ -113,6 +113,9 @@ void test_indexerAutocorrPrefit()
 {
     ExperimentSettings experimentSettings = getExperimentSettingLys();
 
+    DetectorToReciprocalSpaceTransform detectorToReciprocalSpaceTransform(experimentSettings);
+    Matrix3Xf reciprocalPeaks_1_per_A;
+
     IndexerAutocorrPrefit indexer(experimentSettings);
 
     stringstream ss;
@@ -134,8 +137,10 @@ void test_indexerAutocorrPrefit()
 
             vector<Lattice> assembledLattices;
 
+            detectorToReciprocalSpaceTransform.computeReciprocalPeaksFromDetectorPeaks(reciprocalPeaks_1_per_A, detectorPeaks_m);
+
             chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-            indexer.index(assembledLattices, detectorPeaks_m);
+            indexer.index(assembledLattices, reciprocalPeaks_1_per_A);
             chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
             auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
             cout << "duration: " << duration << "ms" << endl << endl;
@@ -172,6 +177,9 @@ void test_indexerPlain()
 {
     ExperimentSettings experimentSettings = getExperimentSettingLys();
 
+    DetectorToReciprocalSpaceTransform detectorToReciprocalSpaceTransform(experimentSettings);
+    Matrix3Xf reciprocalPeaks_1_per_A;
+
     IndexerPlain indexer(experimentSettings);
     indexer.setSamplingPitch(IndexerPlain::SamplingPitch::standardWithSeondaryMillerIndices);
 
@@ -194,8 +202,10 @@ void test_indexerPlain()
 
             vector<Lattice> assembledLattices;
 
+            detectorToReciprocalSpaceTransform.computeReciprocalPeaksFromDetectorPeaks(reciprocalPeaks_1_per_A, detectorPeaks_m);
+
             chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-            indexer.index(assembledLattices, detectorPeaks_m);
+            indexer.index(assembledLattices, reciprocalPeaks_1_per_A);
             chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
             auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
             cout << "duration: " << duration << "ms" << endl << endl;

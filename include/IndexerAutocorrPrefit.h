@@ -24,7 +24,7 @@ public:
     IndexerAutocorrPrefit(const ExperimentSettings& experimentSettings);
     IndexerAutocorrPrefit(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath);
 
-    void index(std::vector< Lattice >& assembledLattices, const Eigen::Matrix2Xf& detectorPeaks_m);
+	void index(std::vector< Lattice >& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A);
 
     void setSamplingPitch(SamplingPitch samplingPitch);
     void setSamplingPitch(float unitPitch);

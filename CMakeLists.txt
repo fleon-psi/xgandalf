@@ -39,6 +39,7 @@ set(SOURCES src/Dbscan.cpp
 
 			src/adaptions/crystfel/IndexerPlain.cpp
 			src/adaptions/crystfel/ExperimentSettings.cpp
+			src/adaptions/crystfel/indexerData.cpp
 
 			src/main.cpp
             )
