@@ -78,5 +78,6 @@ install(
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "Eigen/*" EXCLUDE
+	PATTERN "Eigen" EXCLUDE
 )
 
