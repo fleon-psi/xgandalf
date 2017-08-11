@@ -62,8 +62,8 @@ else()
     include_directories(SYSTEM include/Eigen)
     
     install(
-        DIRECTORY include/Eigen
-        DESTINATION include
+        DIRECTORY include/Eigen/
+        DESTINATION include/eigen3
     )
 endif()
 
@@ -73,8 +73,8 @@ install(TARGETS indexer
 )
 
 install(
-    DIRECTORY include
-    DESTINATION include
+    DIRECTORY include/
+    DESTINATION include/indexer
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "Eigen/*" EXCLUDE
