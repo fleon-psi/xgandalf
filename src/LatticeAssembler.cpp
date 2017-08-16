@@ -351,16 +351,17 @@ void LatticeAssembler::filterCandidateLatticesByWeight(uint32_t maxToTakeCount)
     candidateLattices.swap(candidateLatticesFiltered);
 }
 
-// clang-format off
-bool LatticeAssembler::checkLatticeParameters( Lattice& lattice)
+
+bool LatticeAssembler::checkLatticeParameters(Lattice& lattice)
 {
     lattice.minimize();
 
     Vector3f n = lattice.getBasisVectorNorms();
     Vector3f a = lattice.getBasisVectorAnglesNormalized_deg();
 
-    Array< float, 6, 6 > allPermutations;
+    Array<float, 6, 6> allPermutations;
 
+    // clang-format off
     allPermutations <<
             n[0], n[0], n[1], n[1], n[2], n[2],
             n[1], n[2], n[0], n[2], n[0], n[1],
@@ -368,18 +369,19 @@ bool LatticeAssembler::checkLatticeParameters( Lattice& lattice)
             a[0], a[0], a[1], a[1], a[2], a[2],
             a[1], a[2], a[0], a[2], a[0], a[1],
             a[2], a[1], a[2], a[0], a[1], a[0];
+    // clang-format on
 
     auto rasiduals = ((allPermutations.colwise() - knownLatticeParameters).colwise() * knownLatticeParametersInverse).abs(); // Array< bool, 6, 6 >
 
-    auto parametersValid = rasiduals < knownLatticeParametersTolerance;   // Array< bool, 6, 6 >
+    auto parametersValid = rasiduals < knownLatticeParametersTolerance; // Array< bool, 6, 6 >
 
-    auto permutationsValid = parametersValid.colwise().all();   // Array< bool, 1, 6 >
+    auto permutationsValid = parametersValid.colwise().all(); // Array< bool, 1, 6 >
 
     bool latticeValid = permutationsValid.any();
 
     return latticeValid;
 }
-// clang-format on
+
 
 void LatticeAssembler::filterCandidateBasesByMeanRelativeDefect(uint32_t maxToTakeCount)
 {

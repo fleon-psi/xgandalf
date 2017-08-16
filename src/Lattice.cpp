@@ -26,9 +26,7 @@ static inline void sortTwoColumns_ascending(Matrix3f& basis, Vector3f& squaredNo
 static inline void sortColumnsByNorm_ascending(Matrix3f& basis);
 static inline void getMinA(Matrix3f& basis, Vector3f& minA, float& minALengthSquared);
 
-Lattice::Lattice()
-{
-}
+Lattice::Lattice() {}
 
 Lattice::Lattice(const Matrix3f& basis)
     : basis(basis)
@@ -178,3 +176,43 @@ std::ostream& operator<<(std::ostream& os, const Lattice& lattice)
     os << lattice.basis;
     return os;
 }
+
+// clang-format off
+void Lattice::reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3f prototypeAngles_deg)
+{
+    Array<float, 6, 1> prototypeLatticeParameters;
+    prototypeLatticeParameters << prototypeNorms, prototypeAngles_deg;
+    Array<float, 6, 1> prototypeLatticeParametersInverse = 1.0f / prototypeLatticeParameters;
+
+	Vector3f n = getBasisVectorNorms();
+	Vector3f a = getBasisVectorAnglesNormalized_deg();
+
+    Array<int, 3, 6> indexPermutations;
+	indexPermutations <<
+		0, 0, 1, 1, 2, 2,
+		1, 2, 0, 2, 0, 1,
+		2, 1, 2, 0, 1, 0;
+
+    Array<float, 6, 6> allPermutations;
+	auto& i = indexPermutations;
+	allPermutations <<
+		n[i(0)],  n[i(1)],  n[i(2)],  n[i(3)],  n[i(4)],  n[i(5)],
+		n[i(6)],  n[i(7)],  n[i(8)],  n[i(9)],  n[i(10)], n[i(11)],
+		n[i(12)], n[i(13)], n[i(14)], n[i(15)], n[i(16)], n[i(17)],
+		a[i(0)],  a[i(1)],  a[i(2)],  a[i(3)],  a[i(4)],  a[i(5)],
+		a[i(6)],  a[i(7)],  a[i(8)],  a[i(9)],  a[i(10)], a[i(11)],
+		a[i(12)], a[i(13)], a[i(14)], a[i(15)], a[i(16)], a[i(17)];
+
+    auto rasiduals = ((allPermutations.colwise() - prototypeLatticeParameters).colwise() * prototypeLatticeParametersInverse).abs(); // Array< bool, 6, 6 >
+    auto maxResiduals = rasiduals.colwise().maxCoeff();																				 // Array< bool, 1, 6 >
+
+    int bestPermutationIndex;
+    maxResiduals.minCoeff(&bestPermutationIndex);
+
+    Matrix3f reorderedBasis;
+    reorderedBasis << basis.col(indexPermutations(0, bestPermutationIndex)), 
+					  basis.col(indexPermutations(1, bestPermutationIndex)),
+					  basis.col(indexPermutations(2, bestPermutationIndex));
+	basis = reorderedBasis;
+}
+// clang-format on

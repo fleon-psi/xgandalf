@@ -11,8 +11,9 @@
 #include <Eigen/Dense>
 #include <iostream>
 
-class Lattice {
-public:
+class Lattice
+{
+  public:
     Lattice();
     Lattice(const Eigen::Matrix3f& basis);
     Lattice(const Eigen::Vector3f& a, const Eigen::Vector3f& b, const Eigen::Vector3f& c);
@@ -44,12 +45,13 @@ public:
 
     friend std::ostream& operator<<(std::ostream& os, const Lattice& lattice);
 
-private:
+    void reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3f prototypeAngles_deg);
+
+  private:
     Eigen::Matrix3f basis;
 
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        ;
+  public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 };
 
 #endif /* LATTICE_H_ */

@@ -137,3 +137,27 @@ extern "C" void backProjectDetectorPeaks(reciprocalPeaks_1_per_A_t* reciprocalPe
     }
     reciprocalPeaks_1_per_A->peakCount = peakNumber;
 }
+
+extern "C" void reorderLattice(const Lattice_t* prototype, Lattice_t* lattice)
+{
+    Eigen::Matrix3f prototypeBasis;
+    prototypeBasis << prototype->ax, prototype->bx, prototype->cx, prototype->ay, prototype->by, prototype->cy, prototype->az, prototype->bz, prototype->cz;
+    Lattice prototypeLattice(prototypeBasis);
+
+    Eigen::Matrix3f basis;
+    basis << lattice->ax, lattice->bx, lattice->cx, lattice->ay, lattice->by, lattice->cy, lattice->az, lattice->bz, lattice->cz;
+    Lattice latticeWrapper(basis);
+
+    latticeWrapper.reorder(prototypeLattice.getBasisVectorNorms(), prototypeLattice.getBasisVectorAngles_deg());
+    basis = latticeWrapper.getBasis();
+
+    lattice->ax = basis(0, 0);
+    lattice->ay = basis(1, 0);
+    lattice->az = basis(2, 0);
+    lattice->bx = basis(0, 1);
+    lattice->by = basis(1, 1);
+    lattice->bz = basis(2, 1);
+    lattice->cx = basis(0, 2);
+    lattice->cy = basis(1, 2);
+    lattice->cz = basis(2, 2);
+}

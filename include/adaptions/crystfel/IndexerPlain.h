@@ -47,6 +47,8 @@ void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assembledLattices
 void backProjectDetectorPeaks(reciprocalPeaks_1_per_A_t* reciprocalPeaks_1_per_A, const ExperimentSettings* experimentSettings, const float* coordinates_x,
                               const float* coordinates_y, int peakCount);
 
+void reorderLattice(const Lattice_t* prototype, Lattice_t* lattice);
+
 
 #ifdef __cplusplus
 }
