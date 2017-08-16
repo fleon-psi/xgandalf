@@ -33,6 +33,7 @@ using namespace std;
 using namespace Eigen;
 
 static ExperimentSettings getExperimentSettingLys();
+static ExperimentSettings getExperimentSettingCrystfelTutorial();
 
 void test_crystfelAdaption()
 {
@@ -175,13 +176,16 @@ void test_indexerAutocorrPrefit()
 
 void test_indexerPlain()
 {
-    ExperimentSettings experimentSettings = getExperimentSettingLys();
+    // ExperimentSettings experimentSettings = getExperimentSettingLys();
+    ExperimentSettings experimentSettings = getExperimentSettingCrystfelTutorial();
 
     DetectorToReciprocalSpaceTransform detectorToReciprocalSpaceTransform(experimentSettings);
     Matrix3Xf reciprocalPeaks_1_per_A;
 
     IndexerPlain indexer(experimentSettings);
-    indexer.setSamplingPitch(IndexerPlain::SamplingPitch::standardWithSeondaryMillerIndices);
+    // indexer.setSamplingPitch(IndexerPlain::SamplingPitch::standardWithSeondaryMillerIndices);
+    indexer.setSamplingPitch(IndexerPlain::SamplingPitch::denseWithSeondaryMillerIndices);
+    indexer.setGradientDescentIterationsCount(IndexerPlain::GradientDescentIterationsCount::many);
 
     stringstream ss;
     int runNumber = 0;
@@ -525,6 +529,40 @@ static ExperimentSettings getExperimentSettingLys()
     Vector3f a_star(+0.0945252, -0.0433391, +0.0644485);
     Vector3f b_star(-0.0298714, -0.1177522, -0.0374347);
     Vector3f c_star(+0.1601091, +0.0156280, -0.2065220);
+    Matrix3f basis;
+    basis << a_star, b_star, c_star;
+    basis = basis / 10; // nm to A
+    Lattice sampleReciprocalLattice_1A(basis);
+    float tolerance = 0.02;
+
+    return ExperimentSettings(coffset_m, clen_mm, beamEenergy_eV, divergenceAngle_deg, nonMonochromaticity, pixelLength_m, detectorRadius_pixel,
+                              sampleReciprocalLattice_1A, tolerance);
+}
+
+static ExperimentSettings getExperimentSettingCrystfelTutorial()
+{
+    float coffset_m = 582.00e-3;
+    float clen_mm = -429.9966;
+    float beamEenergy_eV = 9.5085e+03;
+    float divergenceAngle_deg = 0.05 * M_PI / 180;
+    float nonMonochromaticity = 0.005;
+    float pixelLength_m = 110e-6;
+    float detectorRadius_pixel = 1750;
+
+    // Vector3f a(61.7, 0, 0);
+    // Vector3f b(0, 122.80, 0);
+    // Vector3f c(0, 0, 168.1);
+    // Matrix3f basis;
+    // basis << a, b, c;
+    // Lattice sampleLattice_A(basis);
+    // float tolerance = 0.02;
+
+    // return ExperimentSettings(coffset_m, clen_mm, beamEenergy_eV, divergenceAngle_deg, nonMonochromaticity, pixelLength_m, detectorRadius_pixel,
+    //                          sampleLattice_A.getReciprocalLattice(), tolerance);
+
+    Vector3f a_star(-0.1117993, +0.0078962, +0.1183619);
+    Vector3f b_star(+0.0577304, -0.0155025, +0.0551965);
+    Vector3f c_star(+0.0100613, +0.0585998, +0.0054576);
     Matrix3f basis;
     basis << a_star, b_star, c_star;
     basis = basis / 10; // nm to A
