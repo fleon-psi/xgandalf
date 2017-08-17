@@ -9,8 +9,12 @@ extern "C" {
 
 typedef struct ExperimentSettings ExperimentSettings;
 
-ExperimentSettings* ExperimentSettings_new(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
-                                           const Lattice_t sampleReciprocalLattice_1A, float tolerance);
+ExperimentSettings* ExperimentSettings_new_nolatt(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
+                                                  float nonMonochromaticity, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A,
+                                                  float minRealLatticeDeterminant_A3, float maxRealLatticeDeterminant_A3);
+
+ExperimentSettings* ExperimentSettings_new(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
+                                           float nonMonochromaticity, const Lattice_t sampleReciprocalLattice_1A, float tolerance);
 
 void ExperimentSettings_delete(ExperimentSettings* experimentSettings);
 
