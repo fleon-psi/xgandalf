@@ -247,3 +247,22 @@ void Lattice::reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3
     }
     basis = bestNegatedBasis;
 }
+
+void Lattice::normalizeAngles()
+{
+    for (int l = -1; l <= 1; l += 2)
+    {
+        for (int m = -1; m <= 1; m += 2)
+        {
+            Matrix3f negatedBasis;
+            negatedBasis << basis.col(0), basis.col(1) * l, basis.col(2) * m;
+            Lattice negatedLattice(negatedBasis);
+
+            if ((negatedLattice.getBasisVectorAngles_deg().array() <= 90).all())
+            {
+                basis = negatedBasis;
+                return;
+            }
+        }
+    }
+}

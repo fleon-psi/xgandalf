@@ -103,6 +103,10 @@ void LatticeAssembler::assembleLattices(vector< Lattice >& assembledLattices, ve
             candidateLattices.end());
 
     selectBestLattices(assembledLattices, assembledLatticesStatistics, finalCandidateLattices);
+
+	for (auto& lattice : assembledLattices) {
+		lattice.normalizeAngles();
+	}
 }
 // clang-format on
 
