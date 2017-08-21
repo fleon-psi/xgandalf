@@ -228,20 +228,23 @@ void Lattice::reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3
     // change sign of vectors
     Matrix3f bestNegatedBasis;
     float bestNegatedBasisResidual = numeric_limits<float>::max();
-    for (int l = -1; l <= 1; l += 2)
+    for (int k = -1; k <= 1; k += 2)
     {
-        for (int m = -1; m <= 1; m += 2)
+        for (int l = -1; l <= 1; l += 2)
         {
-            Matrix3f negatedBasis;
-            negatedBasis << basis.col(0), basis.col(1) * l, basis.col(2) * m;
-            Lattice negatedLattice(negatedBasis);
-
-            float maxResidual = (negatedLattice.getBasisVectorAngles_deg() - prototypeAngles_deg).cwiseAbs().maxCoeff();
-
-            if (maxResidual < bestNegatedBasisResidual)
+            for (int m = -1; m <= 1; m += 2)
             {
-                bestNegatedBasisResidual = maxResidual;
-                bestNegatedBasis = negatedBasis;
+                Matrix3f negatedBasis;
+                negatedBasis << basis.col(0) * k, basis.col(1) * l, basis.col(2) * m;
+                Lattice negatedLattice(negatedBasis);
+
+                float maxResidual = (negatedLattice.getBasisVectorAngles_deg() - prototypeAngles_deg).cwiseAbs().maxCoeff();
+
+                if (maxResidual < bestNegatedBasisResidual)
+                {
+                    bestNegatedBasisResidual = maxResidual;
+                    bestNegatedBasis = negatedBasis;
+                }
             }
         }
     }
