@@ -179,6 +179,8 @@ std::ostream& operator<<(std::ostream& os, const Lattice& lattice)
 
 void Lattice::reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3f prototypeAngles_deg)
 {
+    cout << "prototype angles" << endl << prototypeAngles_deg << endl;
+
     Vector3f prototypeAnglesNormalized_deg = prototypeAngles_deg;
     for (int i = 0; i < 3; i++)
     {
@@ -187,6 +189,8 @@ void Lattice::reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3
             prototypeAnglesNormalized_deg(i) = 180 - prototypeAnglesNormalized_deg(i);
         }
     }
+
+    cout << "prototype angles normalized" << endl << prototypeAnglesNormalized_deg << endl;
 
     Array<float, 6, 1> prototypeLatticeParameters;
     prototypeLatticeParameters << prototypeNorms, prototypeAnglesNormalized_deg;
@@ -249,6 +253,8 @@ void Lattice::reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3
         }
     }
     basis = bestNegatedBasis;
+
+    cout << "best residual: " << bestNegatedBasisResidual << endl;
 
     cout << "angles" << endl << getBasisVectorAngles_deg() << endl;
 }
