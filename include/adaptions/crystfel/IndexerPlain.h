@@ -48,6 +48,7 @@ void backProjectDetectorPeaks(reciprocalPeaks_1_per_A_t* reciprocalPeaks_1_per_A
                               const float* coordinates_y, int peakCount);
 
 void reorderLattice(const Lattice_t* prototype, Lattice_t* lattice);
+void reduceLattice(Lattice_t* lattice);
 
 
 #ifdef __cplusplus

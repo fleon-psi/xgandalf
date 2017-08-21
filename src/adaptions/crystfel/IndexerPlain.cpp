@@ -161,3 +161,22 @@ extern "C" void reorderLattice(const Lattice_t* prototype, Lattice_t* lattice)
     lattice->cy = basis(1, 2);
     lattice->cz = basis(2, 2);
 }
+
+
+void reduceLattice(Lattice_t* lattice) {
+	Eigen::Matrix3f basis;
+	basis << lattice->ax, lattice->bx, lattice->cx, lattice->ay, lattice->by, lattice->cy, lattice->az, lattice->bz, lattice->cz;
+	Lattice latticeWrapper(basis);
+
+	basis = latticeWrapper.minimize().getBasis();
+
+	lattice->ax = basis(0, 0);
+	lattice->ay = basis(1, 0);
+	lattice->az = basis(2, 0);
+	lattice->bx = basis(0, 1);
+	lattice->by = basis(1, 1);
+	lattice->bz = basis(2, 1);
+	lattice->cx = basis(0, 2);
+	lattice->cy = basis(1, 2);
+	lattice->cz = basis(2, 2);
+}
