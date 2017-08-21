@@ -246,6 +246,8 @@ void Lattice::reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3
         }
     }
     basis = bestNegatedBasis;
+
+    cout << "angles" << endl << getBasisVectorAngles_deg() << endl;
 }
 
 void Lattice::normalizeAngles()
