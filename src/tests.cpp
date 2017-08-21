@@ -37,7 +37,8 @@ static ExperimentSettings getExperimentSettingCrystfelTutorial();
 
 void test()
 {
-    ExperimentSettings_new_nolatt(1, 1, 1, 1, 1, 10, 10);
+    ExperimentSettings experimentSettings(1, 1, 1, 1, 1, 10, 11);
+    IndexerPlain indexer(experimentSettings);
 }
 
 void test_latticeReorder()
