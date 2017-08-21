@@ -37,17 +37,7 @@ static ExperimentSettings getExperimentSettingCrystfelTutorial();
 
 void test()
 {
-    Matrix3f testBasis = Matrix3f::Random(3, 3);
-    Lattice testLattice(testBasis);
-    testLattice.minimize();
-    testBasis = testLattice.getBasis();
-
-    Matrix3f testBasis_neg;
-    testBasis_neg << testBasis.col(0), testBasis.col(2), testBasis.col(1);
-    Lattice testLattice_neg(testBasis_neg);
-
-    cout << testLattice.getBasisVectorAngles_deg() << endl << endl;
-    cout << testLattice_neg.getBasisVectorAngles_deg() << endl << endl;
+    ExperimentSettings_new_nolatt(1, 1, 1, 1, 1, 10, 10);
 }
 
 void test_latticeReorder()

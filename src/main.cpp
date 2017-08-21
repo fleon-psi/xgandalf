@@ -36,8 +36,8 @@ int main()
         // test_indexerAutocorrPrefit();
         // test_indexerPlain();
         // test_crystfelAdaption();
-        test_latticeReorder();
-		//test();
+        // test_latticeReorder();
+        test();
     }
     catch (exception& e)
     {

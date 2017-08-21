@@ -14,17 +14,17 @@
 class ExperimentSettings
 {
   public:
-    //ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity, float pixelLength_m,
-    //                   float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A);
-    //ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
-    //                   float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A);
-
     ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity, float pixelLength_m,
-                       float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3,
-                       float maxRealLatticeDeterminant_A3);
+                       float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A);
     ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
-                       float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3,
-                       float maxRealLatticeDeterminant_A3);
+                       float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A);
+
+    //ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity, float pixelLength_m,
+    //                   float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3,
+    //                   float maxRealLatticeDeterminant_A3);
+    //ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
+    //                   float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3,
+    //                   float maxRealLatticeDeterminant_A3);
 
     ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity, float pixelLength_m,
                        float detectorRadius_pixel, const Lattice& sampleReciprocalLattice_1A, float tolerance);
