@@ -8,6 +8,8 @@
 #ifndef TESTS_H_
 #define TESTS_H_
 
+void test();
+void test_latticeReorder();
 void test_crystfelAdaption();
 void test_filterSamplePointsForNorm();
 void test_indexerAutocorrPrefit();

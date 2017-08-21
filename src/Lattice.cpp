@@ -177,42 +177,73 @@ std::ostream& operator<<(std::ostream& os, const Lattice& lattice)
     return os;
 }
 
-// clang-format off
 void Lattice::reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3f prototypeAngles_deg)
 {
+    Vector3f prototypeAnglesNormalized_deg = prototypeAngles_deg;
+    for (int i = 0; i < 3; i++)
+    {
+        if (prototypeAnglesNormalized_deg(i) > 90)
+        {
+            prototypeAnglesNormalized_deg(i) = 180 - prototypeAnglesNormalized_deg(i);
+        }
+    }
+
     Array<float, 6, 1> prototypeLatticeParameters;
-    prototypeLatticeParameters << prototypeNorms, prototypeAngles_deg;
+    prototypeLatticeParameters << prototypeNorms, prototypeAnglesNormalized_deg;
     Array<float, 6, 1> prototypeLatticeParametersInverse = 1.0f / prototypeLatticeParameters;
 
-	Vector3f n = getBasisVectorNorms();
-	Vector3f a = getBasisVectorAnglesNormalized_deg();
+    Vector3f n = getBasisVectorNorms();
+    Vector3f a = getBasisVectorAnglesNormalized_deg();
 
-    Array<int, 3, 6> indexPermutations;
+    // clang-format off
+	Array<int, 3, 6> indexPermutations;
 	indexPermutations <<
 		0, 0, 1, 1, 2, 2,
 		1, 2, 0, 2, 0, 1,
 		2, 1, 2, 0, 1, 0;
 
-    Array<float, 6, 6> allPermutations;
+	Array<float, 6, 6> allPermutations;
 	auto& i = indexPermutations;
 	allPermutations <<
-		n[i(0)],  n[i(1)],  n[i(2)],  n[i(3)],  n[i(4)],  n[i(5)],
-		n[i(6)],  n[i(7)],  n[i(8)],  n[i(9)],  n[i(10)], n[i(11)],
-		n[i(12)], n[i(13)], n[i(14)], n[i(15)], n[i(16)], n[i(17)],
-		a[i(0)],  a[i(1)],  a[i(2)],  a[i(3)],  a[i(4)],  a[i(5)],
-		a[i(6)],  a[i(7)],  a[i(8)],  a[i(9)],  a[i(10)], a[i(11)],
-		a[i(12)], a[i(13)], a[i(14)], a[i(15)], a[i(16)], a[i(17)];
+		n[i(0, 0)], n[i(0, 1)], n[i(0, 2)], n[i(0, 3)], n[i(0, 4)], n[i(0, 5)],
+		n[i(1, 0)], n[i(1, 1)], n[i(1, 2)], n[i(1, 3)], n[i(1, 4)], n[i(1, 5)],
+		n[i(2, 0)], n[i(2, 1)], n[i(2, 2)], n[i(2, 3)], n[i(2, 4)], n[i(2, 5)],
+		a[i(0, 0)], a[i(0, 1)], a[i(0, 2)], a[i(0, 3)], a[i(0, 4)], a[i(0, 5)],
+		a[i(1, 0)], a[i(1, 1)], a[i(1, 2)], a[i(1, 3)], a[i(1, 4)], a[i(1, 5)],
+		a[i(2, 0)], a[i(2, 1)], a[i(2, 2)], a[i(2, 3)], a[i(2, 4)], a[i(2, 5)];
+    // clang-format on
 
-    auto rasiduals = ((allPermutations.colwise() - prototypeLatticeParameters).colwise() * prototypeLatticeParametersInverse).abs(); // Array< bool, 6, 6 >
-    auto maxResiduals = rasiduals.colwise().maxCoeff();																				 // Array< bool, 1, 6 >
+    // find best permutation
+    auto rasiduals = ((allPermutations.colwise() - prototypeLatticeParameters).colwise() * prototypeLatticeParametersInverse).abs();
+    auto maxResiduals = rasiduals.colwise().maxCoeff();
 
     int bestPermutationIndex;
     maxResiduals.minCoeff(&bestPermutationIndex);
 
     Matrix3f reorderedBasis;
-    reorderedBasis << basis.col(indexPermutations(0, bestPermutationIndex)), 
-					  basis.col(indexPermutations(1, bestPermutationIndex)),
-					  basis.col(indexPermutations(2, bestPermutationIndex));
-	basis = reorderedBasis;
+    reorderedBasis << basis.col(indexPermutations(0, bestPermutationIndex)), basis.col(indexPermutations(1, bestPermutationIndex)),
+        basis.col(indexPermutations(2, bestPermutationIndex));
+    basis = reorderedBasis;
+
+    // change sign of vectors
+    Matrix3f bestNegatedBasis;
+    float bestNegatedBasisResidual = numeric_limits<float>::max();
+    for (int l = -1; l <= 1; l += 2)
+    {
+        for (int m = -1; m <= 1; m += 2)
+        {
+            Matrix3f negatedBasis;
+            negatedBasis << basis.col(0), basis.col(1) * l, basis.col(2) * m;
+            Lattice negatedLattice(negatedBasis);
+
+            float maxResidual = (negatedLattice.getBasisVectorAngles_deg() - prototypeAngles_deg).cwiseAbs().maxCoeff();
+
+            if (maxResidual < bestNegatedBasisResidual)
+            {
+                bestNegatedBasisResidual = maxResidual;
+                bestNegatedBasis = negatedBasis;
+            }
+        }
+    }
+    basis = bestNegatedBasis;
 }
-// clang-format on

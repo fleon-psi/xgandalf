@@ -35,6 +35,44 @@ using namespace Eigen;
 static ExperimentSettings getExperimentSettingLys();
 static ExperimentSettings getExperimentSettingCrystfelTutorial();
 
+void test()
+{
+    Matrix3f testBasis = Matrix3f::Random(3, 3);
+    Lattice testLattice(testBasis);
+    testLattice.minimize();
+    testBasis = testLattice.getBasis();
+
+    Matrix3f testBasis_neg;
+    testBasis_neg << testBasis.col(0), testBasis.col(2), testBasis.col(1);
+    Lattice testLattice_neg(testBasis_neg);
+
+    cout << testLattice.getBasisVectorAngles_deg() << endl << endl;
+    cout << testLattice_neg.getBasisVectorAngles_deg() << endl << endl;
+}
+
+void test_latticeReorder()
+{
+    Matrix3f testBasis = Matrix3f::Random(3, 3);
+    Lattice testLattice(testBasis);
+    testLattice.minimize();
+    testBasis = testLattice.getBasis();
+
+    Matrix3f testBasis_permutated;
+    testBasis_permutated << -testBasis.col(2), testBasis.col(0), testBasis.col(1);
+    Lattice testLattice_permutated(testBasis_permutated);
+
+    testLattice_permutated.reorder(testLattice.getBasisVectorNorms(), testLattice.getBasisVectorAngles_deg());
+
+    cout << testLattice << endl << endl << testLattice_permutated << endl << endl;
+
+    cout << testLattice.getBasisVectorNorms() << endl
+         << testLattice.getBasisVectorAngles_deg() << endl
+         << endl
+         << testLattice_permutated.getBasisVectorNorms() << endl
+         << testLattice_permutated.getBasisVectorAngles_deg() << endl
+         << endl;
+}
+
 void test_crystfelAdaption()
 {
     float coffset_m = 0.567855;
