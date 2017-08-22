@@ -43,23 +43,39 @@ void test()
 
 void test_latticeReorder()
 {
-    Matrix3f testBasis = Matrix3f::Random(3, 3);
+    // Matrix3f testBasis = Matrix3f::Random(3, 3);
+    // Lattice testLattice(testBasis);
+    // testLattice.minimize();
+    // testBasis = testLattice.getBasis();
+
+    // Matrix3f testBasis_permutated;
+    // testBasis_permutated << -testBasis.col(2), testBasis.col(0), testBasis.col(1);
+    // Lattice testLattice_permutated(testBasis_permutated);
+
+    Matrix3f testBasis;
+    testBasis << 6.17e-09, 3.085e-09, 1.02932e-24, 0, 6.14e-09, 1.02932e-24, 0, 0, 1.681e-08;
+    testBasis *= 1e10;
     Lattice testLattice(testBasis);
-    testLattice.minimize();
     testBasis = testLattice.getBasis();
 
     Matrix3f testBasis_permutated;
-    testBasis_permutated << -testBasis.col(2), testBasis.col(0), testBasis.col(1);
+    testBasis_permutated << -8.245e-10, -6.613e-09, -1.587e-09, -4.201e-09, 1.339e-09, 5.687e-09, -1.613e-08, 1.737e-10, -1.384e-09;
+    testBasis_permutated *= 1e10;
+
     Lattice testLattice_permutated(testBasis_permutated);
 
     testLattice_permutated.reorder(testLattice.getBasisVectorNorms(), testLattice.getBasisVectorAngles_deg());
 
-    cout << testLattice << endl << endl << testLattice_permutated << endl << endl;
+    cout << "testLattice" << endl << testLattice << endl << endl << "test lattice permuted" << endl << testLattice_permutated << endl << endl;
 
-    cout << testLattice.getBasisVectorNorms() << endl
+    cout << "norms" << endl
+         << testLattice.getBasisVectorNorms() << endl
+         << "angles" << endl
          << testLattice.getBasisVectorAngles_deg() << endl
          << endl
+         << "norms permuted" << endl
          << testLattice_permutated.getBasisVectorNorms() << endl
+         << "angles permuted" << endl
          << testLattice_permutated.getBasisVectorAngles_deg() << endl
          << endl;
 }

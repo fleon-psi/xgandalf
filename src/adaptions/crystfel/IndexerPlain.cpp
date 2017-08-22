@@ -1,6 +1,5 @@
 #include "adaptions/crystfel/IndexerPlain.h"
 #include "IndexerPlain.h"
-#include <iostream>
 
 
 extern "C" IndexerPlain* IndexerPlain_new(ExperimentSettings* experimentSettings, char* precomputedSamplePointsPath)
@@ -164,23 +163,20 @@ extern "C" void reorderLattice(const Lattice_t* prototype, Lattice_t* lattice)
 }
 
 
-void reduceLattice(Lattice_t* lattice)
-{
-    Eigen::Matrix3f basis;
-    basis << lattice->ax, lattice->bx, lattice->cx, lattice->ay, lattice->by, lattice->cy, lattice->az, lattice->bz, lattice->cz;
-    Lattice latticeWrapper(basis);
+void reduceLattice(Lattice_t* lattice) {
+	Eigen::Matrix3f basis;
+	basis << lattice->ax, lattice->bx, lattice->cx, lattice->ay, lattice->by, lattice->cy, lattice->az, lattice->bz, lattice->cz;
+	Lattice latticeWrapper(basis);
 
-    std::cout << "basis:" << std::endl << basis << std::endl;
-    Eigen::Matrix3f minimumBasis = latticeWrapper.minimize().getBasis();
-    std::cout << "minimum:" << std::endl << minimumBasis << std::endl;
+	basis = latticeWrapper.minimize().getBasis();
 
-    lattice->ax = minimumBasis(0, 0);
-    lattice->ay = minimumBasis(1, 0);
-    lattice->az = minimumBasis(2, 0);
-    lattice->bx = minimumBasis(0, 1);
-    lattice->by = minimumBasis(1, 1);
-    lattice->bz = minimumBasis(2, 1);
-    lattice->cx = minimumBasis(0, 2);
-    lattice->cy = minimumBasis(1, 2);
-    lattice->cz = minimumBasis(2, 2);
+	lattice->ax = basis(0, 0);
+	lattice->ay = basis(1, 0);
+	lattice->az = basis(2, 0);
+	lattice->bx = basis(0, 1);
+	lattice->by = basis(1, 1);
+	lattice->bz = basis(2, 1);
+	lattice->cx = basis(0, 2);
+	lattice->cy = basis(1, 2);
+	lattice->cz = basis(2, 2);
 }
