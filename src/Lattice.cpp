@@ -237,7 +237,7 @@ void Lattice::reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3
         for (int m = -1; m <= 1; m += 2)
         {
             Matrix3f negatedBasis;
-            negatedBasis << basis.col(0) * k, basis.col(1) * l, basis.col(2) * m;
+            negatedBasis << basis.col(0), basis.col(1) * l, basis.col(2) * m;
             Lattice negatedLattice(negatedBasis);
 
             float maxResidual = (negatedLattice.getBasisVectorAngles_deg() - prototypeAngles_deg).cwiseAbs().maxCoeff();
