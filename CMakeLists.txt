@@ -16,8 +16,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 endif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
  
 set(BOOST_ALL_NO_LIB 1)
-find_package(Boost 1.60.0 REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
+find_package(Boost 1.60.0)
+if(BOOST_FOUND)
+	include_directories(${Boost_INCLUDE_DIRS})
+else()
+	message("Boost not found, using internal Boost.")
+    include_directories(SYSTEM include/Boost)
+endif()
 
 include_directories(include)
 
@@ -79,5 +84,7 @@ install(
     PATTERN "*.h"
     PATTERN "Eigen/*" EXCLUDE
 	PATTERN "Eigen" EXCLUDE
+	PATTERN "Boost" EXCLUDE
+	PATTERN "Boost/*" EXCLUDE
 )
 
