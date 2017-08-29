@@ -34,9 +34,10 @@ int main()
     {
         // test_filterSamplePointsForNorm();
         // test_indexerAutocorrPrefit();
-        // test_indexerPlain();
+        test_indexerPlain();
         // test_crystfelAdaption();
-        test_latticeReorder();
+        // test_crystfelAdaption2();
+        // test_latticeReorder();
         // test();
     }
     catch (exception& e)

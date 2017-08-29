@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-project(indexer)
+project(xgandalf)
  
 # Set a default build type if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -45,10 +45,10 @@ set(SOURCES src/Dbscan.cpp
             )
  
 
-add_library(indexer SHARED ${SOURCES})
-#add_executable(indexer ${SOURCES})
+add_library(xgandalf SHARED ${SOURCES})
+#add_executable(xgandalf ${SOURCES})
 
-set_target_properties(indexer PROPERTIES
+set_target_properties(xgandalf PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS ON
@@ -56,7 +56,7 @@ set_target_properties(indexer PROPERTIES
 
 find_package(Eigen3 3.3 NO_MODULE)
 if(EIGEN3_FOUND)
-    target_link_libraries (indexer Eigen3::Eigen)
+    target_link_libraries (xgandalf Eigen3::Eigen)
 else()
     message("Eigen not found, using internal Eigen.")
     include_directories(SYSTEM include/Eigen)
@@ -67,14 +67,14 @@ else()
     )
 endif()
 
-install(TARGETS indexer 
+install(TARGETS xgandalf 
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION lib
 )
 
 install(
     DIRECTORY include/
-    DESTINATION include/indexer
+    DESTINATION include/xgandalf
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "Eigen/*" EXCLUDE

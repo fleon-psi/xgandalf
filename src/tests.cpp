@@ -80,6 +80,54 @@ void test_latticeReorder()
          << endl;
 }
 
+void test_crystfelAdaption2()
+{
+    float coffset_m = 0.567855;
+    float clen_mm = -439.9992;
+    float beamEenergy_eV = 8.0010e+03;
+    float divergenceAngle_deg = 0.05;
+    float nonMonochromaticity = 0.005;
+    float pixelLength_m = 110e-6;
+    float detectorRadius_pixel = 750;
+    float tolerance = 0.04;
+
+    float detectorDistance_m = clen_mm * 1e-3 + coffset_m;
+    float detectorRadius_m = detectorRadius_pixel * pixelLength_m;
+
+    Lattice_t sampleReciprocalLattice_1A = {+0.00945252f, -0.00433391f, +0.00644485f, -0.00298714f, -0.01177522f,
+                                            -0.00374347f, +0.01601091f, +0.00156280f, -0.02065220f};
+
+    ExperimentSettings* experimentSettings = ExperimentSettings_new(beamEenergy_eV, detectorDistance_m, detectorRadius_m, divergenceAngle_deg,
+                                                                    nonMonochromaticity, sampleReciprocalLattice_1A, tolerance);
+
+    char precomputedSamplePointsPath[] = "C:\\DesyFiles\\workspaces\\VisualStudio_workspace\\indexer\\precomputedSamplePoints";
+    samplingPitch_t samplingPitch = SAMPLING_PITCH_denseWithSeondaryMillerIndices;
+    gradientDescentIterationsCount_t gradientDescentIterationsCount = GRADIENT_DESCENT_ITERATION_COUNT_manyMany;
+    IndexerPlain* indexer = IndexerPlain_new(experimentSettings, precomputedSamplePointsPath);
+    IndexerPlain_setSamplingPitch(indexer, samplingPitch);
+    IndexerPlain_setGradientDescentIterationsCount(indexer, gradientDescentIterationsCount);
+
+    float coordinates_x[13] = {-0.00354128, -0.00453525, -0.00360044, -0.00893636, -0.00813886, -0.00708733, -0.00585448,
+                               -0.00262046, -0.00831829, -0.0946989,  -0.00334105, -0.00892964, -0.0366513};
+    float coordinates_y[13] = {0.00340288, -0.0227626, 0.00337974, 0.00629458, 0.00855251, -0.020308, -0.076647,
+                               -0.0253645, -0.0742384, -0.10926,   0.058414,   0.00839815, 0.229089};
+    float coordinates_z[13] = {-0.0735557, 0.0801326, 0.0741685, -0.116596,  0.111134,  0.102048, 0.0554566,
+                               0.0580622,  0.0847643, 0.352735,  -0.0412787, -0.116419, 0.0492033};
+    int peakCount = 13;
+    reciprocalPeaks_1_per_A_t reciprocalPeaks_1_per_A = {coordinates_x, coordinates_y, coordinates_z, peakCount};
+
+    const int maxAssambledLatticesCount = 2;
+    Lattice_t assembledLattices[maxAssambledLatticesCount];
+    int assembledLatticesCount;
+    IndexerPlain_index(indexer, assembledLattices, &assembledLatticesCount, maxAssambledLatticesCount, reciprocalPeaks_1_per_A);
+
+    printf("assembledLatticesCount: %d\n\na: %f %f %f\nb: %f %f %f\nc: %f %f %f\n", assembledLatticesCount, assembledLattices[0].ax, assembledLattices[0].ay,
+           assembledLattices[0].az, assembledLattices[0].bx, assembledLattices[0].by, assembledLattices[0].bz, assembledLattices[0].cx, assembledLattices[0].cy,
+           assembledLattices[0].cz);
+
+    IndexerPlain_delete(indexer);
+}
+
 void test_crystfelAdaption()
 {
     float coffset_m = 0.567855;
@@ -230,7 +278,7 @@ void test_indexerPlain()
     IndexerPlain indexer(experimentSettings);
     // indexer.setSamplingPitch(IndexerPlain::SamplingPitch::standardWithSeondaryMillerIndices);
     indexer.setSamplingPitch(IndexerPlain::SamplingPitch::denseWithSeondaryMillerIndices);
-    indexer.setGradientDescentIterationsCount(IndexerPlain::GradientDescentIterationsCount::many);
+    indexer.setGradientDescentIterationsCount(IndexerPlain::GradientDescentIterationsCount::manyMany);
 
     stringstream ss;
     int runNumber = 0;
@@ -252,6 +300,7 @@ void test_indexerPlain()
             vector<Lattice> assembledLattices;
 
             detectorToReciprocalSpaceTransform.computeReciprocalPeaksFromDetectorPeaks(reciprocalPeaks_1_per_A, detectorPeaks_m);
+            cout << reciprocalPeaks_1_per_A;
 
             chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
             indexer.index(assembledLattices, reciprocalPeaks_1_per_A);
@@ -612,7 +661,7 @@ static ExperimentSettings getExperimentSettingCrystfelTutorial()
     basis << a_star, b_star, c_star;
     basis = basis / 10; // nm to A
     Lattice sampleReciprocalLattice_1A(basis);
-    float tolerance = 0.02;
+    float tolerance = 0.04;
 
     return ExperimentSettings(coffset_m, clen_mm, beamEenergy_eV, divergenceAngle_deg, nonMonochromaticity, pixelLength_m, detectorRadius_pixel,
                               sampleReciprocalLattice_1A, tolerance);

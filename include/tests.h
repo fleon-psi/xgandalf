@@ -10,6 +10,7 @@
 
 void test();
 void test_latticeReorder();
+void test_crystfelAdaption2();
 void test_crystfelAdaption();
 void test_filterSamplePointsForNorm();
 void test_indexerAutocorrPrefit();
