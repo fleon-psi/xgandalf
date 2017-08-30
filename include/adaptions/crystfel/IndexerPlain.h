@@ -18,7 +18,9 @@ typedef enum {
 
     SAMPLING_PITCH_standardWithSeondaryMillerIndices,
     SAMPLING_PITCH_denseWithSeondaryMillerIndices,
-    SAMPLING_PITCH_extremelyDenseWithSeondaryMillerIndices
+    SAMPLING_PITCH_extremelyDenseWithSeondaryMillerIndices,
+
+	SAMPLING_PITCH_lastEnum
 } samplingPitch_t;
 
 typedef enum GradientDescentIterationsCount {
@@ -29,7 +31,9 @@ typedef enum GradientDescentIterationsCount {
     GRADIENT_DESCENT_ITERATION_COUNT_manyMany,
     GRADIENT_DESCENT_ITERATION_COUNT_extremelyMany,
 
-    GRADIENT_DESCENT_ITERATION_COUNT_custom
+    GRADIENT_DESCENT_ITERATION_COUNT_custom,
+
+	GRADIENT_DESCENT_ITERATION_COUNT_lastEnum
 } gradientDescentIterationsCount_t;
 
 
