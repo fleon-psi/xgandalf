@@ -10,30 +10,30 @@ extern "C" {
 #endif
 
 typedef enum {
-    SAMPLING_PITCH_extremelyLoose,
-    SAMPLING_PITCH_loose,
-    SAMPLING_PITCH_standard,
-    SAMPLING_PITCH_dense,
-    SAMPLING_PITCH_extremelyDense,
+    SAMPLING_PITCH_extremelyLoose = 0,
+    SAMPLING_PITCH_loose = 1,
+    SAMPLING_PITCH_standard = 2,
+    SAMPLING_PITCH_dense = 3,
+    SAMPLING_PITCH_extremelyDense = 4,
 
-    SAMPLING_PITCH_standardWithSeondaryMillerIndices,
-    SAMPLING_PITCH_denseWithSeondaryMillerIndices,
-    SAMPLING_PITCH_extremelyDenseWithSeondaryMillerIndices,
+    SAMPLING_PITCH_standardWithSeondaryMillerIndices = 5,
+    SAMPLING_PITCH_denseWithSeondaryMillerIndices = 6,
+    SAMPLING_PITCH_extremelyDenseWithSeondaryMillerIndices = 7,
 
 	SAMPLING_PITCH_lastEnum
 } samplingPitch_t;
 
 typedef enum GradientDescentIterationsCount {
-    GRADIENT_DESCENT_ITERATION_COUNT_verryFew,
-    GRADIENT_DESCENT_ITERATION_COUNT_few,
-    GRADIENT_DESCENT_ITERATION_COUNT_standard,
-    GRADIENT_DESCENT_ITERATION_COUNT_many,
-    GRADIENT_DESCENT_ITERATION_COUNT_manyMany,
-    GRADIENT_DESCENT_ITERATION_COUNT_extremelyMany,
+    GRADIENT_DESCENT_ITERATION_COUNT_verryFew = 0,
+    GRADIENT_DESCENT_ITERATION_COUNT_few = 1,
+    GRADIENT_DESCENT_ITERATION_COUNT_standard = 2,
+    GRADIENT_DESCENT_ITERATION_COUNT_many = 3,
+    GRADIENT_DESCENT_ITERATION_COUNT_manyMany = 4,
+    GRADIENT_DESCENT_ITERATION_COUNT_extremelyMany = 5,
 
-    GRADIENT_DESCENT_ITERATION_COUNT_custom,
+    GRADIENT_DESCENT_ITERATION_COUNT_custom = 6,
 
-	GRADIENT_DESCENT_ITERATION_COUNT_lastEnum
+	GRADIENT_DESCENT_ITERATION_COUNT_lastEnum = 7
 } gradientDescentIterationsCount_t;
 
 
