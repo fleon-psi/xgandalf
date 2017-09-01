@@ -107,12 +107,9 @@ void test_crystfelAdaption2()
     IndexerPlain_setSamplingPitch(indexer, samplingPitch);
     IndexerPlain_setGradientDescentIterationsCount(indexer, gradientDescentIterationsCount);
 
-    float coordinates_x[13] = {-0.00354128, -0.00453525, -0.00360044, -0.00893636, -0.00813886, -0.00708733, -0.00585448,
-                               -0.00262046, -0.00831829, -0.0946989,  -0.00334105, -0.00892964, -0.0366513};
-    float coordinates_y[13] = {0.00340288, -0.0227626, 0.00337974, 0.00629458, 0.00855251, -0.020308, -0.076647,
-                               -0.0253645, -0.0742384, -0.10926,   0.058414,   0.00839815, 0.229089};
-    float coordinates_z[13] = {-0.0735557, 0.0801326, 0.0741685, -0.116596,  0.111134,  0.102048, 0.0554566,
-                               0.0580622,  0.0847643, 0.352735,  -0.0412787, -0.116419, 0.0492033};
+    float coordinates_x[13] = {-0.0035412f, -0.00453525f};
+    float coordinates_y[13] = {0.00340288f, -0.0227626f};
+    float coordinates_z[13] = {-0.0735557f, 0.0801326f};
     int peakCount = 13;
     reciprocalPeaks_1_per_A_t reciprocalPeaks_1_per_A = {coordinates_x, coordinates_y, coordinates_z, peakCount};
 
