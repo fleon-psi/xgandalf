@@ -10,11 +10,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
         "MinSizeRel" "RelWithDebInfo")
 endif()
  
-# Test whether the compiler is Microsoft Visual C(++).
-if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2 /wd4305 /wd4244 /wd4099")
-endif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
- 
 set(BOOST_ALL_NO_LIB 1)
 find_package(Boost 1.60.0)
 if(Boost_FOUND)
@@ -31,27 +26,35 @@ set(SOURCES src/Dbscan.cpp
             src/ExperimentSettings.cpp
             src/HillClimbingOptimizer.cpp
             src/IndexerAutocorrPrefit.cpp
-			src/IndexerBase.cpp
-			src/IndexerPlain.cpp
+			      src/IndexerBase.cpp
+			      src/IndexerPlain.cpp
             src/InverseSpaceTransform.cpp
             src/Lattice.cpp
             src/LatticeAssembler.cpp
             src/pointAutocorrelation.cpp
-			src/samplePointsFiltering.cpp
+			      src/samplePointsFiltering.cpp
             src/SamplePointsGenerator.cpp 
             src/SparsePeakFinder.cpp
-			src/tests.cpp
+			      src/tests.cpp
 
-			src/adaptions/crystfel/IndexerPlain.cpp
-			src/adaptions/crystfel/ExperimentSettings.cpp
-			src/adaptions/crystfel/indexerData.cpp
+			      src/adaptions/crystfel/IndexerPlain.cpp
+			      src/adaptions/crystfel/ExperimentSettings.cpp
+			      src/adaptions/crystfel/indexerData.cpp
 
-			src/main.cpp
-            )
+			      src/main.cpp
+  )
  
 
 #add_library(xgandalf SHARED ${SOURCES})
 add_executable(xgandalf ${SOURCES})
+
+# Test whether the compiler is Microsoft Visual C(++).
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+  target_compile_options(xgandalf PRIVATE /W2 /wd4305 /wd4244 /wd4099)
+else(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+  target_compile_options(xgandalf PRIVATE -Wall -Werror -Wpedantic)
+endif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+ 
 
 set_target_properties(xgandalf PROPERTIES
     CXX_STANDARD 11
@@ -83,8 +86,8 @@ install(
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "Eigen/*" EXCLUDE
-	PATTERN "Eigen" EXCLUDE
-	PATTERN "Boost" EXCLUDE
-	PATTERN "Boost/*" EXCLUDE
+	  PATTERN "Eigen" EXCLUDE
+	  PATTERN "Boost" EXCLUDE
+	  PATTERN "Boost/*" EXCLUDE
 )
 

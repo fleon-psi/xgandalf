@@ -40,15 +40,24 @@ void loadEigenMatrixFromDisk(Eigen::DenseBase< T >& matrix, std::string path)
     int cols = (int) firstLineNumbers.size();
     int rows = (int) numbers.size() / cols;
 
-    if (T::RowsAtCompileTime != Eigen::Dynamic && T::RowsAtCompileTime != rows) {
+    bool constexpr checkDynamicRows = T::RowsAtCompileTime != Eigen::Dynamic;
+    bool constexpr checkDynamicCols = T::ColsAtCompileTime != Eigen::Dynamic;
+
+    if (checkDynamicRows)
+    {
+      if (T::RowsAtCompileTime != rows) {
         std::stringstream errStream;
         errStream << "Matrix in file " << path << " contains wrong number of rows";
         throw BadInputException(errStream.str());
+      }
     }
-    if (T::ColsAtCompileTime != Eigen::Dynamic && T::ColsAtCompileTime != cols) {
+    if (checkDynamicCols)
+    {
+      if (T::ColsAtCompileTime != cols) {
         std::stringstream errStream;
         errStream << "Matrix in file " << path << " contains wrong number of columns";
         throw BadInputException(errStream.str());
+      }
     }
 
     if ((int) numbers.size() != rows * cols) {
