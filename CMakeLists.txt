@@ -26,22 +26,22 @@ set(SOURCES src/Dbscan.cpp
             src/ExperimentSettings.cpp
             src/HillClimbingOptimizer.cpp
             src/IndexerAutocorrPrefit.cpp
-			      src/IndexerBase.cpp
-			      src/IndexerPlain.cpp
+			src/IndexerBase.cpp
+			src/IndexerPlain.cpp
             src/InverseSpaceTransform.cpp
             src/Lattice.cpp
             src/LatticeAssembler.cpp
             src/pointAutocorrelation.cpp
-			      src/samplePointsFiltering.cpp
+			src/samplePointsFiltering.cpp
             src/SamplePointsGenerator.cpp 
             src/SparsePeakFinder.cpp
-			      src/tests.cpp
+			src/tests.cpp
 
-			      src/adaptions/crystfel/IndexerPlain.cpp
-			      src/adaptions/crystfel/ExperimentSettings.cpp
-			      src/adaptions/crystfel/indexerData.cpp
+			src/adaptions/crystfel/IndexerPlain.cpp
+			src/adaptions/crystfel/ExperimentSettings.cpp
+			src/adaptions/crystfel/indexerData.cpp
 
-			      src/main.cpp
+			src/main.cpp
   )
  
 
