@@ -17,7 +17,7 @@ endif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
  
 set(BOOST_ALL_NO_LIB 1)
 find_package(Boost 1.60.0)
-if(BOOST_FOUND)
+if(Boost_FOUND)
 	include_directories(${Boost_INCLUDE_DIRS})
 else()
 	message("Boost not found, using internal Boost.")
@@ -50,8 +50,8 @@ set(SOURCES src/Dbscan.cpp
             )
  
 
-add_library(xgandalf SHARED ${SOURCES})
-#add_executable(xgandalf ${SOURCES})
+#add_library(xgandalf SHARED ${SOURCES})
+add_executable(xgandalf ${SOURCES})
 
 set_target_properties(xgandalf PROPERTIES
     CXX_STANDARD 11
