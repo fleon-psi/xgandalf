@@ -349,12 +349,12 @@ void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCo
     peaks.initialIterationCount = 0;
     peaks.calmDownIterationCount = 0;
     peaks.calmDownFactor = 0;
-    peaks.localFitIterationCount = 10;
-    peaks.localCalmDownIterationCount = 30;
-    peaks.localCalmDownFactor = 0.9;
+    peaks.localFitIterationCount = 20;
+    peaks.localCalmDownIterationCount = 300;
+    peaks.localCalmDownFactor = 0.98;
 
     peaks.stepComputationAccuracyConstants.gamma = 0.1;
-    peaks.stepComputationAccuracyConstants.maxStep = meanRealLatticeVectorLength / 2000;
+    peaks.stepComputationAccuracyConstants.maxStep = meanRealLatticeVectorLength / 300;
     peaks.stepComputationAccuracyConstants.minStep = meanRealLatticeVectorLength / 20000;
     peaks.stepComputationAccuracyConstants.directionChangeFactor = 2.5;
 }
