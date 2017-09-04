@@ -42,7 +42,7 @@ void HillClimbingOptimizer::performOptimization(const Matrix3Xf& pointsToTransfo
     transform.setPointsToTransform(pointsToTransform);
     const uint32_t maxPositionsPerIteration = 100; // TODO: find sweet spot. Maybe choose dependent on pointsToTransform.cols()
     Matrix3Xf positionsToOptimize_local;
-    for (size_t positionsProcessedCount = 0; positionsProcessedCount < positionsToOptimize.cols(); positionsProcessedCount += maxPositionsPerIteration)
+    for (int64_t positionsProcessedCount = 0; positionsProcessedCount < positionsToOptimize.cols(); positionsProcessedCount += maxPositionsPerIteration)
     {
         uint32_t remainingPositionsCount = positionsToOptimize.cols() - positionsProcessedCount;
         uint32_t positionsCount_local = min(maxPositionsPerIteration, remainingPositionsCount);
