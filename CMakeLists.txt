@@ -52,7 +52,7 @@ add_executable(xgandalf ${SOURCES})
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   target_compile_options(xgandalf PRIVATE /W2 /wd4305 /wd4244 /wd4099)
 else(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  target_compile_options(xgandalf PRIVATE -Wall -Wpedantic)
+  target_compile_options(xgandalf PRIVATE -Wall)
 endif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
  
 
