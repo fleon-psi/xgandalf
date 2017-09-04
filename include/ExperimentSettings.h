@@ -19,10 +19,10 @@ class ExperimentSettings
     ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
                        float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A);
 
-    //ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity, float pixelLength_m,
+    // ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity, float pixelLength_m,
     //                   float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3,
     //                   float maxRealLatticeDeterminant_A3);
-    //ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
+    // ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
     //                   float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3,
     //                   float maxRealLatticeDeterminant_A3);
 
@@ -111,7 +111,7 @@ class ExperimentSettings
     Eigen::ArrayXf differentRealLatticeVectorLengths_A;
 
   public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 #endif /* EXPERIMENTSETTINGS_H_ */

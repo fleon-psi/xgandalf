@@ -8,27 +8,29 @@
 #ifndef DBSCAN_H_
 #define DBSCAN_H_
 
+#include "WrongUsageException.h"
+#include "eigenSTLContainers.h"
 #include <Eigen/Dense>
-#include <vector>
 #include <ctype.h>
 #include <set>
-#include "eigenSTLContainers.h"
-#include "WrongUsageException.h"
+#include <vector>
 
-class Dbscan {
-public:
-    typedef std::vector< uint32_t > cluster_t;
+class Dbscan
+{
+  public:
+    typedef std::vector<uint32_t> cluster_t;
 
-    //maxEpsilon defines performance. Best performance for maxEpsilon == epsilon. Too small maxEpsilon means very big discretizationVolume
+    // maxEpsilon defines performance. Best performance for maxEpsilon == epsilon. Too small maxEpsilon means very big discretizationVolume
     Dbscan(float maxEpsilon, float maxPossiblePointNorm);
     Dbscan();
 
     void init(float maxEpsilon, float maxPossiblePointNorm);
 
-    void computeClusters(std::vector< cluster_t >& clusters, const Eigen::Matrix3Xf& points, uint16_t minPoints, float epsilon);
+    void computeClusters(std::vector<cluster_t>& clusters, const Eigen::Matrix3Xf& points, uint16_t minPoints, float epsilon);
 
-private:
-    typedef struct {
+  private:
+    typedef struct
+    {
         Eigen::Vector4f point;
         uint32_t pointIndex;
 
@@ -36,17 +38,18 @@ private:
         bool isMemberOfCluster;
         bool visitedAndMemberOfCluster;
 
-    public:
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-                ;
+      public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     } binEntry_t;
 
-    typedef std::vector< binEntry_t > bin_t;
+    typedef std::vector<binEntry_t> bin_t;
 
-    class Neighbour {
-    public:
-        Neighbour(bin_t* bin, binEntry_t* binEntry) :
-                bin(bin), binEntry(binEntry)
+    class Neighbour
+    {
+      public:
+        Neighbour(bin_t* bin, binEntry_t* binEntry)
+            : bin(bin)
+            , binEntry(binEntry)
         {
         }
 
@@ -72,33 +75,36 @@ private:
         inline void markVisited()
         {
             (*binEntry).visited = true;
-            if ((*binEntry).isMemberOfCluster) {
+            if ((*binEntry).isMemberOfCluster)
+            {
                 (*binEntry).visitedAndMemberOfCluster = true;
             }
         }
         inline void markIsMemberOfCluster()
         {
             (*binEntry).isMemberOfCluster = true;
-            if ((*binEntry).visited) {
+            if ((*binEntry).visited)
+            {
                 (*binEntry).visitedAndMemberOfCluster = true;
             }
         }
     };
 
-    void expandCluster(cluster_t& cluster, std::vector< Neighbour >& neighbourhood, Neighbour& currentPoint, uint16_t minPoints);
-    uint32_t regionQuery(std::vector< Neighbour >& nieghbourhood, const Neighbour& currentPoint); //returns neighbours count. Visited neighbours that are members of a cluster are not included in neighbourhood, but counted
+    void expandCluster(cluster_t& cluster, std::vector<Neighbour>& neighbourhood, Neighbour& currentPoint, uint16_t minPoints);
+    uint32_t regionQuery(std::vector<Neighbour>& nieghbourhood, const Neighbour& currentPoint); // returns neighbours count. Visited neighbours that are members
+                                                                                                // of a cluster are not included in neighbourhood, but counted
 
     float squaredEpsilon;
 
     // for less reallocation
-    std::vector< Neighbour > mainNeighbourhood;
-    std::vector< Neighbour > neighbourNeighbourhood;
+    std::vector<Neighbour> mainNeighbourhood;
+    std::vector<Neighbour> neighbourNeighbourhood;
 
-    //stuff for dicretizationVolume
+    // stuff for dicretizationVolume
     float maxEpsilon;
 
-    std::vector< bin_t > discretizationVolume;
-    std::set< bin_t* > usedBins;
+    std::vector<bin_t> discretizationVolume;
+    std::set<bin_t*> usedBins;
 
     int32_t neighbourBinIndexOffsets[27];
 
@@ -111,16 +117,15 @@ private:
     void fillDiscretizationVolume(const Eigen::Matrix3Xf& points);
     void cleanUpDiscretizationVolume();
 
-    //fast, but insecure: if point lies out of scope, it gets relocated somewhere inside the scope. 
+    // fast, but insecure: if point lies out of scope, it gets relocated somewhere inside the scope.
     inline uint32_t getIndex(const Eigen::Vector3f& position) const
     {
-        Eigen::Vector3d temp = ((position - bin1Position) * binWidth_reciprocal).cast< double >().array().floor().matrix();
-        return std::min((uint32_t) (temp[0] + temp.tail(2).dot(strides.tail(2))), binCountMinus1); //min could be avoided for the price of unsafety
+        Eigen::Vector3d temp = ((position - bin1Position) * binWidth_reciprocal).cast<double>().array().floor().matrix();
+        return std::min((uint32_t)(temp[0] + temp.tail(2).dot(strides.tail(2))), binCountMinus1); // min could be avoided for the price of unsafety
     }
 
-public:
+  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        ;
 };
 
 #endif /* DBSCAN_H_ */
