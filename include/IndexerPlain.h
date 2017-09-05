@@ -42,7 +42,7 @@ class IndexerPlain : public IndexerBase
     IndexerPlain(const ExperimentSettings& experimentSettings);
     IndexerPlain(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath);
 
-	void index(std::vector< Lattice >& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A);
+    void index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A);
 
     void setSamplingPitch(SamplingPitch samplingPitch);
     void setSamplingPitch(float unitPitch, bool coverSecondaryMillerIndices);

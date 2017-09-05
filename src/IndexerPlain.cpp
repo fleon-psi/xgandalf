@@ -45,6 +45,7 @@ void IndexerPlain::precompute()
     accuracyConstants_LatticeAssembler.maxCountLocalPassingWeightFilter = 15;
     accuracyConstants_LatticeAssembler.maxCountPassingRelativeDefectFilter = 50;
     accuracyConstants_LatticeAssembler.minPointsOnLattice = 5;
+	accuracyConstants_LatticeAssembler.maxCloseToPointDeviation = maxCloseToPointDeviation;
     latticeAssembler.setAccuracyConstants(accuracyConstants_LatticeAssembler);
 
 
@@ -213,6 +214,8 @@ void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::M
     //    ofstream ofs("workfolder/samplePoints", ofstream::out);
     //    ofs << samplePoints.transpose().eval();
 }
+
+
 
 void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCount gradientDescentIterationsCount)
 {

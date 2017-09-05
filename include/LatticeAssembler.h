@@ -30,6 +30,8 @@ class LatticeAssembler
         uint32_t maxCountLocalPassingWeightFilter;
         uint32_t maxCountPassingRelativeDefectFilter;
         uint16_t minPointsOnLattice;
+
+		float maxCloseToPointDeviation;
     } accuracyConstants_t;
 
     LatticeAssembler();
@@ -54,6 +56,7 @@ class LatticeAssembler
     void setStandardValues();
     void reset();
     bool checkLatticeParameters(Lattice& lattice);
+	void refineLatticeByLinearRegression(Lattice& lattice, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A);
 
     // input
     Eigen::Vector2f determinantRange;

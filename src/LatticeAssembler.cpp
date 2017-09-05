@@ -24,15 +24,18 @@ LatticeAssembler::LatticeAssembler()
 }
 LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange)
 {
+    setStandardValues();
     setDeterminantRange(determinantRange);
 }
 LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange, const Lattice& sampleRealLattice_A, float knownLatticeTolerance)
 {
+    setStandardValues();
     setDeterminantRange(determinantRange);
     setKnownLatticeParameters(sampleRealLattice_A, knownLatticeTolerance);
 }
 LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange, const accuracyConstants_t& accuracyConstants)
 {
+    setStandardValues();
     setDeterminantRange(determinantRange);
     setAccuracyConstants(accuracyConstants);
 }
@@ -56,6 +59,8 @@ void LatticeAssembler::setStandardValues()
     accuracyConstants.maxCountPassingRelativeDefectFilter = 50;
 
     accuracyConstants.minPointsOnLattice = 5;
+
+    accuracyConstants.maxCloseToPointDeviation = 0.15;
 }
 
 void LatticeAssembler::setKnownLatticeParameters(const Lattice& sampleRealLattice_A, float tolerance)
@@ -87,8 +92,9 @@ void LatticeAssembler::assembleLattices(vector< Lattice >& assembledLattices, ve
 
     filterCandidateLatticesByWeight(accuracyConstants.maxCountGlobalPassingWeightFilter);
 
-    for (uint32_t i = 0; i < candidateLattices.size(); ++i) {
-        auto& candidateLattice = candidateLattices[i];
+    //for (uint32_t i = 0; i < candidateLattices.size(); ++i) {
+    //    auto& candidateLattice = candidateLattices[i];
+    for (auto& candidateLattice: candidateLattices) {
         candidateLattice.realSpaceLattice.minimize();
         candidateLattice.det = abs(candidateLattice.realSpaceLattice.det());
         computeAssembledLatticeStatistics(candidateLattice, pointsToFitInReciprocalSpace);
@@ -431,4 +437,62 @@ void LatticeAssembler::reset()
 {
     candidateLattices.clear();
     validLattices.clear();
+}
+
+static void keepGoodReciprocalPeaks(Matrix3Xf& keptPeaks, const Array<bool, 1, Dynamic>& goodPeaksFlags, const Matrix3Xf& allPeaks);
+void LatticeAssembler::refineLatticeByLinearRegression(Lattice& lattice_A, const Matrix3Xf& reciprocalPeaks_1_per_A)
+{
+    // Lattice initialLattice = lattice;
+    Lattice& bestLattice = lattice_A;
+
+    int maxIterationsCount = 5;
+    int iterationCount = 0;
+    int goodFitIndices_old = -1;
+
+    Matrix3Xf factorsToReachNodes;
+    Matrix3Xf millerIndices;
+    Array<float, 1, Dynamic> maxRelativeDefects;
+    Array<bool, 1, Dynamic> goodReciprocalPeaksFlags;
+    Matrix3Xf reciprocalPeaksUsedForFitting_1_per_A;
+    while (1)
+    {
+        factorsToReachNodes = bestLattice.getBasis().transpose() * reciprocalPeaks_1_per_A;
+        millerIndices = factorsToReachNodes.array().round();
+
+        maxRelativeDefects = (millerIndices - factorsToReachNodes).array().abs().colwise().maxCoeff();
+
+        // tune!
+        goodReciprocalPeaksFlags = maxRelativeDefects < accuracyConstants.maxCloseToPointDeviation;
+
+        if (goodReciprocalPeaksFlags.cast<uint16_t>().sum() < 5) // if unstable
+            break;
+
+        keepGoodReciprocalPeaks(reciprocalPeaksUsedForFitting_1_per_A, goodReciprocalPeaksFlags, reciprocalPeaks_1_per_A);
+
+        Matrix3f refinedReciprocalBasis = millerIndices.transpose().colPivHouseholderQr().solve(reciprocalPeaks_1_per_A.transpose());
+        Lattice refinedLattice = Lattice(refinedReciprocalBasis.transpose().inverse());
+        refinedLattice.minimize();
+
+        if ((refinedLattice.getBasis() - bestLattice.getBasis()).isZero(1e-3))
+        {
+            return;
+        }
+        else
+        {
+            bestLattice = refinedLattice;
+        }
+    }
+}
+
+static void keepGoodReciprocalPeaks(Matrix3Xf& keptPeaks, const Array<bool, 1, Dynamic>& goodPeaksFlags, const Matrix3Xf& allPeaks)
+{
+    int peeksKeptCount = 0;
+    for (int i = 0; i < goodPeaksFlags.size(); i++)
+    {
+        if (goodPeaksFlags[i])
+        {
+            keptPeaks.col(peeksKeptCount) = allPeaks.col(i);
+            peeksKeptCount++;
+        }
+    }
 }

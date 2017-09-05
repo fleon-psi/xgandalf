@@ -273,9 +273,9 @@ void test_indexerPlain()
     Matrix3Xf reciprocalPeaks_1_per_A;
 
     IndexerPlain indexer(experimentSettings);
-    // indexer.setSamplingPitch(IndexerPlain::SamplingPitch::standardWithSeondaryMillerIndices);
-    indexer.setSamplingPitch(IndexerPlain::SamplingPitch::denseWithSeondaryMillerIndices);
-    indexer.setGradientDescentIterationsCount(IndexerPlain::GradientDescentIterationsCount::manyMany);
+    indexer.setSamplingPitch(IndexerPlain::SamplingPitch::standardWithSeondaryMillerIndices);
+    // indexer.setSamplingPitch(IndexerPlain::SamplingPitch::denseWithSeondaryMillerIndices);
+    // indexer.setGradientDescentIterationsCount(IndexerPlain::GradientDescentIterationsCount::manyMany);
 
     stringstream ss;
     int runNumber = 0;
@@ -297,7 +297,7 @@ void test_indexerPlain()
             vector<Lattice> assembledLattices;
 
             detectorToReciprocalSpaceTransform.computeReciprocalPeaksFromDetectorPeaks(reciprocalPeaks_1_per_A, detectorPeaks_m);
-            cout << reciprocalPeaks_1_per_A;
+            // cout << reciprocalPeaks_1_per_A;
 
             chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
             indexer.index(assembledLattices, reciprocalPeaks_1_per_A);
