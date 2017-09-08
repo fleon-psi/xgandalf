@@ -30,8 +30,6 @@
 
 #include "adaptions/crystfel/IndexerPlain.h"
 
-#include <unsupported/Eigen/NonLinearOptimization>
-
 using namespace std;
 using namespace Eigen;
 
