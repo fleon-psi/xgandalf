@@ -54,7 +54,7 @@ void test_gradientDescent()
     float stepLength = B.maxCoeff() * 0.01;
     for (int i = 0; i < 20; i++)
     {
-        getGradient(gradient, B, M, N);
+        getGradient_reciprocalPeakMatch(gradient, B, M, N);
         float maxCoeff = gradient.cwiseAbs().maxCoeff();
         if (maxCoeff < 1e-20)
         {
@@ -87,7 +87,7 @@ void test_getGradient()
 
     cout << B << endl << endl << M << endl << endl << N << endl << endl;
 
-    getGradient(gradient, B, M, N);
+    getGradient_reciprocalPeakMatch(gradient, B, M, N);
 
     cout << gradient;
 }

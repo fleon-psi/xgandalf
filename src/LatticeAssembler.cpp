@@ -494,7 +494,7 @@ void LatticeAssembler::refineLattice(Lattice& realSpaceLattice, vector<uint16_t>
         float stepLength = refinedReciprocalBasis.maxCoeff() * 0.01;
         for (int i = 0; i < 30; i++)
         {
-            getGradient(gradient, refinedReciprocalBasis, factorsToReachNodes, pointsToFitInReciprocalSpace);
+            getGradient_reciprocalPeakMatch(gradient, refinedReciprocalBasis, factorsToReachNodes, pointsToFitInReciprocalSpace);
             float maxCoeff = gradient.cwiseAbs().maxCoeff();
             if (maxCoeff < 1e-20)
             {
