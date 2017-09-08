@@ -32,6 +32,7 @@ set(SOURCES src/Dbscan.cpp
             src/Lattice.cpp
             src/LatticeAssembler.cpp
             src/pointAutocorrelation.cpp
+			src/refinement.cpp
 			src/samplePointsFiltering.cpp
             src/SamplePointsGenerator.cpp 
             src/SparsePeakFinder.cpp

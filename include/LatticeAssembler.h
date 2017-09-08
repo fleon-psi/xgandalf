@@ -31,7 +31,7 @@ class LatticeAssembler
         uint32_t maxCountPassingRelativeDefectFilter;
         uint16_t minPointsOnLattice;
 
-		float maxCloseToPointDeviation;
+        float maxCloseToPointDeviation;
     } accuracyConstants_t;
 
     LatticeAssembler();
@@ -56,7 +56,7 @@ class LatticeAssembler
     void setStandardValues();
     void reset();
     bool checkLatticeParameters(Lattice& lattice);
-	void refineLatticeByLinearRegression(Lattice& lattice, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A);
+    void refineLattice(Lattice& lattice, std::vector<uint16_t>& pointOnLatticeIndices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A);
 
     // input
     Eigen::Vector2f determinantRange;

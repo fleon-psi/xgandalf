@@ -38,7 +38,7 @@ int main()
         // test_crystfelAdaption();
         // test_crystfelAdaption2();
         // test_latticeReorder();
-        // test();
+        // test_gradientDescent();
     }
     catch (exception& e)
     {

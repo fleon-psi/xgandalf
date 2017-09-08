@@ -19,6 +19,7 @@
 #include "SparsePeakFinder.h"
 #include "eigenDiskImport.h"
 #include "pointAutocorrelation.h"
+#include "refinement.h"
 #include "samplePointsFiltering.h"
 #include <Eigen/Dense>
 #include <chrono>
@@ -29,16 +30,68 @@
 
 #include "adaptions/crystfel/IndexerPlain.h"
 
+#include <unsupported/Eigen/NonLinearOptimization>
+
 using namespace std;
 using namespace Eigen;
 
 static ExperimentSettings getExperimentSettingLys();
 static ExperimentSettings getExperimentSettingCrystfelTutorial();
 
-void test()
+
+void test_gradientDescent()
 {
-    ExperimentSettings experimentSettings(1, 1, 1, 1, 1, 10, 11);
-    IndexerPlain indexer(experimentSettings);
+    Matrix3f B;
+    Matrix3Xf M(3, 5);
+    Matrix3Xf N(3, 5);
+    Matrix3f gradient;
+
+    B << 1, 3, 5, 7, 9, 2, 4, 6, 8;
+    M << 1, 4, 7, 8, 5, 2, 3, 6, 9, 1, 4, 7, 8, 5, 2;
+    N << 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3;
+    N += B * M;
+
+    cout << "start error = " << (B * M - N).colwise().norm().sum() << endl << endl;
+
+    float stepLength = B.maxCoeff() * 0.01;
+    for (int i = 0; i < 20; i++)
+    {
+        getGradient(gradient, B, M, N);
+        float maxCoeff = gradient.cwiseAbs().maxCoeff();
+        if (maxCoeff < 1e-20)
+        {
+            break;
+        }
+        gradient /= maxCoeff;
+        B = B - stepLength * gradient;
+
+        if (i >= 10)
+        {
+            stepLength *= 0.6;
+        }
+    }
+
+    cout << "end error = " << (B * M - N).colwise().norm().sum() << endl << "\n\n";
+    cout << endl << "B that minimizes the function: " << B << std::endl;
+}
+
+void test_getGradient()
+{
+    Matrix3f gradient;
+    Matrix3f B;
+    Matrix3Xf M(3, 5);
+    Matrix3Xf N(3, 5);
+
+    B << 1, 3, 5, 7, 9, 2, 4, 6, 8;
+    M << 1, 4, 7, 8, 5, 2, 3, 6, 9, 1, 4, 7, 8, 5, 2;
+    N << 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3;
+    N += B * M;
+
+    cout << B << endl << endl << M << endl << endl << N << endl << endl;
+
+    getGradient(gradient, B, M, N);
+
+    cout << gradient;
 }
 
 void test_latticeReorder()
@@ -266,8 +319,8 @@ void test_indexerAutocorrPrefit()
 
 void test_indexerPlain()
 {
-    // ExperimentSettings experimentSettings = getExperimentSettingLys();
-    ExperimentSettings experimentSettings = getExperimentSettingCrystfelTutorial();
+    ExperimentSettings experimentSettings = getExperimentSettingLys();
+    // ExperimentSettings experimentSettings = getExperimentSettingCrystfelTutorial();
 
     DetectorToReciprocalSpaceTransform detectorToReciprocalSpaceTransform(experimentSettings);
     Matrix3Xf reciprocalPeaks_1_per_A;

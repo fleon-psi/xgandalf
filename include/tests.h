@@ -9,6 +9,8 @@
 #define TESTS_H_
 
 void test();
+void test_gradientDescent();
+void test_getGradient();
 void test_latticeReorder();
 void test_crystfelAdaption2();
 void test_crystfelAdaption();
