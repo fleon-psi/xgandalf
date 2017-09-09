@@ -517,8 +517,7 @@ void LatticeAssembler::refineLattice(Lattice& realSpaceLattice, vector<uint16_t>
 #elif defined MEAN_SQUARED_DIST_REFINE
         Matrix3f refinedReciprocalBasis;
         refineReciprocalBasis_meanSquaredDist(refinedReciprocalBasis, factorsToReachNodes, pointsToFitInReciprocalSpace);
-        refinedReciprocalBasis *= 1.01;
-#endif // MEAN_DIST_REFINE
+#endif 
 
         Lattice refinedLattice = Lattice(refinedReciprocalBasis).getReciprocalLattice();
         refinedLattice.minimize();
