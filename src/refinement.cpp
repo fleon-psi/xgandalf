@@ -9,7 +9,7 @@ using namespace std;
 // M: miller indices (reciprocal)
 // N: reciprocal peaks
 // return: current defect
-float getGradient_reciprocalPeakMatch(Matrix3f& gradient, const Matrix3f& B, const Matrix3Xf& M, const Matrix3Xf& N)
+float getGradient_reciprocalPeakMatch_meanDist(Matrix3f& gradient, const Matrix3f& B, const Matrix3Xf& M, const Matrix3Xf& N)
 {
     Matrix3Xf d = B * M - N;
     RowVectorXf d_norms = d.colwise().norm();
@@ -36,6 +36,28 @@ float getGradient_reciprocalPeakMatch(Matrix3f& gradient, const Matrix3f& B, con
     }
 
     return d_norms.array().mean();
+}
+
+// B: reciprocal basis
+// M: miller indices (reciprocal)
+// N: reciprocal peaks
+// return: current defect
+float getGradient_reciprocalPeakMatch_meanSquaredDist(Matrix3f& gradient, const Matrix3f& B, const Matrix3Xf& M, const Matrix3Xf& N)
+{
+	Matrix3Xf d = B * M - N;
+	RowVectorXf d_norms = d.colwise().norm();
+
+	for (int row = 0; row < 3; row++)
+	{
+		for (int col = 0; col < 3; col++)
+		{
+			gradient(row, col) = (d.row(row).array() * M.row(col).array()).sum();
+		}
+	}
+
+	return d_norms.array().mean();
+
+	return 0;
 }
 
 // B: reciprocal basis
@@ -74,4 +96,12 @@ float getGradient_detectorAngleMatch(Matrix3f& gradient, const Matrix3f& B, cons
 
     // return summedDefect;
     return 1;
+}
+
+// B: reciprocal basis
+// M: miller indices (reciprocal)
+// N: reciprocal peaks
+void refineReciprocalBasis_meanSquaredDist(Matrix3f& B, const Matrix3Xf& M, const Matrix3Xf& N)
+{
+    B = ((M * M.transpose()).colPivHouseholderQr().solve(M * N.transpose())).transpose();
 }

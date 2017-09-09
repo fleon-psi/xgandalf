@@ -16,6 +16,7 @@
 
 #include <iostream>
 
+
 using namespace Eigen;
 using namespace std;
 
@@ -109,8 +110,8 @@ void LatticeAssembler::assembleLattices(vector<Lattice>& assembledLattices, vect
 
     for (auto& finalCandidateLattice : finalCandidateLattices)
     {
-        //auto& stats = finalCandidateLattice.assembledLatticeStatistics;
-        //cout << "pre\n"
+        // auto& stats = finalCandidateLattice.assembledLatticeStatistics;
+        // cout << "pre\n"
         //     << stats.meanDefect << " " << stats.meanRelativeDefect << " " << stats.occupiedLatticePointsCount << " " << finalCandidateLattice.det << endl;
 
         refineLattice(finalCandidateLattice.realSpaceLattice, finalCandidateLattice.pointOnLatticeIndices, pointsToFitInReciprocalSpace);
@@ -118,7 +119,7 @@ void LatticeAssembler::assembleLattices(vector<Lattice>& assembledLattices, vect
         finalCandidateLattice.det = abs(finalCandidateLattice.realSpaceLattice.det());
         computeAssembledLatticeStatistics(finalCandidateLattice, pointsToFitInReciprocalSpace);
 
-        //cout << "post\n"
+        // cout << "post\n"
         //     << stats.meanDefect << " " << stats.meanRelativeDefect << " " << stats.occupiedLatticePointsCount << " " << finalCandidateLattice.det << endl
         //     << endl;
     }
@@ -127,8 +128,8 @@ void LatticeAssembler::assembleLattices(vector<Lattice>& assembledLattices, vect
 
     for (auto& lattice : assembledLattices)
     {
-        //vector<uint16_t> pointOnLatticeIndices;
-        //refineLattice(lattice, pointOnLatticeIndices, pointsToFitInReciprocalSpace);
+        // vector<uint16_t> pointOnLatticeIndices;
+        // refineLattice(lattice, pointOnLatticeIndices, pointsToFitInReciprocalSpace);
 
         lattice.normalizeAngles();
     }
@@ -457,6 +458,8 @@ void LatticeAssembler::reset()
     validLattices.clear();
 }
 
+#define MEAN_SQUARED_DIST_REFINE
+//#define MEAN_DIST_REFINE
 static void keepGoodReciprocalPeaks(Matrix3Xf& keptPeaks, vector<uint16_t>& pointOnLatticeIndices, const Array<bool, 1, Dynamic>& goodPeaksFlags,
                                     const Matrix3Xf& allPeaks);
 void LatticeAssembler::refineLattice(Lattice& realSpaceLattice, vector<uint16_t>& pointOnLatticeIndices, const Matrix3Xf& pointsToFitInReciprocalSpace)
@@ -489,12 +492,13 @@ void LatticeAssembler::refineLattice(Lattice& realSpaceLattice, vector<uint16_t>
         reciprocalPeaksUsedForFitting_1_per_A.resize(3, goodReciprocalPeaksCount);
         keepGoodReciprocalPeaks(reciprocalPeaksUsedForFitting_1_per_A, pointOnLatticeIndices, goodReciprocalPeaksFlags, pointsToFitInReciprocalSpace);
 
+#ifdef MEAN_DIST_REFINE
         // gradient descent
         Matrix3f refinedReciprocalBasis = bestLattice.getReciprocalLattice().getBasis();
         float stepLength = refinedReciprocalBasis.maxCoeff() * 0.01;
         for (int i = 0; i < 30; i++)
         {
-            getGradient_reciprocalPeakMatch(gradient, refinedReciprocalBasis, factorsToReachNodes, pointsToFitInReciprocalSpace);
+            getGradient_reciprocalPeakMatch_meanDist(gradient, refinedReciprocalBasis, factorsToReachNodes, pointsToFitInReciprocalSpace);
             float maxCoeff = gradient.cwiseAbs().maxCoeff();
             if (maxCoeff < 1e-20)
             {
@@ -510,6 +514,11 @@ void LatticeAssembler::refineLattice(Lattice& realSpaceLattice, vector<uint16_t>
                 stepLength *= 0.6;
             }
         }
+#elif defined MEAN_SQUARED_DIST_REFINE
+        Matrix3f refinedReciprocalBasis;
+        refineReciprocalBasis_meanSquaredDist(refinedReciprocalBasis, factorsToReachNodes, pointsToFitInReciprocalSpace);
+        refinedReciprocalBasis *= 1.01;
+#endif // MEAN_DIST_REFINE
 
         Lattice refinedLattice = Lattice(refinedReciprocalBasis).getReciprocalLattice();
         refinedLattice.minimize();

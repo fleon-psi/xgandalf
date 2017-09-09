@@ -46,8 +46,8 @@ set(SOURCES src/Dbscan.cpp
   )
  
 
-add_library(xgandalf SHARED ${SOURCES})
-#add_executable(xgandalf ${SOURCES})
+#add_library(xgandalf SHARED ${SOURCES})
+add_executable(xgandalf ${SOURCES})
 
 # Test whether the compiler is Microsoft Visual C(++).
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")

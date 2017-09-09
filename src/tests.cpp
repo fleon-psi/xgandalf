@@ -39,22 +39,26 @@ static ExperimentSettings getExperimentSettingCrystfelTutorial();
 
 void test_gradientDescent()
 {
-    Matrix3f B;
+    Matrix3f B, B_init;
     Matrix3Xf M(3, 5);
     Matrix3Xf N(3, 5);
     Matrix3f gradient;
+
 
     B << 1, 3, 5, 7, 9, 2, 4, 6, 8;
     M << 1, 4, 7, 8, 5, 2, 3, 6, 9, 1, 4, 7, 8, 5, 2;
     N << 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3;
     N += B * M;
 
+    B_init = B;
+
     cout << "start error = " << (B * M - N).colwise().norm().sum() << endl << endl;
 
+    chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
     float stepLength = B.maxCoeff() * 0.01;
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < 30; i++)
     {
-        getGradient_reciprocalPeakMatch(gradient, B, M, N);
+        getGradient_reciprocalPeakMatch_meanDist(gradient, B, M, N);
         float maxCoeff = gradient.cwiseAbs().maxCoeff();
         if (maxCoeff < 1e-20)
         {
@@ -63,13 +67,52 @@ void test_gradientDescent()
         gradient /= maxCoeff;
         B = B - stepLength * gradient;
 
-        if (i >= 10)
+        if (i >= 15)
         {
             stepLength *= 0.6;
         }
     }
+    chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
+    cout << endl << "duration: " << duration << "us" << endl;
 
-    cout << "end error = " << (B * M - N).colwise().norm().sum() << endl << "\n\n";
+    cout << "end error mean dist = " << (B * M - N).colwise().norm().sum() << endl;
+    cout << endl << "B that minimizes the function: " << B << std::endl;
+
+    B = B_init;
+    t1 = chrono::high_resolution_clock::now();
+    stepLength = B.maxCoeff() * 0.01;
+    for (int i = 0; i < 30; i++)
+    {
+        getGradient_reciprocalPeakMatch_meanSquaredDist(gradient, B, M, N);
+        float maxCoeff = gradient.cwiseAbs().maxCoeff();
+        // if (maxCoeff < 1e-20)
+        //{
+        //    break;
+        //}
+        gradient /= maxCoeff;
+        B = B - stepLength * gradient;
+
+        if (i >= 15)
+        {
+            stepLength *= 0.6;
+        }
+    }
+    t2 = chrono::high_resolution_clock::now();
+    duration = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
+    cout << endl << "duration: " << duration << "us" << endl;
+
+    cout << "end error mean squared dist = " << (B * M - N).colwise().squaredNorm().sum() << endl;
+    cout << endl << "B that minimizes the function: " << B << std::endl;
+
+
+    t1 = chrono::high_resolution_clock::now();
+    refineReciprocalBasis_meanSquaredDist(B, M, N);
+    t2 = chrono::high_resolution_clock::now();
+    duration = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
+    cout << endl << "duration: " << duration << "us" << endl;
+
+    cout << "end error mean squared dist = " << (B * M - N).colwise().squaredNorm().sum() << endl;
     cout << endl << "B that minimizes the function: " << B << std::endl;
 }
 
@@ -87,7 +130,7 @@ void test_getGradient()
 
     cout << B << endl << endl << M << endl << endl << N << endl << endl;
 
-    getGradient_reciprocalPeakMatch(gradient, B, M, N);
+    getGradient_reciprocalPeakMatch_meanDist(gradient, B, M, N);
 
     cout << gradient;
 }
