@@ -273,4 +273,23 @@ void Lattice::normalizeAngles()
             }
         }
     }
+
+	//not possible to have all < 90°, get the combination with smallest sum
+	float smallestSum = 3 * 180;
+	for (int l = -1; l <= 1; l += 2)
+	{
+		for (int m = -1; m <= 1; m += 2)
+		{
+			Matrix3f negatedBasis;
+			negatedBasis << basis.col(0), basis.col(1) * l, basis.col(2) * m;
+			Lattice negatedLattice(negatedBasis);
+
+			float anglesSum = negatedLattice.getBasisVectorAngles_deg().sum();
+			if (anglesSum <= smallestSum)
+			{	
+				smallestSum = anglesSum;
+				basis = negatedBasis;
+			}
+		}
+	}
 }
