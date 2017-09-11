@@ -36,8 +36,78 @@ using namespace Eigen;
 static ExperimentSettings getExperimentSettingLys();
 static ExperimentSettings getExperimentSettingCrystfelTutorial();
 
+void test_mixedGradientDescentRefinement()
+{
+    Matrix3f B, B_init;
+    Matrix3Xf M(3, 5);
+    Matrix3Xf N(3, 5);
+    Matrix3f gradient;
+    Matrix3f summedGradient;
 
-void test_gradientDescent()
+    B << 1, 3, 5, 7, 9, 2, 4, 6, 8;
+    M << 1, 4, 7, 8, 5, 2, 3, 6, 9, 1, 4, 7, 8, 5, 2;
+    N << 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3;
+    N += B * M;
+
+    float reciprocalPeakDistWeight = 1;
+    float reciprocalPeakAngleWeight = 1;
+
+    Matrix2Xd detectorPeakDirections = N.bottomRows(2).colwise().normalized().cast<double>();
+    Matrix3Xd predictedPoints = (B * M).cast<double>();
+    RowVectorXd projectionNorms = (predictedPoints.bottomRows(2).cwiseProduct(detectorPeakDirections)).colwise().sum(); // colwise dot product
+    Matrix2Xd predictedPointsProjected = detectorPeakDirections.array().rowwise() * projectionNorms.array();
+    float meanAngleDefect = (predictedPoints.bottomRows(2) - predictedPointsProjected).colwise().norm().mean();
+    float meanReciprocalDistDefect = (B * M - N).colwise().norm().mean();
+    cout << "start meanReciprocalDistDefect = " << meanReciprocalDistDefect << endl << "start meanAngleDefect" << meanAngleDefect << endl;
+
+    B_init = B;
+
+    chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
+    float stepLength = B.maxCoeff() * 0.003;
+    for (int i = 0; i < 150; i++)
+    {
+        //detectorPeakDirections = N.bottomRows(2).colwise().normalized().cast<double>();
+        //predictedPoints = (B * M).cast<double>();
+        //projectionNorms = (predictedPoints.bottomRows(2).cwiseProduct(detectorPeakDirections)).colwise().sum(); // colwise dot product
+        //predictedPointsProjected = detectorPeakDirections.array().rowwise() * projectionNorms.array();
+        //meanAngleDefect = (predictedPoints.bottomRows(2) - predictedPointsProjected).colwise().norm().mean();
+        //meanReciprocalDistDefect = (B * M - N).colwise().norm().mean();
+        //cout << i << " " << meanAngleDefect + meanReciprocalDistDefect << endl;
+
+
+        getGradient_reciprocalPeakMatch_meanDist(gradient, B, M, N);
+        summedGradient = gradient * reciprocalPeakDistWeight;
+        getGradient_detectorAngleMatch(gradient, B, M, N);
+        summedGradient += gradient * reciprocalPeakAngleWeight;
+        float maxCoeff = summedGradient.cwiseAbs().maxCoeff();
+        if (maxCoeff < 1e-10)
+        {
+            break;
+        }
+        summedGradient /= maxCoeff;
+        B = B - stepLength * summedGradient;
+
+        if (i >= 75)
+        {
+            stepLength *= 0.93;
+        }
+    }
+    chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
+    cout << endl << "duration: " << duration << "us" << endl;
+
+    detectorPeakDirections = N.bottomRows(2).colwise().normalized().cast<double>();
+    predictedPoints = (B * M).cast<double>();
+    projectionNorms = (predictedPoints.bottomRows(2).cwiseProduct(detectorPeakDirections)).colwise().sum(); // colwise dot product
+    predictedPointsProjected = detectorPeakDirections.array().rowwise() * projectionNorms.array();
+    meanAngleDefect = (predictedPoints.bottomRows(2) - predictedPointsProjected).colwise().norm().mean();
+    meanReciprocalDistDefect = (B * M - N).colwise().norm().mean();
+    cout << "start meanReciprocalDistDefect = " << meanReciprocalDistDefect << endl << "start meanAngleDefect" << meanAngleDefect << endl;
+
+    cout << endl << "B that minimizes the function: " << B << std::endl;
+}
+
+void test_gradientDescentRefinement()
 {
     Matrix3f B, B_init;
     Matrix3Xf M(3, 5);
@@ -86,10 +156,10 @@ void test_gradientDescent()
     {
         getGradient_reciprocalPeakMatch_meanSquaredDist(gradient, B, M, N);
         float maxCoeff = gradient.cwiseAbs().maxCoeff();
-        // if (maxCoeff < 1e-20)
-        //{
-        //    break;
-        //}
+        if (maxCoeff < 1e-20)
+        {
+            break;
+        }
         gradient /= maxCoeff;
         B = B - stepLength * gradient;
 

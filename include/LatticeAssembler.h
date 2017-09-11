@@ -57,6 +57,7 @@ class LatticeAssembler
     void reset();
     bool checkLatticeParameters(Lattice& lattice);
     void refineLattice(Lattice& lattice, std::vector<uint16_t>& pointOnLatticeIndices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A);
+    void refineLattice_peaksAndAngle(Lattice& realSpaceLattice, const Eigen::Matrix3Xf& pointsToFitInReciprocalSpace);
 
     // input
     Eigen::Vector2f determinantRange;
