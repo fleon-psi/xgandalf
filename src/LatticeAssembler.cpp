@@ -554,23 +554,25 @@ void LatticeAssembler::refineLattice_peaksAndAngle(Lattice& realSpaceLattice, co
             break;
 
         reciprocalPeaksUsedForFitting_1_per_A.resize(3, goodReciprocalPeaksCount);
-		millerIndicesUsedForFitting.resize(3, goodReciprocalPeaksCount);
-		keepGoodReciprocalPeaks(reciprocalPeaksUsedForFitting_1_per_A, millerIndicesUsedForFitting, pointOnLatticeIndices_junk, goodReciprocalPeaksFlags,
+        millerIndicesUsedForFitting.resize(3, goodReciprocalPeaksCount);
+        keepGoodReciprocalPeaks(reciprocalPeaksUsedForFitting_1_per_A, millerIndicesUsedForFitting, pointOnLatticeIndices_junk, goodReciprocalPeaksFlags,
                                 pointsToFitInReciprocalSpace, millerIndices);
 
         Matrix3f refinedReciprocalBasis = bestLattice.getReciprocalLattice().getBasis();
-		refineReciprocalBasis_meanDist_peaksAndAngle(refinedReciprocalBasis, millerIndicesUsedForFitting, reciprocalPeaksUsedForFitting_1_per_A);
+        refineReciprocalBasis_meanDist_peaksAndAngle(refinedReciprocalBasis, millerIndicesUsedForFitting, reciprocalPeaksUsedForFitting_1_per_A);
 
         Lattice refinedLattice = Lattice(refinedReciprocalBasis).getReciprocalLattice();
         refinedLattice.minimize();
 
         if ((refinedLattice.getBasis() - bestLattice.getBasis()).isZero(1e-3))
         {
+            bestLattice.minimize();
             return;
         }
         else if (iterationCount++ > maxIterationsCount)
         {
             bestLattice = refinedLattice;
+            bestLattice.minimize();
             return;
         }
         else
@@ -578,6 +580,7 @@ void LatticeAssembler::refineLattice_peaksAndAngle(Lattice& realSpaceLattice, co
             bestLattice = refinedLattice;
         }
     }
+    bestLattice.minimize();
 }
 
 static void keepGoodReciprocalPeaks(Matrix3Xf& keptPeaks, Matrix3Xf& keptMillerIndices, vector<uint16_t>& pointOnLatticeIndices,
