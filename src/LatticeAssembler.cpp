@@ -108,22 +108,6 @@ void LatticeAssembler::assembleLattices(vector<Lattice>& assembledLattices, vect
 
     finalCandidateLattices.insert(finalCandidateLattices.end(), candidateLattices.begin(), candidateLattices.end());
 
-    for (auto& finalCandidateLattice : finalCandidateLattices)
-    {
-        // auto& stats = finalCandidateLattice.assembledLatticeStatistics;
-        // cout << "pre\n"
-        //     << stats.meanDefect << " " << stats.meanRelativeDefect << " " << stats.occupiedLatticePointsCount << " " << finalCandidateLattice.det << endl;
-
-        // refineLattice(finalCandidateLattice.realSpaceLattice, finalCandidateLattice.pointOnLatticeIndices, pointsToFitInReciprocalSpace);
-        finalCandidateLattice.realSpaceLattice.minimize();
-        finalCandidateLattice.det = abs(finalCandidateLattice.realSpaceLattice.det());
-        computeAssembledLatticeStatistics(finalCandidateLattice, pointsToFitInReciprocalSpace);
-
-        // cout << "post\n"
-        //     << stats.meanDefect << " " << stats.meanRelativeDefect << " " << stats.occupiedLatticePointsCount << " " << finalCandidateLattice.det << endl
-        //     << endl;
-    }
-
     selectBestLattices(assembledLattices, assembledLatticesStatistics, finalCandidateLattices);
 
     for (auto& lattice : assembledLattices)
@@ -497,8 +481,8 @@ void LatticeAssembler::refineLattice(Lattice& realSpaceLattice, vector<uint16_t>
 #ifdef MEAN_DIST_REFINE
         // gradient descent
         Matrix3f refinedReciprocalBasis = bestLattice.getReciprocalLattice().getBasis();
-        float stepLength = refinedReciprocalBasis.maxCoeff() * 0.003;
-        for (int i = 0; i < 30; i++)
+        float stepLength = refinedReciprocalBasis.maxCoeff() * 0.002;
+        for (int i = 0; i < 50; i++)
         {
             getGradient_reciprocalPeakMatch_meanDist(gradient, refinedReciprocalBasis, millerIndicesUsedForFitting, pointsToFitInReciprocalSpace);
             float maxCoeff = gradient.cwiseAbs().maxCoeff();
@@ -510,10 +494,9 @@ void LatticeAssembler::refineLattice(Lattice& realSpaceLattice, vector<uint16_t>
 
             refinedReciprocalBasis = refinedReciprocalBasis - stepLength * gradient;
 
-            stepLength *= 0.8;
-            if (i >= 15)
+            if (i >= 25)
             {
-                stepLength *= 0.6;
+                stepLength *= 0.87;
             }
         }
 #elif defined MEAN_SQUARED_DIST_REFINE
