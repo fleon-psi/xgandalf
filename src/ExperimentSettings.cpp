@@ -122,18 +122,21 @@ ExperimentSettings::ExperimentSettings(float beamEenergy_eV, float detectorDista
 
 void ExperimentSettings::deduceValuesFromSampleReciprocalLattice()
 {
-    sampleReciprocalLattice_1A.minimize();
+	Lattice sampleReciprocalLatticeMinimized_1A = sampleReciprocalLattice_1A;
+	sampleReciprocalLatticeMinimized_1A.minimize();
 
-    sampleRealLattice_A = sampleReciprocalLattice_1A.getReciprocalLattice().minimize();
+    sampleRealLattice_A = sampleReciprocalLattice_1A.getReciprocalLattice();
+	Lattice sampleRealLatticeMinimized_A = sampleRealLattice_A;
+	sampleRealLatticeMinimized_A.minimize();
 
-    realLatticeVectorLengths_A = sampleRealLattice_A.getBasisVectorNorms();
-    realLatticeVectorAngles_deg = sampleRealLattice_A.getBasisVectorAngles_deg();
-    realLatticeVectorAnglesNormalized_deg = sampleRealLattice_A.getBasisVectorAnglesNormalized_deg();
-    realLatticeDeterminant_A3 = abs(sampleRealLattice_A.det());
-    reciprocalLatticeVectorLengths_1A = sampleReciprocalLattice_1A.getBasisVectorNorms();
-    reciprocalLatticeVectorAngles_deg = sampleReciprocalLattice_1A.getBasisVectorAngles_deg();
-    reciprocalLatticeVectorAnglesNormalized_deg = sampleReciprocalLattice_1A.getBasisVectorAnglesNormalized_deg();
-    reciprocalLatticeDeterminant_1A3 = abs(sampleReciprocalLattice_1A.det());
+    realLatticeVectorLengths_A = sampleRealLatticeMinimized_A.getBasisVectorNorms();
+    realLatticeVectorAngles_deg = sampleRealLatticeMinimized_A.getBasisVectorAngles_deg();
+    realLatticeVectorAnglesNormalized_deg = sampleRealLatticeMinimized_A.getBasisVectorAnglesNormalized_deg();
+    realLatticeDeterminant_A3 = abs(sampleRealLatticeMinimized_A.det());
+    reciprocalLatticeVectorLengths_1A = sampleReciprocalLatticeMinimized_1A.getBasisVectorNorms();
+    reciprocalLatticeVectorAngles_deg = sampleReciprocalLatticeMinimized_1A.getBasisVectorAngles_deg();
+    reciprocalLatticeVectorAnglesNormalized_deg = sampleReciprocalLatticeMinimized_1A.getBasisVectorAnglesNormalized_deg();
+    reciprocalLatticeDeterminant_1A3 = abs(sampleReciprocalLatticeMinimized_1A.det());
 
     // norms are ordered due to minimization of matrix
     assert(reciprocalLatticeVectorLengths_1A[0] <= reciprocalLatticeVectorLengths_1A[1] &&

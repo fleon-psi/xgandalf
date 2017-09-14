@@ -58,12 +58,14 @@ class LatticeAssembler
     bool checkLatticeParameters(Lattice& lattice);
     void refineLattice(Lattice& lattice, std::vector<uint16_t>& pointOnLatticeIndices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A);
     void refineLattice_peaksAndAngle(Lattice& realSpaceLattice, const Eigen::Matrix3Xf& pointsToFitInReciprocalSpace);
+	void refineLattice_peaksAndAngle_fixedBasisParameters(Lattice& realSpaceLattice, const Eigen::Matrix3Xf& pointsToFitInReciprocalSpace);
 
     // input
     Eigen::Vector2f determinantRange;
     Eigen::Array<float, 6, 1> knownLatticeParameters;
     Eigen::Array<float, 6, 1> knownLatticeParametersInverse;
     float knownLatticeParametersTolerance;
+	Lattice knownSampleRealLattice_A;
     bool latticeParametersKnown;
 
     accuracyConstants_t accuracyConstants;

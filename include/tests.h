@@ -9,6 +9,7 @@
 #define TESTS_H_
 
 void test();
+void test_fixedBasisRefinement();
 void test_mixedGradientDescentRefinement();
 void test_gradientDescentRefinement();
 void test_getGradient();

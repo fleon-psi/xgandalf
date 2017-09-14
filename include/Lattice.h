@@ -46,6 +46,7 @@ class Lattice
     friend std::ostream& operator<<(std::ostream& os, const Lattice& lattice);
 
     void reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3f prototypeAngles_deg);
+    void reorder(const Lattice prototypeLattice);
     void normalizeAngles();
 
   private:

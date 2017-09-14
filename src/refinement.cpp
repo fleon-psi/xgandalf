@@ -1,5 +1,5 @@
 #include "refinement.h"
-
+#include <iostream>
 
 using namespace Eigen;
 using namespace std;
@@ -46,7 +46,7 @@ void getGradient_detectorAngleMatch(Matrix3f& gradient, const Matrix3f& B, const
 
     Matrix3Xd Md = M.cast<double>();
 
-    Matrix3Xd predictedPoints = B.cast<double>() * Md.cast<double>();
+    Matrix3Xd predictedPoints = B.cast<double>() * Md;
     RowVectorXd projectionNorms = (predictedPoints.bottomRows(2).cwiseProduct(detectorPeakDirections)).colwise().sum(); // colwise dot product
     Matrix2Xd predictedPointsProjected = detectorPeakDirections.array().rowwise() * projectionNorms.array();
     RowVectorXd defect = (predictedPoints.bottomRows(2) - predictedPointsProjected).colwise().norm();
@@ -129,6 +129,119 @@ void refineReciprocalBasis_meanDist_peaksAndAngle(Matrix3f& B, const Matrix3Xf& 
         }
         summedGradient /= maxCoeff;
         B = B - stepLength * summedGradient;
+
+        if (i >= 75)
+        {
+            stepLength *= 0.93;
+        }
+    }
+}
+
+// B: reciprocal basis
+// B_sample: sample reciprocal basis (with correct lattice parameters)
+// M: miller indices (reciprocal)
+// N: reciprocal peaks
+void refineReciprocalBasis_meanSquaredDist_fixedBasisParameters(Matrix3f& B, const Matrix3Xf& M, const Matrix3Xf& N, const Matrix3f& B_sample)
+{
+    JacobiSVD<MatrixXf> svd(M.rows(), M.cols(), ComputeThinU | ComputeThinV);
+
+    svd.compute(B_sample * M);
+    MatrixXf S1 = svd.singularValues();
+    Matrix3f U1 = svd.matrixU();
+    MatrixXf V1 = svd.matrixV();
+
+    svd.compute(N);
+    MatrixXf S2 = svd.singularValues();
+    Matrix3f U2 = svd.matrixU();
+    MatrixXf V2 = svd.matrixV();
+
+    Matrix3f permutationFlipMatrix = (V1.transpose() * V2).array().round(); // maybe not necessary
+    U2 = U2 * permutationFlipMatrix;
+
+    if (abs(permutationFlipMatrix.determinant()) != 1)
+    {
+        B.setIdentity();
+        cout << "Not able to fit found basis to sample basis! Provided lattice not minimized?\n" << (V1.transpose() * V2).eval() << endl;
+        return;
+    }
+
+    Matrix3f estimatedR = U2 * U1.transpose();
+
+    B = estimatedR * B_sample;
+}
+
+
+// B: reciprocal basis
+// M: miller indices (reciprocal)
+// N: reciprocal peaks
+// TODO: Function can be made faster easily... nevertheless double is really necessary...
+void getGradient_detectorAngleMatchFixedLattice(Vector3f& rotationAnglesGradient_detectorAngle, Vector3f& rotationAnglesGradient_distFromPoints,
+                                                const Matrix3f& B, const Matrix3Xf& M, const Matrix3Xf& N)
+{
+    Matrix3Xd Md = M.cast<double>();
+    Matrix3Xd Nd = N.cast<double>();
+    Matrix3Xd Bd = B.cast<double>();
+
+    double meanDefectInitial_distFromPoint = (Bd * Md - Nd).colwise().norm().mean();
+
+    Matrix2Xd detectorPeakDirections = N.bottomRows(2).colwise().normalized().cast<double>();
+
+    Matrix3Xd predictedPoints = Bd.cast<double>() * Md;
+    RowVectorXd projectionNorms = (predictedPoints.bottomRows(2).cwiseProduct(detectorPeakDirections)).colwise().sum(); // colwise dot product
+    Matrix2Xd predictedPointsProjected = detectorPeakDirections.array().rowwise() * projectionNorms.array();
+    RowVectorXd defect_detectorAngle = (predictedPoints.bottomRows(2) - predictedPointsProjected).colwise().norm();
+    double meanDefectInitial_detectorAngle = defect_detectorAngle.mean();
+
+    // now do the numeric differentiatiation
+    double differentiatiationShift = 1e-8; // should be small enough, but not too small
+    double differentiatiationShift_inv = 1 / differentiatiationShift;
+    Matrix3Xd predictedPoints_shifted;
+    for (int i = 0; i < 3; i++)
+    {
+        Vector3d axis(0, 0, 0);
+        axis[i] = 1;
+        predictedPoints_shifted = AngleAxisd(differentiatiationShift, axis).toRotationMatrix() * predictedPoints;
+
+        projectionNorms = (predictedPoints_shifted.bottomRows(2).cwiseProduct(detectorPeakDirections)).colwise().sum(); // colwise dot product
+        predictedPointsProjected = detectorPeakDirections.array().rowwise() * projectionNorms.array();
+        defect_detectorAngle = (predictedPoints_shifted.bottomRows(2) - predictedPointsProjected).colwise().norm();
+
+        rotationAnglesGradient_detectorAngle(i) = (defect_detectorAngle.mean() - meanDefectInitial_detectorAngle) * differentiatiationShift_inv;
+        rotationAnglesGradient_distFromPoints(i) =
+            ((predictedPoints_shifted - Nd).colwise().norm().mean() - meanDefectInitial_distFromPoint) * differentiatiationShift_inv;
+    }
+}
+
+// B: reciprocal basis
+// M: miller indices (reciprocal)
+// N: reciprocal peaks
+void refineReciprocalBasis_meanDist_detectorAngleMatchFixedParameters(Matrix3f& B, const Matrix3Xf& M, const Matrix3Xf& N)
+{
+    Vector3f rotationAnglesGradient_detectorAngle;
+    Vector3f rotationAnglesGradient_distFromPoints;
+    Vector3f summedGradient;
+
+    float reciprocalPeakDistWeight = 1;
+    float reciprocalPeakAngleWeight = 1;
+
+    float stepLength = 0.05 / 180 * 3.14;
+    for (int i = 0; i < 150; i++)
+    {
+        getGradient_detectorAngleMatchFixedLattice(rotationAnglesGradient_detectorAngle, rotationAnglesGradient_distFromPoints, B, M, N);
+        summedGradient = rotationAnglesGradient_detectorAngle * reciprocalPeakAngleWeight + rotationAnglesGradient_distFromPoints * reciprocalPeakDistWeight;
+
+        float maxCoeff = summedGradient.cwiseAbs().maxCoeff();
+        if (maxCoeff < 1e-10)
+        {
+            break;
+        }
+        summedGradient /= maxCoeff;
+        summedGradient *= -stepLength;
+        Matrix3f rotation;
+        rotation = AngleAxisf(summedGradient[0], Vector3f::UnitX()) * AngleAxisf(summedGradient[1], Vector3f::UnitY()) *
+                   AngleAxisf(summedGradient[2], Vector3f::UnitZ());
+
+        B = rotation * B;
 
         if (i >= 75)
         {

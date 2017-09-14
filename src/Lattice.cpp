@@ -177,9 +177,62 @@ std::ostream& operator<<(std::ostream& os, const Lattice& lattice)
     return os;
 }
 
+// reorder such, that reordered basis differs from the prototype lattice by a rotation
+void Lattice::reorder(const Lattice prototypeLattice)
+{
+    Matrix3f prototypeBasis_inv = prototypeLattice.getBasis().inverse();
+
+    // clang-format off
+	Array<int, 3, 6> indexPermutations;
+	indexPermutations <<
+		0, 0, 1, 1, 2, 2,
+		1, 2, 0, 2, 0, 1,
+		2, 1, 2, 0, 1, 0;
+
+	Array<float, 3, 8> signPermutations;
+	signPermutations <<
+		1,  1,  1,  1, -1, -1, -1, -1,
+		1,  1, -1, -1,  1,  1, -1, -1,
+		1, -1,  1, -1,  1, -1,  1, -1;
+    
+
+    Matrix3f permutedBasis;
+    Matrix3f bestPermutedBasis;
+	Matrix3f resultingRotationMatrix;
+	float smallestDefect = numeric_limits<float>::max();
+    for (int indexPermutation = 0; indexPermutation < 6; indexPermutation++)
+    {
+        for (int signPermutation = 0; signPermutation < 8; signPermutation++)
+        {
+            permutedBasis << basis.col(indexPermutations(0, indexPermutation))*signPermutations(0, signPermutation),
+					         basis.col(indexPermutations(1, indexPermutation))*signPermutations(1, signPermutation),
+						     basis.col(indexPermutations(2, indexPermutation))*signPermutations(2, signPermutation);
+
+			resultingRotationMatrix = permutedBasis*prototypeBasis_inv;
+
+			//cout << "resultingRotationMatrix \n" << resultingRotationMatrix << endl;
+
+			float defect = (resultingRotationMatrix.transpose() * resultingRotationMatrix - Matrix3f::Identity()).squaredNorm();
+			//cout << "defect: " << defect<<endl;
+			if (defect < smallestDefect) {
+				bestPermutedBasis = permutedBasis;
+				smallestDefect = defect;
+				//cout << "taken\n" << permutedBasis 
+				//	<< endl << endl<< prototypeLattice.getBasis() 
+				//	<< endl << endl << prototypeBasis_inv 
+				//	<< endl << endl << resultingRotationMatrix << endl << endl  ;
+			}
+        }
+    }
+
+	basis = bestPermutedBasis;
+
+    // clang-format on
+}
+
 void Lattice::reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3f prototypeAngles_deg)
 {
-    //cout << "prototype angles" << endl << prototypeAngles_deg << endl;
+    // cout << "prototype angles" << endl << prototypeAngles_deg << endl;
 
     Vector3f prototypeAnglesNormalized_deg = prototypeAngles_deg;
     for (int i = 0; i < 3; i++)
@@ -190,7 +243,7 @@ void Lattice::reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3
         }
     }
 
-    //cout << "prototype angles normalized" << endl << prototypeAnglesNormalized_deg << endl;
+    // cout << "prototype angles normalized" << endl << prototypeAnglesNormalized_deg << endl;
 
     Array<float, 6, 1> prototypeLatticeParameters;
     prototypeLatticeParameters << prototypeNorms, prototypeAnglesNormalized_deg;
@@ -251,9 +304,9 @@ void Lattice::reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3
     }
     basis = bestNegatedBasis;
 
-    //cout << "best residual: " << bestNegatedBasisResidual << endl;
+    // cout << "best residual: " << bestNegatedBasisResidual << endl;
 
-    //cout << "angles" << endl << getBasisVectorAngles_deg() << endl;
+    // cout << "angles" << endl << getBasisVectorAngles_deg() << endl;
 }
 
 void Lattice::normalizeAngles()
@@ -274,22 +327,22 @@ void Lattice::normalizeAngles()
         }
     }
 
-	//not possible to have all < 90°, get the combination with smallest sum
-	float smallestSum = 3 * 180;
-	for (int l = -1; l <= 1; l += 2)
-	{
-		for (int m = -1; m <= 1; m += 2)
-		{
-			Matrix3f negatedBasis;
-			negatedBasis << basis.col(0), basis.col(1) * l, basis.col(2) * m;
-			Lattice negatedLattice(negatedBasis);
+    // not possible to have all < 90°, get the combination with smallest sum
+    float smallestSum = 3 * 180;
+    for (int l = -1; l <= 1; l += 2)
+    {
+        for (int m = -1; m <= 1; m += 2)
+        {
+            Matrix3f negatedBasis;
+            negatedBasis << basis.col(0), basis.col(1) * l, basis.col(2) * m;
+            Lattice negatedLattice(negatedBasis);
 
-			float anglesSum = negatedLattice.getBasisVectorAngles_deg().sum();
-			if (anglesSum <= smallestSum)
-			{	
-				smallestSum = anglesSum;
-				basis = negatedBasis;
-			}
-		}
-	}
+            float anglesSum = negatedLattice.getBasisVectorAngles_deg().sum();
+            if (anglesSum <= smallestSum)
+            {
+                smallestSum = anglesSum;
+                basis = negatedBasis;
+            }
+        }
+    }
 }

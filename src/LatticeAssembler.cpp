@@ -68,6 +68,7 @@ void LatticeAssembler::setStandardValues()
 void LatticeAssembler::setKnownLatticeParameters(const Lattice& sampleRealLattice_A, float tolerance)
 {
     latticeParametersKnown = true;
+    knownSampleRealLattice_A = sampleRealLattice_A;
     knownLatticeParameters << sampleRealLattice_A.getBasisVectorNorms(), sampleRealLattice_A.getBasisVectorAnglesNormalized_deg();
     knownLatticeParametersInverse = 1.0f / knownLatticeParameters;
     knownLatticeParametersTolerance = tolerance;
@@ -112,9 +113,17 @@ void LatticeAssembler::assembleLattices(vector<Lattice>& assembledLattices, vect
 
     for (auto& lattice : assembledLattices)
     {
-        refineLattice_peaksAndAngle(lattice, pointsToFitInReciprocalSpace);
+        // refineLattice_peaksAndAngle(lattice, pointsToFitInReciprocalSpace);
 
-        lattice.normalizeAngles();
+        if (latticeParametersKnown)
+        {
+            lattice.reorder(knownSampleRealLattice_A);
+            refineLattice_peaksAndAngle_fixedBasisParameters(lattice, pointsToFitInReciprocalSpace);
+        }
+        else
+        {
+            lattice.normalizeAngles();
+        }
     }
 }
 
@@ -573,6 +582,65 @@ void LatticeAssembler::refineLattice_peaksAndAngle(Lattice& realSpaceLattice, co
         {
             bestLattice = refinedLattice;
             bestLattice.minimize();
+            return;
+        }
+        else
+        {
+            bestLattice = refinedLattice;
+        }
+    }
+    bestLattice.minimize();
+}
+
+void LatticeAssembler::refineLattice_peaksAndAngle_fixedBasisParameters(Lattice& realSpaceLattice, const Matrix3Xf& pointsToFitInReciprocalSpace)
+{
+    Lattice& bestLattice = realSpaceLattice;
+
+    int maxIterationsCount = 5;
+    int iterationCount = 0;
+
+    Matrix3Xf factorsToReachNodes;
+    Matrix3Xf millerIndices;
+    Matrix3f gradient;
+    Array<float, 1, Dynamic> maxRelativeDefects;
+    Array<bool, 1, Dynamic> goodReciprocalPeaksFlags;
+    Matrix3Xf reciprocalPeaksUsedForFitting_1_per_A;
+    Matrix3Xf millerIndicesUsedForFitting;
+    vector<uint16_t> pointOnLatticeIndices_junk;
+    while (1)
+    {
+        factorsToReachNodes = bestLattice.getBasis().transpose() * pointsToFitInReciprocalSpace;
+        millerIndices = factorsToReachNodes.array().round();
+
+        maxRelativeDefects = (millerIndices - factorsToReachNodes).array().abs().colwise().maxCoeff();
+
+        // tune!
+        goodReciprocalPeaksFlags = maxRelativeDefects < accuracyConstants.maxCloseToPointDeviation;
+
+        int goodReciprocalPeaksCount = goodReciprocalPeaksFlags.cast<uint16_t>().sum();
+        if (goodReciprocalPeaksCount < 5) // if unstable
+            break;
+
+        reciprocalPeaksUsedForFitting_1_per_A.resize(3, goodReciprocalPeaksCount);
+        millerIndicesUsedForFitting.resize(3, goodReciprocalPeaksCount);
+        keepGoodReciprocalPeaks(reciprocalPeaksUsedForFitting_1_per_A, millerIndicesUsedForFitting, pointOnLatticeIndices_junk, goodReciprocalPeaksFlags,
+                                pointsToFitInReciprocalSpace, millerIndices);
+
+        Matrix3f refinedReciprocalBasis = bestLattice.getReciprocalLattice().getBasis();
+        refineReciprocalBasis_meanSquaredDist_fixedBasisParameters(refinedReciprocalBasis, millerIndicesUsedForFitting, reciprocalPeaksUsedForFitting_1_per_A,
+                                                                   knownSampleRealLattice_A.getReciprocalLattice().getBasis());
+        refineReciprocalBasis_meanDist_detectorAngleMatchFixedParameters(refinedReciprocalBasis, millerIndicesUsedForFitting,
+                                                                         reciprocalPeaksUsedForFitting_1_per_A);
+
+        Lattice refinedLattice = Lattice(refinedReciprocalBasis).getReciprocalLattice();
+
+        if ((refinedLattice.getBasis() - bestLattice.getBasis()).isZero(1e-3))
+        {
+            return;
+        }
+        else if (iterationCount++ > maxIterationsCount)
+        {
+            bestLattice = refinedLattice;
             return;
         }
         else

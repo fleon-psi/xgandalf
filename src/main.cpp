@@ -39,7 +39,8 @@ int main()
         // test_crystfelAdaption2();
         // test_latticeReorder();
         // test_gradientDescentRefinement();
-        //test_mixedGradientDescentRefinement();
+        // test_mixedGradientDescentRefinement();
+        //test_fixedBasisRefinement();
     }
     catch (exception& e)
     {
