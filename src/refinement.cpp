@@ -222,7 +222,7 @@ void refineReciprocalBasis_meanDist_detectorAngleMatchFixedParameters(Matrix3f& 
     Vector3f summedGradient;
 
     float reciprocalPeakDistWeight = 1;
-    float reciprocalPeakAngleWeight = 1;
+    float reciprocalPeakAngleWeight = 0.1;
 
     float stepLength = 0.05 / 180 * 3.14;
     for (int i = 0; i < 150; i++)
