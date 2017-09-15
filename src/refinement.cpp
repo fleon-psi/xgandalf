@@ -113,7 +113,7 @@ void refineReciprocalBasis_meanDist_peaksAndAngle(Matrix3f& B, const Matrix3Xf& 
     Matrix3f summedGradient;
 
     float reciprocalPeakDistWeight = 1;
-    float reciprocalPeakAngleWeight = 2;
+    float reciprocalPeakAngleWeight = 0.5;
 
     float stepLength = B.maxCoeff() * 0.003;
     for (int i = 0; i < 150; i++)
@@ -161,7 +161,7 @@ void refineReciprocalBasis_meanSquaredDist_fixedBasisParameters(Matrix3f& B, con
     if (abs(permutationFlipMatrix.determinant()) != 1)
     {
         B.setIdentity();
-        cout << "Not able to fit found basis to sample basis! Provided lattice not minimized?\n" << (V1.transpose() * V2).eval() << endl;
+        cout << "Not able to fit found basis to sample basis! \n" << (V1.transpose() * V2).eval() << endl;
         return;
     }
 
