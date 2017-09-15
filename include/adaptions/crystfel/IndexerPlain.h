@@ -44,6 +44,7 @@ void IndexerPlain_delete(IndexerPlain* indexerPlain);
 
 void IndexerPlain_setSamplingPitch(IndexerPlain* indexerPlain, samplingPitch_t samplingPitch);
 void IndexerPlain_setGradientDescentIterationsCount(IndexerPlain* indexerPlain, gradientDescentIterationsCount_t gradientDescentIterationsCount);
+void IndexerPlain_setRefineWithExactLattice(IndexerPlain* indexerPlain, int flag);
 
 void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assembledLattices, int* assembledLatticesCount, int maxAssambledLatticesCount,
                         reciprocalPeaks_1_per_A_t reciprocalPeaks_1_per_A);

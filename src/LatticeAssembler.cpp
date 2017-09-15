@@ -74,6 +74,10 @@ void LatticeAssembler::setKnownLatticeParameters(const Lattice& sampleRealLattic
     knownLatticeParametersTolerance = tolerance;
 }
 
+LatticeAssembler::accuracyConstants_t LatticeAssembler::getAccuracyConstants() {
+	return accuracyConstants;
+}
+
 void LatticeAssembler::assembleLattices(vector<Lattice>& assembledLattices, Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights,
                                         vector<vector<uint16_t>>& pointIndicesOnVector, Matrix3Xf& pointsToFitInReciprocalSpace)
 {
@@ -113,15 +117,23 @@ void LatticeAssembler::assembleLattices(vector<Lattice>& assembledLattices, vect
 
     for (auto& lattice : assembledLattices)
     {
-        // refineLattice_peaksAndAngle(lattice, pointsToFitInReciprocalSpace);
-
+		//cout << latticeParametersKnown << accuracyConstants.refineWithExactLattice;
         if (latticeParametersKnown)
         {
-            lattice.reorder(knownSampleRealLattice_A);
-            refineLattice_peaksAndAngle_fixedBasisParameters(lattice, pointsToFitInReciprocalSpace);
+            if (accuracyConstants.refineWithExactLattice)
+            {
+                lattice.reorder(knownSampleRealLattice_A);
+                refineLattice_peaksAndAngle_fixedBasisParameters(lattice, pointsToFitInReciprocalSpace);
+            }
+            else
+            {
+                refineLattice_peaksAndAngle(lattice, pointsToFitInReciprocalSpace);
+            }
         }
         else
         {
+            refineLattice_peaksAndAngle(lattice, pointsToFitInReciprocalSpace);
+
             lattice.normalizeAngles();
         }
     }
@@ -648,7 +660,6 @@ void LatticeAssembler::refineLattice_peaksAndAngle_fixedBasisParameters(Lattice&
             bestLattice = refinedLattice;
         }
     }
-    bestLattice.minimize();
 }
 
 static void keepGoodReciprocalPeaks(Matrix3Xf& keptPeaks, Matrix3Xf& keptMillerIndices, vector<uint16_t>& pointOnLatticeIndices,

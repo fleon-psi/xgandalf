@@ -32,6 +32,8 @@ class LatticeAssembler
         uint16_t minPointsOnLattice;
 
         float maxCloseToPointDeviation;
+
+		bool refineWithExactLattice;
     } accuracyConstants_t;
 
     LatticeAssembler();
@@ -51,6 +53,8 @@ class LatticeAssembler
     void assembleLattices(std::vector<Lattice>& assembledLattices, std::vector<assembledLatticeStatistics_t>& assembledLatticesStatistics,
                           Eigen::Matrix3Xf& candidateVectors, Eigen::RowVectorXf& candidateVectorWeights,
                           std::vector<std::vector<uint16_t>>& pointIndicesOnVector, Eigen::Matrix3Xf& pointsToFitInReciprocalSpace);
+
+	accuracyConstants_t getAccuracyConstants();
 
   private:
     void setStandardValues();

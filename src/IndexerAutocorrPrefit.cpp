@@ -326,6 +326,7 @@ void IndexerAutocorrPrefit::index(std::vector<Lattice>& assembledLattices, const
     accuracyConstants_LatticeAssembler.maxCountPassingRelativeDefectFilter = 50;
     accuracyConstants_LatticeAssembler.minPointsOnLattice = 5;
 	accuracyConstants_LatticeAssembler.maxCloseToPointDeviation = maxCloseToPointDeviation;
+	accuracyConstants_LatticeAssembler.refineWithExactLattice = false; //TODO take as parameter
 
     //    latticeAssembler.setDeterminantRange(experimentSettings.getMinRealLatticeDeterminant_A3(), experimentSettings.getMaxRealLatticeDeterminant_A3());
     latticeAssembler.setDeterminantRange(experimentSettings.getRealLatticeDeterminant_A3() * 0.8, experimentSettings.getRealLatticeDeterminant_A3() * 1.2);

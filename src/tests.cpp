@@ -480,6 +480,7 @@ void test_indexerPlain()
     indexer.setSamplingPitch(IndexerPlain::SamplingPitch::standardWithSeondaryMillerIndices);
     // indexer.setSamplingPitch(IndexerPlain::SamplingPitch::denseWithSeondaryMillerIndices);
     // indexer.setGradientDescentIterationsCount(IndexerPlain::GradientDescentIterationsCount::manyMany);
+	indexer.setRefineWithExactLattice(false);
 
     stringstream ss;
     int runNumber = 0;

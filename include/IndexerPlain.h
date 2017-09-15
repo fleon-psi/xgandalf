@@ -46,6 +46,7 @@ class IndexerPlain : public IndexerBase
 
     void setSamplingPitch(SamplingPitch samplingPitch);
     void setSamplingPitch(float unitPitch, bool coverSecondaryMillerIndices);
+	void setRefineWithExactLattice(bool flag);
 
     void setGradientDescentIterationsCount(GradientDescentIterationsCount gradientDescentIterationsCount);
 

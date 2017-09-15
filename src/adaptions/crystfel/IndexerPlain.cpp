@@ -83,6 +83,10 @@ extern "C" void IndexerPlain_setGradientDescentIterationsCount(IndexerPlain* ind
     indexerPlain->setGradientDescentIterationsCount(iterationsCount);
 }
 
+void IndexerPlain_setRefineWithExactLattice(IndexerPlain* indexerPlain, int flag)
+{
+    indexerPlain->setRefineWithExactLattice((bool)flag);
+}
 
 extern "C" void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assembledLattices, int* assembledLatticesCount, int maxAssambledLatticesCount,
                                    reciprocalPeaks_1_per_A_t reciprocalPeaks_1_per_A)
@@ -97,7 +101,7 @@ extern "C" void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assemb
     std::vector<Lattice> assembledLatticesVector;
     indexerPlain->index(assembledLatticesVector, reciprocalPeaks_1_per_A_matrix);
 
-    for (*assembledLatticesCount = 0; (int) *assembledLatticesCount < assembledLatticesVector.size() && *assembledLatticesCount < maxAssambledLatticesCount;
+    for (*assembledLatticesCount = 0; (int)*assembledLatticesCount < assembledLatticesVector.size() && *assembledLatticesCount < maxAssambledLatticesCount;
          (*assembledLatticesCount)++)
     {
         Eigen::Matrix3f basis = assembledLatticesVector[*assembledLatticesCount].getBasis();
@@ -163,20 +167,21 @@ extern "C" void reorderLattice(const Lattice_t* prototype, Lattice_t* lattice)
 }
 
 
-void reduceLattice(Lattice_t* lattice) {
-	Eigen::Matrix3f basis;
-	basis << lattice->ax, lattice->bx, lattice->cx, lattice->ay, lattice->by, lattice->cy, lattice->az, lattice->bz, lattice->cz;
-	Lattice latticeWrapper(basis);
+void reduceLattice(Lattice_t* lattice)
+{
+    Eigen::Matrix3f basis;
+    basis << lattice->ax, lattice->bx, lattice->cx, lattice->ay, lattice->by, lattice->cy, lattice->az, lattice->bz, lattice->cz;
+    Lattice latticeWrapper(basis);
 
-	basis = latticeWrapper.minimize().getBasis();
+    basis = latticeWrapper.minimize().getBasis();
 
-	lattice->ax = basis(0, 0);
-	lattice->ay = basis(1, 0);
-	lattice->az = basis(2, 0);
-	lattice->bx = basis(0, 1);
-	lattice->by = basis(1, 1);
-	lattice->bz = basis(2, 1);
-	lattice->cx = basis(0, 2);
-	lattice->cy = basis(1, 2);
-	lattice->cz = basis(2, 2);
+    lattice->ax = basis(0, 0);
+    lattice->ay = basis(1, 0);
+    lattice->az = basis(2, 0);
+    lattice->bx = basis(0, 1);
+    lattice->by = basis(1, 1);
+    lattice->bz = basis(2, 1);
+    lattice->cx = basis(0, 2);
+    lattice->cy = basis(1, 2);
+    lattice->cz = basis(2, 2);
 }

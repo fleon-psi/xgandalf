@@ -45,7 +45,8 @@ void IndexerPlain::precompute()
     accuracyConstants_LatticeAssembler.maxCountLocalPassingWeightFilter = 15;
     accuracyConstants_LatticeAssembler.maxCountPassingRelativeDefectFilter = 50;
     accuracyConstants_LatticeAssembler.minPointsOnLattice = 5;
-	accuracyConstants_LatticeAssembler.maxCloseToPointDeviation = maxCloseToPointDeviation;
+    accuracyConstants_LatticeAssembler.maxCloseToPointDeviation = maxCloseToPointDeviation;
+    accuracyConstants_LatticeAssembler.refineWithExactLattice = false;
     latticeAssembler.setAccuracyConstants(accuracyConstants_LatticeAssembler);
 
 
@@ -152,6 +153,16 @@ void IndexerPlain::setSamplingPitch(float unitPitch, bool coverSecondaryMillerIn
     }
 }
 
+void IndexerPlain::setRefineWithExactLattice(bool flag)
+{
+    LatticeAssembler::accuracyConstants_t accuracyConstants = latticeAssembler.getAccuracyConstants();
+
+	accuracyConstants.refineWithExactLattice = flag;
+
+	latticeAssembler.setAccuracyConstants(accuracyConstants);
+}
+
+
 void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A)
 {
     if (precomputedSamplePoints.size() == 0)
@@ -214,7 +225,6 @@ void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::M
     //    ofstream ofs("workfolder/samplePoints", ofstream::out);
     //    ofs << samplePoints.transpose().eval();
 }
-
 
 
 void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCount gradientDescentIterationsCount)
