@@ -20,13 +20,16 @@
 using namespace std;
 using namespace Eigen;
 
+#define STRINGIFY2(X) #X
+#define STRINGIFY(X) STRINGIFY2(X)
+
+#ifndef PRECOMPUTED_DATA_DIR
+#define PRECOMPUTED_DATA_DIR "define the path to the precomputed sample points in the cmake script"
+#endif
+
 SamplePointsGenerator::SamplePointsGenerator()
 {
-    precomputedSamplePointsPath = "precomputedSamplePoints";
-}
-SamplePointsGenerator::SamplePointsGenerator(const std::string& precomputedSamplePointsPath)
-    : precomputedSamplePointsPath(precomputedSamplePointsPath)
-{
+    precomputedSamplePointsPath = STRINGIFY(PRECOMPUTED_DATA_DIR);
 }
 
 inline static float getClosestArrayElement(ArrayXf arr, float value)

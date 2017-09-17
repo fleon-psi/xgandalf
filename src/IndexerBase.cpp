@@ -20,12 +20,6 @@ IndexerBase::IndexerBase(const ExperimentSettings& experimentSettings)
 {
 }
 
-IndexerBase::IndexerBase(const ExperimentSettings& experimentSettings, const string& precomputedSamplePointsPath)
-    : experimentSettings(experimentSettings)
-    , samplePointsGenerator(precomputedSamplePointsPath)
-{
-}
-
 void IndexerBase::keepSamplePointsWithHighEvaluation(Matrix3Xf& samplePoints, RowVectorXf& samplePointsEvaluation, float minEvaluation)
 {
     uint32_t bigEvaluationSamplePointsCount = 0;

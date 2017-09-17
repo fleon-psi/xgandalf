@@ -2,9 +2,9 @@
 #include "IndexerPlain.h"
 
 
-extern "C" IndexerPlain* IndexerPlain_new(ExperimentSettings* experimentSettings, char* precomputedSamplePointsPath)
+extern "C" IndexerPlain* IndexerPlain_new(ExperimentSettings* experimentSettings)
 {
-    return new IndexerPlain(*experimentSettings, precomputedSamplePointsPath);
+    return new IndexerPlain(*experimentSettings);
 }
 
 extern "C" void IndexerPlain_delete(IndexerPlain* indexerPlain)

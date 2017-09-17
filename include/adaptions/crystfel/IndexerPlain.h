@@ -39,7 +39,7 @@ typedef enum {
 
 typedef struct IndexerPlain IndexerPlain;
 
-IndexerPlain* IndexerPlain_new(ExperimentSettings* experimentSettings, char* precomputedSamplePointsPath);
+IndexerPlain* IndexerPlain_new(ExperimentSettings* experimentSettings);
 void IndexerPlain_delete(IndexerPlain* indexerPlain);
 
 void IndexerPlain_setSamplingPitch(IndexerPlain* indexerPlain, samplingPitch_t samplingPitch);

@@ -304,10 +304,9 @@ void test_crystfelAdaption2()
     ExperimentSettings* experimentSettings = ExperimentSettings_new(beamEenergy_eV, detectorDistance_m, detectorRadius_m, divergenceAngle_deg,
                                                                     nonMonochromaticity, sampleReciprocalLattice_1A, tolerance);
 
-    char precomputedSamplePointsPath[] = "C:\\DesyFiles\\workspaces\\VisualStudio_workspace\\indexer\\precomputedSamplePoints";
     samplingPitch_t samplingPitch = SAMPLING_PITCH_denseWithSeondaryMillerIndices;
     gradientDescentIterationsCount_t gradientDescentIterationsCount = GRADIENT_DESCENT_ITERATION_COUNT_manyMany;
-    IndexerPlain* indexer = IndexerPlain_new(experimentSettings, precomputedSamplePointsPath);
+    IndexerPlain* indexer = IndexerPlain_new(experimentSettings);
     IndexerPlain_setSamplingPitch(indexer, samplingPitch);
     IndexerPlain_setGradientDescentIterationsCount(indexer, gradientDescentIterationsCount);
 
@@ -349,10 +348,9 @@ void test_crystfelAdaption()
     ExperimentSettings* experimentSettings = ExperimentSettings_new(beamEenergy_eV, detectorDistance_m, detectorRadius_m, divergenceAngle_deg,
                                                                     nonMonochromaticity, sampleReciprocalLattice_1A, tolerance);
 
-    char precomputedSamplePointsPath[] = "C:\\DesyFiles\\workspaces\\VisualStudio_workspace\\indexer\\precomputedSamplePoints";
     samplingPitch_t samplingPitch = SAMPLING_PITCH_standard;
     gradientDescentIterationsCount_t gradientDescentIterationsCount = GRADIENT_DESCENT_ITERATION_COUNT_standard;
-    IndexerPlain* indexer = IndexerPlain_new(experimentSettings, precomputedSamplePointsPath);
+    IndexerPlain* indexer = IndexerPlain_new(experimentSettings);
     IndexerPlain_setSamplingPitch(indexer, samplingPitch);
     IndexerPlain_setGradientDescentIterationsCount(indexer, gradientDescentIterationsCount);
 
@@ -411,7 +409,7 @@ void test_indexerAutocorrPrefit()
     DetectorToReciprocalSpaceTransform detectorToReciprocalSpaceTransform(experimentSettings);
     Matrix3Xf reciprocalPeaks_1_per_A;
 
-    IndexerAutocorrPrefit indexer(experimentSettings, "precomputedSamplePoints");
+    IndexerAutocorrPrefit indexer(experimentSettings);
 
     stringstream ss;
     int runNumber = 0;
@@ -476,7 +474,7 @@ void test_indexerPlain()
     DetectorToReciprocalSpaceTransform detectorToReciprocalSpaceTransform(experimentSettings);
     Matrix3Xf reciprocalPeaks_1_per_A;
 
-    IndexerPlain indexer(experimentSettings, "precomputedSamplePoints");
+    IndexerPlain indexer(experimentSettings);
     indexer.setSamplingPitch(IndexerPlain::SamplingPitch::standardWithSeondaryMillerIndices);
     // indexer.setSamplingPitch(IndexerPlain::SamplingPitch::denseWithSeondaryMillerIndices);
     // indexer.setGradientDescentIterationsCount(IndexerPlain::GradientDescentIterationsCount::manyMany);

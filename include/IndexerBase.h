@@ -21,7 +21,6 @@ class IndexerBase
 {
   public:
     IndexerBase(const ExperimentSettings& experimentSettings);
-    IndexerBase(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath);
 
     virtual ~IndexerBase() = default;
 

@@ -1,7 +1,18 @@
 cmake_minimum_required(VERSION 3.1)
 project(xgandalf)
 
+include(GNUInstallDirs)
+
 option(XGANDALF_BUILD_EXECUTABLE "Build the test executable for xgandalf" OFF)
+option(USE_INSTALLED_PRECOMUTED_DATA "Use the installation path for getting the precomputed data 
+                                       (as oposite to the source location)" ON)
+
+if(USE_INSTALLED_PRECOMUTED_DATA)
+  add_definitions(-DPRECOMPUTED_DATA_DIR=${CMAKE_INSTALL_FULL_DATADIR}/xgandalf/precomputedSamplePoints)
+else(USE_INSTALLED_PRECOMUTED_DATA)
+  add_definitions(-DPRECOMPUTED_DATA_DIR=${PROJECT_SOURCE_DIR}/precomputedSamplePoints)
+endif(USE_INSTALLED_PRECOMUTED_DATA)
+
  
 # Set a default build type if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -103,7 +114,7 @@ install(
 
 install(
     DIRECTORY precomputedSamplePoints/
-    DESTINATION precomputed/xgandalf
+    DESTINATION share/xgandalf/precomputedSamplePoints
     FILES_MATCHING
     PATTERN "*"
 	PATTERN "*.m" EXCLUDE

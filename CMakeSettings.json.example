@@ -9,15 +9,19 @@
       "variables": [
         {
           "name": "Eigen3_DIR",
-          "value": "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4\\share\\eigen3\\cmake"
+          "value": "C:\\MyPrograms\\Programming\\Cpp\\eigen3_3_4\\share\\eigen3\\cmake"
         },
         {
           "name": "BOOST_ROOT",
-          "value": "C:\\Programmieren\\Cpp\\boost\\boost_1_63_0"
+          "value": "C:\\MyPrograms\\Programming\\Cpp\\boost_1_65_0"
         },
         {
           "name": "XGANDALF_BUILD_EXECUTABLE",
           "value": "ON"
+        },
+        {
+          "name": "USE_INSTALLED_PRECOMUTED_DATA",
+          "value": "OFF"
         }
       ]
     },
@@ -30,15 +34,19 @@
       "variables": [
         {
           "name": "Eigen3_DIR",
-          "value": "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4\\share\\eigen3\\cmake"
+          "value": "C:\\MyPrograms\\Programming\\Cpp\\eigen3_3_4\\share\\eigen3\\cmake"
         },
         {
           "name": "BOOST_ROOT",
-          "value": "C:\\Programmieren\\Cpp\\boost\\boost_1_63_0"
+          "value": "C:\\MyPrograms\\Programming\\Cpp\\boost_1_65_0"
         },
         {
           "name": "XGANDALF_BUILD_EXECUTABLE",
           "value": "ON"
+        },
+        {
+          "name": "USE_INSTALLED_PRECOMUTED_DATA",
+          "value": "OFF"
         }
       ]
     },
@@ -51,17 +59,21 @@
       "variables": [
         {
           "name": "Eigen3_DIR",
-          "value": "C:\\Programmieren\\Cpp\\Eigen\\Eigen3_3_4\\share\\eigen3\\cmake"
+          "value": "C:\\MyPrograms\\Programming\\Cpp\\eigen3_3_4\\share\\eigen3\\cmake"
         },
         {
           "name": "BOOST_ROOT",
-          "value": "C:\\Programmieren\\Cpp\\boost\\boost_1_63_0"
+          "value": "C:\\MyPrograms\\Programming\\Cpp\\boost_1_65_0"
         },
         {
           "name": "XGANDALF_BUILD_EXECUTABLE",
           "value": "ON"
+        },
+        {
+          "name": "USE_INSTALLED_PRECOMUTED_DATA",
+          "value": "OFF"
         }
       ]
-    },
+    }
  ]
 }

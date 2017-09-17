@@ -14,7 +14,6 @@
 class SamplePointsGenerator {
 public:
     SamplePointsGenerator();
-    SamplePointsGenerator(const std::string& precomputedSamplePointsPath);
 
     void getDenseGrid(Eigen::Matrix3Xf& samplePoints, float unitPitch, float minRadius, float maxRadius);
 

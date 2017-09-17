@@ -19,12 +19,6 @@ IndexerAutocorrPrefit::IndexerAutocorrPrefit(const ExperimentSettings& experimen
     precompute();
 }
 
-IndexerAutocorrPrefit::IndexerAutocorrPrefit(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath)
-    : IndexerBase(experimentSettings, precomputedSamplePointsPath)
-{
-    precompute();
-}
-
 void IndexerAutocorrPrefit::precompute()
 {
     setSamplingPitch(SamplingPitch::standard);

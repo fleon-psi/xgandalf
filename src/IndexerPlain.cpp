@@ -18,12 +18,6 @@ IndexerPlain::IndexerPlain(const ExperimentSettings& experimentSettings)
     precompute();
 }
 
-IndexerPlain::IndexerPlain(const ExperimentSettings& experimentSettings, const std::string& precomputedSamplePointsPath)
-    : IndexerBase(experimentSettings, precomputedSamplePointsPath)
-{
-    precompute();
-}
-
 void IndexerPlain::precompute()
 {
     maxCloseToPointDeviation = 0.15;
