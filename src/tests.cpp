@@ -411,7 +411,7 @@ void test_indexerAutocorrPrefit()
     DetectorToReciprocalSpaceTransform detectorToReciprocalSpaceTransform(experimentSettings);
     Matrix3Xf reciprocalPeaks_1_per_A;
 
-    IndexerAutocorrPrefit indexer(experimentSettings);
+    IndexerAutocorrPrefit indexer(experimentSettings, "precomputedSamplePoints");
 
     stringstream ss;
     int runNumber = 0;
@@ -476,7 +476,7 @@ void test_indexerPlain()
     DetectorToReciprocalSpaceTransform detectorToReciprocalSpaceTransform(experimentSettings);
     Matrix3Xf reciprocalPeaks_1_per_A;
 
-    IndexerPlain indexer(experimentSettings);
+    IndexerPlain indexer(experimentSettings, "precomputedSamplePoints");
     indexer.setSamplingPitch(IndexerPlain::SamplingPitch::standardWithSeondaryMillerIndices);
     // indexer.setSamplingPitch(IndexerPlain::SamplingPitch::denseWithSeondaryMillerIndices);
     // indexer.setGradientDescentIterationsCount(IndexerPlain::GradientDescentIterationsCount::manyMany);

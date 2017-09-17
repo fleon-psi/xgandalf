@@ -14,6 +14,10 @@
         {
           "name": "BOOST_ROOT",
           "value": "C:\\Programmieren\\Cpp\\boost\\boost_1_63_0"
+        },
+        {
+          "name": "XGANDALF_BUILD_EXECUTABLE",
+          "value": "ON"
         }
       ]
     },
@@ -31,6 +35,10 @@
         {
           "name": "BOOST_ROOT",
           "value": "C:\\Programmieren\\Cpp\\boost\\boost_1_63_0"
+        },
+        {
+          "name": "XGANDALF_BUILD_EXECUTABLE",
+          "value": "ON"
         }
       ]
     },
@@ -48,6 +56,10 @@
         {
           "name": "BOOST_ROOT",
           "value": "C:\\Programmieren\\Cpp\\boost\\boost_1_63_0"
+        },
+        {
+          "name": "XGANDALF_BUILD_EXECUTABLE",
+          "value": "ON"
         }
       ]
     },
