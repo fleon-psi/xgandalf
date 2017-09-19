@@ -1,7 +1,7 @@
 #ifndef ADAPTIONS_CRYSTFEL_EXPERIMENT_SETTINGS_H
 #define ADAPTIONS_CRYSTFEL_EXPERIMENT_SETTINGS_H
 
-#include "adaptions/crystfel/Lattice.h"
+#include "Lattice.h"
 
 #ifdef __cplusplus
 extern "C" {

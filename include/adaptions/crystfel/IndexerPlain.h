@@ -2,8 +2,8 @@
 #ifndef ADAPTIONS_CRYSTFEL_INDEXER_PLAIN_H
 #define ADAPTIONS_CRYSTFEL_INDEXER_PLAIN_H
 
-#include "adaptions/crystfel/ExperimentSettings.h"
-#include "adaptions/crystfel/indexerData.h"
+#include "ExperimentSettings.h"
+#include "indexerData.h"
 
 #ifdef __cplusplus
 extern "C" {
