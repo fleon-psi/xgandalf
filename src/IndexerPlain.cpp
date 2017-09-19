@@ -7,6 +7,7 @@
 
 #include <IndexerPlain.h>
 #include <algorithm>
+#include <sstream>
 #include <vector>
 
 using namespace Eigen;
@@ -27,7 +28,30 @@ void IndexerPlain::precompute()
 
     float minSpacingBetweenPeaks = experimentSettings.getDifferentRealLatticeVectorLengths_A().minCoeff() * 0.2;
     float maxPossiblePointNorm = experimentSettings.getDifferentRealLatticeVectorLengths_A().maxCoeff() * 1.2;
-    sparsePeakFinder.precompute(minSpacingBetweenPeaks, maxPossiblePointNorm);
+
+    try
+    {
+        sparsePeakFinder.precompute(minSpacingBetweenPeaks, maxPossiblePointNorm);
+    }
+    catch (const BadInputException& e)
+    {
+        cerr << "\nThe difference between largest and smallest possible lattice vector is verry big. Reducing some parameters to nevertheless make fitting "
+                "possible.\n This will reduce the fitting performance. Consider reducing the quotient between largest and smallest possible lattice vector.\n";
+        minSpacingBetweenPeaks = experimentSettings.getDifferentRealLatticeVectorLengths_A().minCoeff() * 0.4;
+        maxPossiblePointNorm = experimentSettings.getDifferentRealLatticeVectorLengths_A().maxCoeff() * 1.1;
+
+        try
+        {
+            sparsePeakFinder.precompute(minSpacingBetweenPeaks, maxPossiblePointNorm);
+        }
+        catch (const BadInputException& e)
+        {
+            stringstream errStream;
+            errStream << "\nThe quotient between largest and smallest possible lattice vector is too big. To be able to run, make it smaller or contact the "
+                         "developers of xgandalf.\n";
+            throw BadInputException(errStream.str());
+        }
+    }
 
     inverseSpaceTransform = InverseSpaceTransform(maxCloseToPointDeviation);
     inverseSpaceTransform.setFunctionSelection(9);
@@ -151,9 +175,9 @@ void IndexerPlain::setRefineWithExactLattice(bool flag)
 {
     LatticeAssembler::accuracyConstants_t accuracyConstants = latticeAssembler.getAccuracyConstants();
 
-	accuracyConstants.refineWithExactLattice = flag;
+    accuracyConstants.refineWithExactLattice = flag;
 
-	latticeAssembler.setAccuracyConstants(accuracyConstants);
+    latticeAssembler.setAccuracyConstants(accuracyConstants);
 }
 
 
