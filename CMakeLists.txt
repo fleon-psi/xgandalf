@@ -68,7 +68,7 @@ else(Boost_FOUND)
     target_include_directories(xgandalf SYSTEM PUBLIC include/Boost)
 
 	install(
-        DIRECTORY include/boost/
+        DIRECTORY include/Boost/
         DESTINATION include/boost
     )
 endif(Boost_FOUND)
