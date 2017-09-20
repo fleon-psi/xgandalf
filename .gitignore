@@ -6,8 +6,6 @@
 .cproject
 .project
 .settings
-Release/
-Debug/
 cmakeBuild/
 gcc_build/
 workfolder/
