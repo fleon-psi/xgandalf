@@ -66,6 +66,11 @@ if(Boost_FOUND)
 else(Boost_FOUND)
 	message("Boost not found, using internal Boost.")
     target_include_directories(xgandalf SYSTEM PUBLIC include/Boost)
+
+	install(
+        DIRECTORY include/boost/
+        DESTINATION include/boost
+    )
 endif(Boost_FOUND)
 
 if(EIGEN3_FOUND)
