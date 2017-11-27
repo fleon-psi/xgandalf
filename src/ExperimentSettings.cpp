@@ -17,8 +17,10 @@ using namespace std;
 using namespace Eigen;
 
 ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
-                                       float pixelLength_m, float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A)
-    : latticeParametersKnown(false)
+                                       float pixelLength_m, float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A,
+                                       float reflectionRadius_1_per_A)
+    : reflectionRadius_1_per_A(reflectionRadius_1_per_A)
+    , latticeParametersKnown(false)
     , minRealLatticeVectorLength_A(minRealLatticeVectorLength_A)
     , maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A)
 {
@@ -38,8 +40,10 @@ ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float bea
 }
 
 ExperimentSettings::ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
-                                       float nonMonochromaticity, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A)
-    : latticeParametersKnown(false)
+                                       float nonMonochromaticity, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A,
+                                       float reflectionRadius_1_per_A)
+    : reflectionRadius_1_per_A(reflectionRadius_1_per_A)
+    , latticeParametersKnown(false)
     , minRealLatticeVectorLength_A(minRealLatticeVectorLength_A)
     , maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A)
 {
@@ -58,9 +62,9 @@ ExperimentSettings::ExperimentSettings(float beamEenergy_eV, float detectorDista
     differentRealLatticeVectorLengths_A[1] = maxRealLatticeVectorLength_A;
 }
 
-//ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
-//                                       float pixelLength_m, float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A,
-//                                       float minRealLatticeDeterminant_A3, float maxRealLatticeDeterminant_A3)
+// ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
+//                                       float pixelLength_m, float detectorRadius_pixel, float minRealLatticeVectorLength_A, float
+//                                       maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3, float maxRealLatticeDeterminant_A3)
 //    : latticeParametersKnown(false)
 //    , minRealLatticeVectorLength_A(minRealLatticeVectorLength_A)
 //    , maxRealLatticeVectorLength_A(maxRealLatticeVectorLength_A)
@@ -79,7 +83,7 @@ ExperimentSettings::ExperimentSettings(float beamEenergy_eV, float detectorDista
 //    differentRealLatticeVectorLengths_A[1] = maxRealLatticeVectorLength_A;
 //}
 //
-//ExperimentSettings::ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
+// ExperimentSettings::ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
 //                                       float nonMonochromaticity, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A,
 //                                       float minRealLatticeDeterminant_A3, float maxRealLatticeDeterminant_A3)
 //    : latticeParametersKnown(false)
@@ -101,8 +105,10 @@ ExperimentSettings::ExperimentSettings(float beamEenergy_eV, float detectorDista
 //}
 
 ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity,
-                                       float pixelLength_m, float detectorRadius_pixel, const Lattice& sampleReciprocalLattice_1A, float tolerance)
-    : latticeParametersKnown(true)
+                                       float pixelLength_m, float detectorRadius_pixel, const Lattice& sampleReciprocalLattice_1A, float tolerance,
+                                       float reflectionRadius_1_per_A)
+    : reflectionRadius_1_per_A(reflectionRadius_1_per_A)
+    , latticeParametersKnown(true)
     , sampleReciprocalLattice_1A(sampleReciprocalLattice_1A)
     , latticeParametersTolerance(tolerance)
 {
@@ -111,8 +117,9 @@ ExperimentSettings::ExperimentSettings(float coffset_m, float clen_mm, float bea
 }
 
 ExperimentSettings::ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg,
-                                       float nonMonochromaticity, const Lattice& sampleReciprocalLattice_1A, float tolerance)
-    : latticeParametersKnown(true)
+                                       float nonMonochromaticity, const Lattice& sampleReciprocalLattice_1A, float tolerance, float reflectionRadius_1_per_A)
+    : reflectionRadius_1_per_A(reflectionRadius_1_per_A)
+    , latticeParametersKnown(true)
     , sampleReciprocalLattice_1A(sampleReciprocalLattice_1A)
     , latticeParametersTolerance(tolerance)
 {
@@ -122,12 +129,12 @@ ExperimentSettings::ExperimentSettings(float beamEenergy_eV, float detectorDista
 
 void ExperimentSettings::deduceValuesFromSampleReciprocalLattice()
 {
-	Lattice sampleReciprocalLatticeMinimized_1A = sampleReciprocalLattice_1A;
-	sampleReciprocalLatticeMinimized_1A.minimize();
+    Lattice sampleReciprocalLatticeMinimized_1A = sampleReciprocalLattice_1A;
+    sampleReciprocalLatticeMinimized_1A.minimize();
 
     sampleRealLattice_A = sampleReciprocalLattice_1A.getReciprocalLattice();
-	Lattice sampleRealLatticeMinimized_A = sampleRealLattice_A;
-	sampleRealLatticeMinimized_A.minimize();
+    Lattice sampleRealLatticeMinimized_A = sampleRealLattice_A;
+    sampleRealLatticeMinimized_A.minimize();
 
     realLatticeVectorLengths_A = sampleRealLatticeMinimized_A.getBasisVectorNorms();
     realLatticeVectorAngles_deg = sampleRealLatticeMinimized_A.getBasisVectorAngles_deg();
@@ -209,7 +216,7 @@ void ExperimentSettings::constructFromPrecomputedValues(float beamEenergy_eV, fl
     this->nonMonochromaticity = nonMonochromaticity;
 
     divergenceAngle_rad = divergenceAngle_deg * M_PI / 180;
-	maxResolutionAngle_rad = atan(detectorRadius_m / detectorDistance_m);
+    maxResolutionAngle_rad = atan(detectorRadius_m / detectorDistance_m);
 
     float h_Plank = 4.135667662e-15; // Planck constant [eV*s]
     float c_light = 299792458;       // speed of light [m/s]
@@ -285,6 +292,11 @@ float ExperimentSettings::getMaxReciprocalLatticeVectorLength_1A() const
 float ExperimentSettings::getMaxResolutionAngle_rad() const
 {
     return maxResolutionAngle_rad;
+}
+
+float ExperimentSettings::getReflectionRadius() const
+{
+    return reflectionRadius_1_per_A;
 }
 
 float ExperimentSettings::getMinRealLatticeDeterminant_A3() const

@@ -15,21 +15,21 @@ class ExperimentSettings
 {
   public:
     ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity, float pixelLength_m,
-                       float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A);
+                       float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float reflectionRadius_1_per_A);
     ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
-                       float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A);
+                       float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float reflectionRadius_1_per_A);
 
     // ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity, float pixelLength_m,
     //                   float detectorRadius_pixel, float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3,
-    //                   float maxRealLatticeDeterminant_A3);
+    //                   float maxRealLatticeDeterminant_A3, float reflectionRadius_1_per_A);
     // ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
     //                   float minRealLatticeVectorLength_A, float maxRealLatticeVectorLength_A, float minRealLatticeDeterminant_A3,
-    //                   float maxRealLatticeDeterminant_A3);
+    //                   float maxRealLatticeDeterminant_A3, float reflectionRadius_1_per_A);
 
     ExperimentSettings(float coffset_m, float clen_mm, float beamEenergy_eV, float divergenceAngle_deg, float nonMonochromaticity, float pixelLength_m,
-                       float detectorRadius_pixel, const Lattice& sampleReciprocalLattice_1A, float tolerance);
+                       float detectorRadius_pixel, const Lattice& sampleReciprocalLattice_1A, float tolerance, float reflectionRadius_1_per_A);
     ExperimentSettings(float beamEenergy_eV, float detectorDistance_m, float detectorRadius_m, float divergenceAngle_deg, float nonMonochromaticity,
-                       const Lattice& sampleReciprocalLattice_1A, float tolerance);
+                       const Lattice& sampleReciprocalLattice_1A, float tolerance, float reflectionRadius_1_per_A);
 
     float getDetectorDistance_m() const;
     float getDetectorRadius_m() const;
@@ -42,6 +42,7 @@ class ExperimentSettings
     float getNonMonochromaticity() const;
     float getDivergenceAngle_rad() const;
     float getMaxResolutionAngle_rad() const;
+	float getReflectionRadius() const;
 
     bool isLatticeParametersKnown() const;
 
@@ -82,6 +83,7 @@ class ExperimentSettings
     float nonMonochromaticity;
     float divergenceAngle_rad;
     float maxResolutionAngle_rad;
+	float reflectionRadius_1_per_A;
 
     bool latticeParametersKnown;
 
