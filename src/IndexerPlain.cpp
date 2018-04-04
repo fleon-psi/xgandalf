@@ -125,7 +125,8 @@ void IndexerPlain::setSamplingPitch(float unitPitch, bool coverSecondaryMillerIn
 {
     if (experimentSettings.isLatticeParametersKnown())
     {
-        float tolerance = max(unitPitch, experimentSettings.getTolerance());
+        //float tolerance = max(unitPitch, experimentSettings.getTolerance());
+        float tolerance = experimentSettings.getTolerance();
 
         if (!coverSecondaryMillerIndices)
         {

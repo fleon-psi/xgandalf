@@ -68,7 +68,8 @@ void IndexerAutocorrPrefit::setSamplingPitch(float unitPitch)
 {
     if (experimentSettings.isLatticeParametersKnown())
     {
-        float tolerance = max(unitPitch, experimentSettings.getTolerance());
+        //float tolerance = max(unitPitch, experimentSettings.getTolerance());
+		float tolerance = experimentSettings.getTolerance();
 
         samplePointsGenerator.getTightGrid(precomputedSamplePoints, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
     }
