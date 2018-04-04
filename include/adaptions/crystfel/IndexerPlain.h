@@ -47,7 +47,7 @@ void IndexerPlain_setGradientDescentIterationsCount(IndexerPlain* indexerPlain, 
 void IndexerPlain_setRefineWithExactLattice(IndexerPlain* indexerPlain, int flag);
 
 void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assembledLattices, int* assembledLatticesCount, int maxAssambledLatticesCount,
-                        reciprocalPeaks_1_per_A_t reciprocalPeaks_1_per_A);
+                        reciprocalPeaks_1_per_A_t reciprocalPeaks_1_per_A, int* peakCountOnLattices);
 
 void backProjectDetectorPeaks(reciprocalPeaks_1_per_A_t* reciprocalPeaks_1_per_A, const ExperimentSettings* experimentSettings, const float* coordinates_x,
                               const float* coordinates_y, int peakCount);

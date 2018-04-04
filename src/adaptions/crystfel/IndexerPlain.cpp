@@ -89,7 +89,7 @@ void IndexerPlain_setRefineWithExactLattice(IndexerPlain* indexerPlain, int flag
 }
 
 extern "C" void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assembledLattices, int* assembledLatticesCount, int maxAssambledLatticesCount,
-                                   reciprocalPeaks_1_per_A_t reciprocalPeaks_1_per_A)
+                                   reciprocalPeaks_1_per_A_t reciprocalPeaks_1_per_A, int* peakCountOnLattices)
 {
     Eigen::Matrix3Xf reciprocalPeaks_1_per_A_matrix(3, reciprocalPeaks_1_per_A.peakCount);
     for (int i = 0; i < reciprocalPeaks_1_per_A.peakCount; i++)
@@ -99,7 +99,8 @@ extern "C" void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assemb
     }
 
     std::vector<Lattice> assembledLatticesVector;
-    indexerPlain->index(assembledLatticesVector, reciprocalPeaks_1_per_A_matrix);
+	std::vector<int> peakCountOnLatticesVector;
+    indexerPlain->index(assembledLatticesVector, reciprocalPeaks_1_per_A_matrix, peakCountOnLatticesVector);
 
     for (*assembledLatticesCount = 0; (int)*assembledLatticesCount < assembledLatticesVector.size() && *assembledLatticesCount < maxAssambledLatticesCount;
          (*assembledLatticesCount)++)
@@ -114,6 +115,10 @@ extern "C" void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assemb
         assembledLattices[*assembledLatticesCount].cx = basis(0, 2);
         assembledLattices[*assembledLatticesCount].cy = basis(1, 2);
         assembledLattices[*assembledLatticesCount].cz = basis(2, 2);
+
+		if(peakCountOnLattices != NULL) {
+			peakCountOnLattices[*assembledLatticesCount] = peakCountOnLatticesVector[*assembledLatticesCount];
+		}
     }
 }
 

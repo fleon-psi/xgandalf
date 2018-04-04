@@ -42,10 +42,12 @@ class IndexerPlain : public IndexerBase
     IndexerPlain(const ExperimentSettings& experimentSettings);
 
     void index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A);
+    void index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A,
+               std::vector<int>& peakCountOnLattices);
 
     void setSamplingPitch(SamplingPitch samplingPitch);
     void setSamplingPitch(float unitPitch, bool coverSecondaryMillerIndices);
-	void setRefineWithExactLattice(bool flag);
+    void setRefineWithExactLattice(bool flag);
 
     void setGradientDescentIterationsCount(GradientDescentIterationsCount gradientDescentIterationsCount);
 

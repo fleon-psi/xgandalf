@@ -16,13 +16,13 @@
 #include "Lattice.h"
 #include "LatticeAssembler.h"
 #include "SamplePointsGenerator.h"
+#include "SimpleDiffractionPatternPrediction.h"
+#include "SimpleProjection.h"
 #include "SparsePeakFinder.h"
 #include "eigenDiskImport.h"
 #include "pointAutocorrelation.h"
 #include "refinement.h"
 #include "samplePointsFiltering.h"
-#include "SimpleDiffractionPatternPrediction.h"
-#include "SimpleProjection.h"
 #include <Eigen/Dense>
 #include <chrono>
 #include <fstream>
@@ -41,25 +41,25 @@ static ExperimentSettings getExperimentSettingCrystfelTutorial();
 
 void testPatternPrediction()
 {
-	ExperimentSettings experimentSettings = getExperimentSettingLys();
+    ExperimentSettings experimentSettings = getExperimentSettingLys();
 
-	SimpleDiffractionPatternPrediction simpleDiffractionPatternPrediction(experimentSettings);
+    SimpleDiffractionPatternPrediction simpleDiffractionPatternPrediction(experimentSettings);
 
-	Lattice lattice = experimentSettings.getSampleReciprocalLattice_1A();
-	Matrix3Xf peaksOnEwaldSphere;
-	Matrix3Xi millerIndices;
-	Matrix3Xf projectionDirections;
-	simpleDiffractionPatternPrediction.getPeaksOnEwaldSphere(peaksOnEwaldSphere, millerIndices, lattice);
+    Lattice lattice = experimentSettings.getSampleReciprocalLattice_1A();
+    Matrix3Xf peaksOnEwaldSphere;
+    Matrix3Xi millerIndices;
+    Matrix3Xf projectionDirections;
+    simpleDiffractionPatternPrediction.getPeaksOnEwaldSphere(peaksOnEwaldSphere, millerIndices, lattice);
 
-	ofstream myfile("C:\\DesyFiles\\workspaces\\VisualStudio_workspace\\xgandalf\\workfolder\\peaksOnEwaldSphere");
-	myfile << peaksOnEwaldSphere;
-	myfile.close();
+    ofstream myfile("C:\\DesyFiles\\workspaces\\VisualStudio_workspace\\xgandalf\\workfolder\\peaksOnEwaldSphere");
+    myfile << peaksOnEwaldSphere;
+    myfile.close();
 
-	Matrix2Xf predictedPeaks;
-	simpleDiffractionPatternPrediction.predictPattern(predictedPeaks, millerIndices, projectionDirections, lattice);
-	ofstream myfile2("C:\\DesyFiles\\workspaces\\VisualStudio_workspace\\xgandalf\\workfolder\\peaksOnDetector_m");
-	myfile2 << predictedPeaks;
-	myfile2.close();
+    Matrix2Xf predictedPeaks;
+    simpleDiffractionPatternPrediction.predictPattern(predictedPeaks, millerIndices, projectionDirections, lattice);
+    ofstream myfile2("C:\\DesyFiles\\workspaces\\VisualStudio_workspace\\xgandalf\\workfolder\\peaksOnDetector_m");
+    myfile2 << predictedPeaks;
+    myfile2.close();
 }
 
 void test_fixedBasisRefinement()
@@ -81,25 +81,25 @@ void test_fixedBasisRefinement()
 
     cout << "B_sample\n" << B_sample << "\nB\n" << B;
 
-	Matrix2Xd detectorPeakDirections = N.bottomRows(2).colwise().normalized().cast<double>();
-	Matrix3Xd predictedPoints = (B * M).cast<double>();
-	RowVectorXd projectionNorms = (predictedPoints.bottomRows(2).cwiseProduct(detectorPeakDirections)).colwise().sum(); // colwise dot product
-	Matrix2Xd predictedPointsProjected = detectorPeakDirections.array().rowwise() * projectionNorms.array();
-	float meanAngleDefect = (predictedPoints.bottomRows(2) - predictedPointsProjected).colwise().norm().mean();
-	float meanReciprocalDistDefect = (B * M - N).colwise().norm().mean();
-	cout << "start meanReciprocalDistDefect = " << meanReciprocalDistDefect << endl << "start meanAngleDefect" << meanAngleDefect << endl;
+    Matrix2Xd detectorPeakDirections = N.bottomRows(2).colwise().normalized().cast<double>();
+    Matrix3Xd predictedPoints = (B * M).cast<double>();
+    RowVectorXd projectionNorms = (predictedPoints.bottomRows(2).cwiseProduct(detectorPeakDirections)).colwise().sum(); // colwise dot product
+    Matrix2Xd predictedPointsProjected = detectorPeakDirections.array().rowwise() * projectionNorms.array();
+    float meanAngleDefect = (predictedPoints.bottomRows(2) - predictedPointsProjected).colwise().norm().mean();
+    float meanReciprocalDistDefect = (B * M - N).colwise().norm().mean();
+    cout << "start meanReciprocalDistDefect = " << meanReciprocalDistDefect << endl << "start meanAngleDefect" << meanAngleDefect << endl;
 
     refineReciprocalBasis_meanDist_detectorAngleMatchFixedParameters(B, M, N);
 
-	 detectorPeakDirections = N.bottomRows(2).colwise().normalized().cast<double>();
-	 predictedPoints = (B * M).cast<double>();
-	 projectionNorms = (predictedPoints.bottomRows(2).cwiseProduct(detectorPeakDirections)).colwise().sum(); // colwise dot product
-	 predictedPointsProjected = detectorPeakDirections.array().rowwise() * projectionNorms.array();
-	 meanAngleDefect = (predictedPoints.bottomRows(2) - predictedPointsProjected).colwise().norm().mean();
-	 meanReciprocalDistDefect = (B * M - N).colwise().norm().mean();
-	 cout << "end meanReciprocalDistDefect = " << meanReciprocalDistDefect << endl << "end meanAngleDefect" << meanAngleDefect << endl;
+    detectorPeakDirections = N.bottomRows(2).colwise().normalized().cast<double>();
+    predictedPoints = (B * M).cast<double>();
+    projectionNorms = (predictedPoints.bottomRows(2).cwiseProduct(detectorPeakDirections)).colwise().sum(); // colwise dot product
+    predictedPointsProjected = detectorPeakDirections.array().rowwise() * projectionNorms.array();
+    meanAngleDefect = (predictedPoints.bottomRows(2) - predictedPointsProjected).colwise().norm().mean();
+    meanReciprocalDistDefect = (B * M - N).colwise().norm().mean();
+    cout << "end meanReciprocalDistDefect = " << meanReciprocalDistDefect << endl << "end meanAngleDefect" << meanAngleDefect << endl;
 
-	cout <<"\nB last\n" << B;
+    cout << "\nB last\n" << B;
 }
 
 void test_mixedGradientDescentRefinement()
@@ -320,7 +320,7 @@ void test_crystfelAdaption2()
     float pixelLength_m = 110e-6;
     float detectorRadius_pixel = 750;
     float tolerance = 0.04;
-	float reflectionRadius_1_per_A = 10;
+    float reflectionRadius_1_per_A = 10;
 
     float detectorDistance_m = clen_mm * 1e-3 + coffset_m;
     float detectorRadius_m = detectorRadius_pixel * pixelLength_m;
@@ -345,8 +345,9 @@ void test_crystfelAdaption2()
 
     const int maxAssambledLatticesCount = 2;
     Lattice_t assembledLattices[maxAssambledLatticesCount];
+    int peakCountOnLattices[maxAssambledLatticesCount];
     int assembledLatticesCount;
-    IndexerPlain_index(indexer, assembledLattices, &assembledLatticesCount, maxAssambledLatticesCount, reciprocalPeaks_1_per_A);
+    IndexerPlain_index(indexer, assembledLattices, &assembledLatticesCount, maxAssambledLatticesCount, reciprocalPeaks_1_per_A, peakCountOnLattices);
 
     printf("assembledLatticesCount: %d\n\na: %f %f %f\nb: %f %f %f\nc: %f %f %f\n", assembledLatticesCount, assembledLattices[0].ax, assembledLattices[0].ay,
            assembledLattices[0].az, assembledLattices[0].bx, assembledLattices[0].by, assembledLattices[0].bz, assembledLattices[0].cx, assembledLattices[0].cy,
@@ -365,7 +366,7 @@ void test_crystfelAdaption()
     float pixelLength_m = 110e-6;
     float detectorRadius_pixel = 750;
     float tolerance = 0.02;
-	float reflectionRadius_1_per_A = 10;
+    float reflectionRadius_1_per_A = 10;
 
     float detectorDistance_m = clen_mm * 1e-3 + coffset_m;
     float detectorRadius_m = detectorRadius_pixel * pixelLength_m;
@@ -395,7 +396,8 @@ void test_crystfelAdaption()
     const int maxAssambledLatticesCount = 2;
     Lattice_t assembledLattices[maxAssambledLatticesCount];
     int assembledLatticesCount;
-    IndexerPlain_index(indexer, assembledLattices, &assembledLatticesCount, maxAssambledLatticesCount, reciprocalPeaks_1_per_A);
+    int peakCountOnLattices[maxAssambledLatticesCount];
+    IndexerPlain_index(indexer, assembledLattices, &assembledLatticesCount, maxAssambledLatticesCount, reciprocalPeaks_1_per_A, peakCountOnLattices);
 
     printf("assembledLatticesCount: %d\n\na: %f %f %f\nb: %f %f %f\nc: %f %f %f\n", assembledLatticesCount, assembledLattices[0].ax, assembledLattices[0].ay,
            assembledLattices[0].az, assembledLattices[0].bx, assembledLattices[0].by, assembledLattices[0].bz, assembledLattices[0].cx, assembledLattices[0].cy,
@@ -506,7 +508,7 @@ void test_indexerPlain()
     indexer.setSamplingPitch(IndexerPlain::SamplingPitch::standardWithSeondaryMillerIndices);
     // indexer.setSamplingPitch(IndexerPlain::SamplingPitch::denseWithSeondaryMillerIndices);
     // indexer.setGradientDescentIterationsCount(IndexerPlain::GradientDescentIterationsCount::manyMany);
-	indexer.setRefineWithExactLattice(false);
+    indexer.setRefineWithExactLattice(false);
 
     stringstream ss;
     int runNumber = 0;
@@ -856,7 +858,7 @@ static ExperimentSettings getExperimentSettingLys()
     basis = basis / 10; // nm to A
     Lattice sampleReciprocalLattice_1A(basis);
     float tolerance = 0.02;
-	float reflectionRadius_1_per_A = 0.001;
+    float reflectionRadius_1_per_A = 0.001;
 
     return ExperimentSettings(coffset_m, clen_mm, beamEenergy_eV, divergenceAngle_deg, nonMonochromaticity, pixelLength_m, detectorRadius_pixel,
                               sampleReciprocalLattice_1A, tolerance, reflectionRadius_1_per_A);
@@ -891,7 +893,7 @@ static ExperimentSettings getExperimentSettingCrystfelTutorial()
     basis = basis / 10; // nm to A
     Lattice sampleReciprocalLattice_1A(basis);
     float tolerance = 0.04;
-	float reflectionRadius_1_per_A = 10;
+    float reflectionRadius_1_per_A = 10;
 
     return ExperimentSettings(coffset_m, clen_mm, beamEenergy_eV, divergenceAngle_deg, nonMonochromaticity, pixelLength_m, detectorRadius_pixel,
                               sampleReciprocalLattice_1A, tolerance, reflectionRadius_1_per_A);

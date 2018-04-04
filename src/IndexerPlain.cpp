@@ -125,7 +125,7 @@ void IndexerPlain::setSamplingPitch(float unitPitch, bool coverSecondaryMillerIn
 {
     if (experimentSettings.isLatticeParametersKnown())
     {
-        //float tolerance = max(unitPitch, experimentSettings.getTolerance());
+        // float tolerance = max(unitPitch, experimentSettings.getTolerance());
         float tolerance = experimentSettings.getTolerance();
 
         if (!coverSecondaryMillerIndices)
@@ -181,8 +181,13 @@ void IndexerPlain::setRefineWithExactLattice(bool flag)
     latticeAssembler.setAccuracyConstants(accuracyConstants);
 }
 
-
 void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A)
+{
+    vector<int> peakCountOnLattices;
+    index(assembledLattices, reciprocalPeaks_1_per_A, peakCountOnLattices);
+}
+
+void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A, std::vector<int>& peakCountOnLattices)
 {
     if (precomputedSamplePoints.size() == 0)
     {
@@ -235,6 +240,14 @@ void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::M
     Matrix3Xf reciprocalPeaksCopy_1_per_A = reciprocalPeaks_1_per_A;
     latticeAssembler.assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors, candidateVectorWeights, pointIndicesOnVector,
                                       reciprocalPeaksCopy_1_per_A);
+	
+	peakCountOnLattices.clear();
+	peakCountOnLattices.reserve(assembledLatticesStatistics.size());
+    for (const auto &assembledLatticeStatistics : assembledLatticesStatistics)
+    {
+		peakCountOnLattices.push_back(assembledLatticeStatistics.occupiedLatticePointsCount);
+    }
+
 
     //    cout << assembledLatticesStatistics[0].meanDefect << " " << assembledLatticesStatistics[0].meanRelativeDefect << " "
     //            << assembledLatticesStatistics[0].occupiedLatticePointsCount << " " << assembledLatticesStatistics.size() << endl <<
