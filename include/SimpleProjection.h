@@ -9,4 +9,7 @@ class SimpleProjection : public ReciprocalToRealProjection
     SimpleProjection(const ExperimentSettings& experimentSettings);
 
     void project(Eigen::Matrix2Xf& projectedPeaks, const Eigen::Matrix3Xf& reciprocalPeaks);
+
+  private:
+	  float reciprocalLambda_1A;
 };
