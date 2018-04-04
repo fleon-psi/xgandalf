@@ -21,6 +21,8 @@
 #include "pointAutocorrelation.h"
 #include "refinement.h"
 #include "samplePointsFiltering.h"
+#include "SimpleDiffractionPatternPrediction.h"
+#include "SimpleProjection.h"
 #include <Eigen/Dense>
 #include <chrono>
 #include <fstream>
@@ -30,11 +32,35 @@
 
 #include "adaptions/crystfel/IndexerPlain.h"
 
+
 using namespace std;
 using namespace Eigen;
 
 static ExperimentSettings getExperimentSettingLys();
 static ExperimentSettings getExperimentSettingCrystfelTutorial();
+
+void testPatternPrediction()
+{
+	ExperimentSettings experimentSettings = getExperimentSettingLys();
+
+	SimpleDiffractionPatternPrediction simpleDiffractionPatternPrediction(experimentSettings);
+
+	Lattice lattice = experimentSettings.getSampleReciprocalLattice_1A();
+	Matrix3Xf peaksOnEwaldSphere;
+	Matrix3Xi millerIndices;
+	Matrix3Xf projectionDirections;
+	simpleDiffractionPatternPrediction.getPeaksOnEwaldSphere(peaksOnEwaldSphere, millerIndices, lattice);
+
+	ofstream myfile("C:\\DesyFiles\\workspaces\\VisualStudio_workspace\\xgandalf\\workfolder\\peaksOnEwaldSphere");
+	myfile << peaksOnEwaldSphere;
+	myfile.close();
+
+	Matrix2Xf predictedPeaks;
+	simpleDiffractionPatternPrediction.predictPattern(predictedPeaks, millerIndices, projectionDirections, lattice);
+	ofstream myfile2("C:\\DesyFiles\\workspaces\\VisualStudio_workspace\\xgandalf\\workfolder\\peaksOnDetector_m");
+	myfile2 << predictedPeaks;
+	myfile2.close();
+}
 
 void test_fixedBasisRefinement()
 {
@@ -294,6 +320,7 @@ void test_crystfelAdaption2()
     float pixelLength_m = 110e-6;
     float detectorRadius_pixel = 750;
     float tolerance = 0.04;
+	float reflectionRadius_1_per_A = 10;
 
     float detectorDistance_m = clen_mm * 1e-3 + coffset_m;
     float detectorRadius_m = detectorRadius_pixel * pixelLength_m;
@@ -302,7 +329,7 @@ void test_crystfelAdaption2()
                                             -0.00374347f, +0.01601091f, +0.00156280f, -0.02065220f};
 
     ExperimentSettings* experimentSettings = ExperimentSettings_new(beamEenergy_eV, detectorDistance_m, detectorRadius_m, divergenceAngle_deg,
-                                                                    nonMonochromaticity, sampleReciprocalLattice_1A, tolerance);
+                                                                    nonMonochromaticity, sampleReciprocalLattice_1A, tolerance, reflectionRadius_1_per_A);
 
     samplingPitch_t samplingPitch = SAMPLING_PITCH_denseWithSeondaryMillerIndices;
     gradientDescentIterationsCount_t gradientDescentIterationsCount = GRADIENT_DESCENT_ITERATION_COUNT_manyMany;
@@ -338,6 +365,7 @@ void test_crystfelAdaption()
     float pixelLength_m = 110e-6;
     float detectorRadius_pixel = 750;
     float tolerance = 0.02;
+	float reflectionRadius_1_per_A = 10;
 
     float detectorDistance_m = clen_mm * 1e-3 + coffset_m;
     float detectorRadius_m = detectorRadius_pixel * pixelLength_m;
@@ -346,7 +374,7 @@ void test_crystfelAdaption()
                                             -0.00374347f, +0.01601091f, +0.00156280f, -0.02065220f};
 
     ExperimentSettings* experimentSettings = ExperimentSettings_new(beamEenergy_eV, detectorDistance_m, detectorRadius_m, divergenceAngle_deg,
-                                                                    nonMonochromaticity, sampleReciprocalLattice_1A, tolerance);
+                                                                    nonMonochromaticity, sampleReciprocalLattice_1A, tolerance, reflectionRadius_1_per_A);
 
     samplingPitch_t samplingPitch = SAMPLING_PITCH_standard;
     gradientDescentIterationsCount_t gradientDescentIterationsCount = GRADIENT_DESCENT_ITERATION_COUNT_standard;
@@ -828,9 +856,10 @@ static ExperimentSettings getExperimentSettingLys()
     basis = basis / 10; // nm to A
     Lattice sampleReciprocalLattice_1A(basis);
     float tolerance = 0.02;
+	float reflectionRadius_1_per_A = 0.001;
 
     return ExperimentSettings(coffset_m, clen_mm, beamEenergy_eV, divergenceAngle_deg, nonMonochromaticity, pixelLength_m, detectorRadius_pixel,
-                              sampleReciprocalLattice_1A, tolerance);
+                              sampleReciprocalLattice_1A, tolerance, reflectionRadius_1_per_A);
 }
 
 static ExperimentSettings getExperimentSettingCrystfelTutorial()
@@ -862,7 +891,8 @@ static ExperimentSettings getExperimentSettingCrystfelTutorial()
     basis = basis / 10; // nm to A
     Lattice sampleReciprocalLattice_1A(basis);
     float tolerance = 0.04;
+	float reflectionRadius_1_per_A = 10;
 
     return ExperimentSettings(coffset_m, clen_mm, beamEenergy_eV, divergenceAngle_deg, nonMonochromaticity, pixelLength_m, detectorRadius_pixel,
-                              sampleReciprocalLattice_1A, tolerance);
+                              sampleReciprocalLattice_1A, tolerance, reflectionRadius_1_per_A);
 }

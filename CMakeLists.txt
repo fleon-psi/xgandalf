@@ -45,9 +45,16 @@ set(SOURCES src/Dbscan.cpp
             src/SamplePointsGenerator.cpp 
             src/SparsePeakFinder.cpp
 
+			src/ReciprocalToRealProjection.cpp
+			src/SimpleDiffractionPatternPrediction.cpp
+			src/SimpleProjection.cpp
+
 			src/adaptions/crystfel/IndexerPlain.cpp
 			src/adaptions/crystfel/ExperimentSettings.cpp
 			src/adaptions/crystfel/indexerData.cpp
+
+			src/adaptions/crystfel/projectionData.cpp
+			src/adaptions/crystfel/SimpleDiffractionPatternPrediction.cpp
   )
 
 set(SOURCES_test src/main.cpp

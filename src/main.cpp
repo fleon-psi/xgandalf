@@ -32,9 +32,10 @@ int main()
 {
     try
     {
+		testPatternPrediction();
         // test_filterSamplePointsForNorm();
         // test_indexerAutocorrPrefit();
-         test_indexerPlain();
+         //test_indexerPlain();
         // test_crystfelAdaption();
         // test_crystfelAdaption2();
         // test_latticeReorder();
@@ -47,7 +48,9 @@ int main()
         cout << e.what();
     }
 
-
+	cout << endl << 
+		
+		"done";
     getchar();
 
     return 0;
