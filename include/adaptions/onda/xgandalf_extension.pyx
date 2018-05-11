@@ -29,17 +29,20 @@ cdef class Xgandalf:
                                     float maxRealLatticeVectorLength_A,
                                     float tolerance,
                                     int samplingPitch_selector,
-                                    int gradientDescentIterationsCount_selector):
+                                    int gradientDescentIterationsCount_selector,
+                                    float nonMonochromaticity = 0.01,
+                                    float reflectionRadius_1_per_A = -1):
 
-        cdef float detectorRadius_m__dummy = 0.5
-        cdef float divergenceAngle_deg__dummy = 0.05
-        cdef float nonMonochromaticity__dummy = 0.005
-        cdef float reflectionRadius_1_per_A__dummy = 0.0002
+        cdef float detectorRadius_m__dummy = 0.09
+        cdef float divergenceAngle_deg__dummy = 0.01
+
+        if reflectionRadius_1_per_A < 0:
+            reflectionRadius_1_per_A = 0.0002
 
         self.detectorDistance_m = detectorDistance_m
 
         self.experimentSettings = cpp.ExperimentSettings_new_nolatt(beamEenergy_eV, detectorDistance_m, detectorRadius_m__dummy, divergenceAngle_deg__dummy,
-                                                   nonMonochromaticity__dummy, minRealLatticeVectorLength_A, maxRealLatticeVectorLength_A, reflectionRadius_1_per_A__dummy)
+                                                   nonMonochromaticity, minRealLatticeVectorLength_A, maxRealLatticeVectorLength_A, reflectionRadius_1_per_A)
 
         self.indexer = cpp.IndexerPlain_new(self.experimentSettings)
 
@@ -62,7 +65,10 @@ cdef class Xgandalf:
                                     int useExactLatticeFlag,
                                     float tolerance,
                                     int samplingPitch_selector,
-                                    int gradientDescentIterationsCount_selector):
+                                    int gradientDescentIterationsCount_selector,
+                                    float nonMonochromaticity = 0.01,
+                                    float reflectionRadius_1_per_A = -1
+                                    ):
 
         self.detectorDistance_m = detectorDistance_m
 
@@ -72,8 +78,9 @@ cdef class Xgandalf:
 
         cdef float detectorRadius_m__dummy = 0.09
         cdef float divergenceAngle_deg__dummy = 0.01
-        cdef float nonMonochromaticity__dummy = 0.01
-        cdef float reflectionRadius_1_per_A__dummy = np.mean(np.linalg.norm(basis, axis=0))*0.05
+
+        if reflectionRadius_1_per_A < 0:
+            reflectionRadius_1_per_A = np.mean(np.linalg.norm(basis, axis=0))*0.05
 
         cdef cpp.Lattice_t sampleReciprocalLattice_1A
         sampleReciprocalLattice_1A.ax = aStar[0]
@@ -88,7 +95,7 @@ cdef class Xgandalf:
 
 
         self.experimentSettings = cpp.ExperimentSettings_new(beamEenergy_eV, detectorDistance_m, detectorRadius_m__dummy, divergenceAngle_deg__dummy,
-                                               nonMonochromaticity__dummy, sampleReciprocalLattice_1A, tolerance, reflectionRadius_1_per_A__dummy)
+                                               nonMonochromaticity, sampleReciprocalLattice_1A, tolerance, reflectionRadius_1_per_A)
 
         self.indexer = cpp.IndexerPlain_new(self.experimentSettings)
 
