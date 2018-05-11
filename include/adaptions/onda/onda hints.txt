@@ -1,0 +1,205 @@
+from onda.cfelpyutils import crystfel_utils, geometry_utils
+
+build (setup.py):
+xandalf_indexer_ext = Extension(
+                    name="Xgandalf",
+                    sources=["ondacython/xgandalf/Xgandalf.pyx"],
+                    include_dirs=["/reg/neh/home/gevorkov/programming/custom/installed/include/xgandalf",
+                                  "/reg/neh/home/gevorkov/programming/custom/installed/include/eigen3/Eigen"],
+                    libraries=["xgandalf"],
+                    library_dirs=["/reg/neh/home/gevorkov/programming/custom/installed/lib"],
+                    runtime_library_dirs=["/reg/neh/home/gevorkov/programming/custom/installed/lib"],
+                    extra_compile_args=["-std=gnu++11"],
+                    language="c++")
+
+
+init:
+
+    geometry = crystfel_utils.load_crystfel_geometry(geometry_filename)
+    pixelmaps = geometry_utils.compute_pixel_maps(geometry)
+
+    self._useExactLatticeFlag = monitor_parameters.get_param(
+        section='XgandalfIndexing',
+        parameter='use_exact_lattice_flag',
+        type_=int,
+        required=True
+    )
+
+    self._samplingPitch_selector = monitor_parameters.get_param(
+        section='XgandalfIndexing',
+        parameter='sampling_pitch_selector',
+        type_=int,
+        required=True
+    )
+
+    self._gradientDescentIterationsCount_selector = monitor_parameters.get_param(
+        section='XgandalfIndexing',
+        parameter='gradient_descent_iterations_count_selector',
+        type_=int,
+        required=True
+    )
+
+    self._tolerance = monitor_parameters.get_param(
+        section='XgandalfIndexing',
+        parameter='tolerance',
+        type_=float,
+        required=True
+    )
+
+    self._sigma_factor_biggest_pixel = monitor_parameters.get_param(
+        section='Peakfinder9PeakDetection',
+        parameter='sigma_factor_biggest_pixel',
+        type_=float,
+        required=True
+    )
+
+    self._sigma_factor_peak_pixel = monitor_parameters.get_param(
+        section='Peakfinder9PeakDetection',
+        parameter='sigma_factor_peak_pixel',
+        type_=float,
+        required=True
+    )
+
+    self._sigma_factor_whole_peak = monitor_parameters.get_param(
+        section='Peakfinder9PeakDetection',
+        parameter='sigma_factor_whole_peak',
+        type_=float,
+        required=True
+    )
+
+    self._minimum_sigma = monitor_parameters.get_param(
+        section='Peakfinder9PeakDetection',
+        parameter='minimum_sigma',
+        type_=float,
+        required=True
+    )
+
+    self._minimum_peak_oversize_over_neighbours = monitor_parameters.get_param(
+        section='Peakfinder9PeakDetection',
+        parameter='minimum_peak_oversize_over_neighbours',
+        type_=float,
+        required=True
+    )
+
+    self._window_radius = monitor_parameters.get_param(
+        section='Peakfinder9PeakDetection',
+        parameter='window_radius',
+        type_=int,
+        required=True
+    )
+
+    first_panel = list(geometry['panels'].keys())[0]
+
+    pixel_length = 1/float(geometry['panels'][first_panel]['res'])
+    self._alignment_lookup = namedtuple(  # pylint: disable=C0103
+        typename='ImageCenter',
+        field_names=['y', 'x']
+    )
+    self._alignment_lookup.x = pixelmaps.x * pixel_length
+    self._alignment_lookup.y = pixelmaps.y * pixel_length
+
+    clen_m = geometry['panels'][first_panel]['clen']                     #currently only numers, not paths in the geom file supported
+    coffset_m = geometry['panels'][first_panel]['coffset']
+    beamEenergy_eV = geometry['beam']['photon_energy']
+    detectorDistance_m = clen_m + coffset_m
+
+    aKnown = np.array([62.67, 0, 0], dtype=np.float32)			#hardcoded cell!!!!!!!!!!!!!!!!!!!!!
+    bKnown = np.array([0, 81.16, 0], dtype=np.float32)
+    cKnown = np.array([0, 0, 111.83], dtype=np.float32)
+    realBasisKnown =  np.column_stack((aKnown, bKnown, cKnown))
+    reciprocalBasisKnown = np.linalg.inv(np.transpose(realBasisKnown))
+    aStar = reciprocalBasisKnown[:, 0]
+    bStar = reciprocalBasisKnown[:, 1]
+    cStar = reciprocalBasisKnown[:, 2]
+
+    self.xgandalf = Xgandalf()
+    self.xgandalf.precomputeWithLattice(beamEenergy_eV,
+                                   detectorDistance_m,
+                                   aStar,
+                                   bStar,
+                                   cStar,
+                                   self._useExactLatticeFlag,
+                                   self._tolerance,
+                                   self._samplingPitch_selector,
+                                   self._gradientDescentIterationsCount_selector)
+
+    with h5py.File(name=pf8_bad_pixel_map_fname, mode='r') as fhandle:
+        self._mask = 1-(fhandle[pf8_bad_pixel_map_hdf5_path][:]).astype(np.uint8)
+
+    self._fdip = FastDiffractionImageProcessing(
+        asic_nx=pf8_detector_info.asic_nx,
+        asic_ny=pf8_detector_info.asic_ny,
+        nasics_x=pf8_detector_info.nasics_x,
+        nasics_y=pf8_detector_info.nasics_y,
+        x_map=pixelmaps.x.astype(np.float32),
+        y_map=pixelmaps.y.astype(np.float32),
+        global_mask=self._mask,
+        peak_finding_mask=self._mask)
+
+    self._fdip.precompute_peak_finder9(1024)
+
+
+
+Processing:
+start = time.time()
+self._fdip.set_data(corr_det_data)
+(max_intensity, total_intensity, sigma_background, snr, pixel_count, center_of_mass__raw_x,
+ center_of_mass__raw_y) = self._fdip.apply_peak_finder9(
+    sigma_factor_biggest_pixel=self._sigma_factor_biggest_pixel,
+    sigma_factor_peak_pixel=self._sigma_factor_peak_pixel,
+    sigma_factor_whole_peak=self._sigma_factor_whole_peak,
+    minimum_sigma=self._minimum_sigma,
+    minimum_peak_oversize_over_neighbours=self._minimum_peak_oversize_over_neighbours,
+    window_radius=self._window_radius
+    )
+end = time.time()
+
+peak_count_9 = len(total_intensity)
+coordinates_x_9 = np.zeros(peak_count_9, dtype=np.float32)
+coordinates_y_9 = np.zeros(peak_count_9, dtype=np.float32)
+for i in range(len(coordinates_y_9)):
+coordinates_x_9[i] = self._alignment_lookup.x[int(round(center_of_mass__raw_y[i])), int(round(center_of_mass__raw_x[i]))]
+coordinates_y_9[i] = self._alignment_lookup.y[int(round(center_of_mass__raw_y[i])), int(round(center_of_mass__raw_x[i]))]
+
+start = time.time()
+(aFound, bFound, cFound, peakCountOnLattice_9) = self.xgandalf.findLattice(coordinates_x_9, coordinates_y_9)
+realBasisFound = np.column_stack((aFound, bFound, cFound))
+end = time.time()
+print("time elapsed for indexing: ", end - start)
+
+if peakCountOnLattice_9 > 0:
+    print("peakCountOnLattice: ", peakCountOnLattice_9)
+    print("correctly predicted peaks ratio: ", peakCountOnLattice_9/peak_count )
+    print("found lattice: ", (aFound, bFound, cFound))
+
+    reciprocalBasisFound = np.linalg.inv(np.transpose(realBasisFound))
+    aStar = reciprocalBasisFound[:, 0]
+    bStar = reciprocalBasisFound[:, 1]
+    cStar = reciprocalBasisFound[:, 2]
+    (predicted_x, predicted_y) = self.xgandalf.predictPattern(aStar, bStar, cStar)
+
+    # plt.plot(predicted_x, predicted_y, 'x')
+else:
+    print("indexing not successful")
+
+results_dict['timestamp'] = data['timestamp']
+if not hit:
+    results_dict['peak_list'] = cryst_algs.PeakList([], [], [])
+else:
+    peak_list = cryst_algs.PeakList(ss=coordinates_y_9,fs=coordinates_x_9,intensity=total_intensity)
+    results_dict['peak_list'] = peak_list
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
