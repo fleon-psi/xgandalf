@@ -1,6 +1,5 @@
 import numpy as np
-cimport xgandalf_cpp as cpp
-
+cimport xgandalf_cpp_extension as cpp
 
 cdef class Xgandalf:
     cdef cpp.ExperimentSettings* experimentSettings
