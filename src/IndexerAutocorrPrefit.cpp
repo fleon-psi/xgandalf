@@ -185,7 +185,7 @@ void IndexerAutocorrPrefit::autocorrPrefit(const Matrix3Xf& reciprocalPeaks_A, M
 
     inverseSpaceTransform.setPointsToTransform(autocorrelationReciprocalPeaks);
     inverseSpaceTransform.setFunctionSelection(9);
-    inverseSpaceTransform.setOptionalFunctionArgument(8);
+    inverseSpaceTransform.setOptionalFunctionArgument(4);
     inverseSpaceTransform.clearLocalTransformFlag();
     inverseSpaceTransform.clearRadialWeightingFlag();
     inverseSpaceTransform.performTransform(samplePoints);
@@ -199,7 +199,7 @@ void IndexerAutocorrPrefit::autocorrPrefit(const Matrix3Xf& reciprocalPeaks_A, M
 
     inverseSpaceTransform.setPointsToTransform(reciprocalPeaks_A);
     inverseSpaceTransform.setFunctionSelection(9);
-    inverseSpaceTransform.setOptionalFunctionArgument(8);
+    inverseSpaceTransform.setOptionalFunctionArgument(4);
     inverseSpaceTransform.clearLocalTransformFlag();
     inverseSpaceTransform.clearRadialWeightingFlag();
     inverseSpaceTransform.performTransform(samplePoints);
@@ -310,7 +310,7 @@ void IndexerAutocorrPrefit::index(std::vector<Lattice>& assembledLattices, const
     /////// assemble lattices
     inverseSpaceTransform.setPointsToTransform(reciprocalPeaks_1_per_A);
     inverseSpaceTransform.setFunctionSelection(9);
-    inverseSpaceTransform.setOptionalFunctionArgument(8);
+    inverseSpaceTransform.setOptionalFunctionArgument(4);
     inverseSpaceTransform.setLocalTransformFlag();
     inverseSpaceTransform.clearRadialWeightingFlag();
     inverseSpaceTransform.performTransform(samplePoints);

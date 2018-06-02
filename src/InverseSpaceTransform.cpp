@@ -129,7 +129,7 @@ static inline void function1_periodic(ArrayXXf& x, ArrayXXf& functionEvaluation,
         functionEvaluation = cos(x * (2 * M_PI));
         slope = -sin(x * (2 * M_PI));
 
-        float threshold = cos(maxCloseToPointDeviation * (2 * M_PI));
+        float threshold = cos(maxCloseToPointDeviation * (2 * M_PI));  // can be precomputed
         closeToPoint = functionEvaluation > threshold;
     }
     else
@@ -194,11 +194,11 @@ static inline void function9(const ArrayXXf& x, ArrayXXf& functionEvaluation, Ar
 {
     if (optionalFunctionArgument - round(optionalFunctionArgument) == 0)
     {
-        //        functionEvaluation = pow(1 - abs(x), (int) optionalFunctionArgument) * 2 - 1;
-        //        slope = -x * pow(1 - abs(x), (int) optionalFunctionArgument - 1) / (abs(x) + 0.0001);
+        //        functionEvaluation = pow(1 - 2*abs(x), (int) optionalFunctionArgument) * 2 - 1;
+        //        slope = -x * pow(1 - 2*abs(x), (int) optionalFunctionArgument - 1) / (abs(x) + 0.0001);
         int exponent = (int)optionalFunctionArgument;
 
-        ArrayXXf base = 1 - abs(x); // TODO: auto may be faster or slower... check!
+        ArrayXXf base = 1 - 2*abs(x); // TODO: auto may be faster or slower... check!
         switch (exponent)
         { // just for performance, in case the compiler does not recognize the integer exponent
             case 1:
@@ -256,8 +256,8 @@ static inline void function9(const ArrayXXf& x, ArrayXXf& functionEvaluation, Ar
     }
     else
     {
-        functionEvaluation = pow(1 - abs(x), optionalFunctionArgument) * 2 - 1;
-        slope = -x * pow(1 - abs(x), optionalFunctionArgument - 1) / (abs(x) + 0.0001);
+        functionEvaluation = pow(1 - 2*abs(x), optionalFunctionArgument) * 2 - 1;
+        slope = -x * pow(1 - 2*abs(x), optionalFunctionArgument - 1) / (abs(x) + 0.0001);
     }
 }
 
@@ -270,42 +270,42 @@ void InverseSpaceTransform::onePeriodicFunction(ArrayXXf& x)
                                accuracyConstants.maxCloseToPointDeviation);
             break;
         case 2:
-            x = x - round(x); // catastrophic cancellation possible
+            x = x - round(x);
             closeToPoint = abs(x) < accuracyConstants.maxCloseToPointDeviation;
             function2(x, functionEvaluation, slope);
             break;
         case 3:
-            x = x - round(x); // catastrophic cancellation possible
+            x = x - round(x); 
             closeToPoint = abs(x) < accuracyConstants.maxCloseToPointDeviation;
             function3(x, functionEvaluation, slope);
             break;
         case 4:
-            x = x - round(x); // catastrophic cancellation possible
+            x = x - round(x); 
             closeToPoint = abs(x) < accuracyConstants.maxCloseToPointDeviation;
             function4(x, functionEvaluation, slope);
             break;
         case 5:
-            x = x - round(x); // catastrophic cancellation possible
+            x = x - round(x);
             closeToPoint = abs(x) < accuracyConstants.maxCloseToPointDeviation;
             function5(x, functionEvaluation, slope);
             break;
         case 6:
-            x = x - round(x); // catastrophic cancellation possible
+            x = x - round(x);
             closeToPoint = abs(x) < accuracyConstants.maxCloseToPointDeviation;
             function6(x, functionEvaluation, slope);
             break;
         case 7:
-            x = x - round(x); // catastrophic cancellation possible
+            x = x - round(x);
             closeToPoint = abs(x) < accuracyConstants.maxCloseToPointDeviation;
             function7(x, functionEvaluation, slope, accuracyConstants.optionalFunctionArgument);
             break;
         case 8:
-            x = x - round(x); // catastrophic cancellation possible
+            x = x - round(x);
             closeToPoint = abs(x) < accuracyConstants.maxCloseToPointDeviation;
             function8(x, functionEvaluation, slope);
             break;
         case 9:
-            x = x - round(x); // catastrophic cancellation possible
+            x = x - round(x);
             closeToPoint = abs(x) < accuracyConstants.maxCloseToPointDeviation;
             function9(x, functionEvaluation, slope, accuracyConstants.optionalFunctionArgument);
             break;

@@ -35,7 +35,7 @@ void IndexerPlain::precompute()
     }
     catch (const BadInputException& e)
     {
-        cerr << "\nThe difference between largest and smallest possible lattice vector is verry big. Reducing some parameters to nevertheless make fitting "
+        cerr << "\nThe difference between largest and smallest possible lattice vector is very big. Reducing some parameters to nevertheless make fitting "
                 "possible.\n This will reduce the fitting performance. Consider reducing the quotient between largest and smallest possible lattice vector.\n";
         minSpacingBetweenPeaks = experimentSettings.getDifferentRealLatticeVectorLengths_A().minCoeff() * 0.4;
         maxPossiblePointNorm = experimentSettings.getDifferentRealLatticeVectorLengths_A().maxCoeff() * 1.1;
@@ -388,7 +388,7 @@ void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCo
     additionalGlobal.stepComputationAccuracyConstants.directionChangeFactor = 2.5;
 
     peaks.functionSelection = 9;
-    peaks.optionalFunctionArgument = 8;
+    peaks.optionalFunctionArgument = 4;
     peaks.maxCloseToPointDeviation = maxCloseToPointDeviation;
 
     peaks.initialIterationCount = 0;
