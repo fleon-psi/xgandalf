@@ -372,7 +372,7 @@ void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCo
     global.maxCloseToPointDeviation = maxCloseToPointDeviation;
 
     additionalGlobal.functionSelection = 9;
-    additionalGlobal.optionalFunctionArgument = 8;
+    additionalGlobal.optionalFunctionArgument = 4;
     additionalGlobal.maxCloseToPointDeviation = maxCloseToPointDeviation;
 
     additionalGlobal.initialIterationCount = 0;
