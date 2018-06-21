@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "SimpleProjection.h"
+#include "SimpleMonochromaticProjection.h"
 #include <Eigen/Dense>
 
 class SimpleDiffractionPatternPrediction
@@ -13,7 +13,7 @@ class SimpleDiffractionPatternPrediction
     void predictPattern(Eigen::Matrix2Xf& predictedPeaks, Eigen::Matrix3Xi& millerIndices, Eigen::Matrix3Xf& projectionDirections, const Lattice& lattice);
 
   private:
-    SimpleProjection reciprocalToRealProjection;
+	  SimpleMonochromaticProjection reciprocalToRealProjection;
 
     float maxResolutionAngle;
     float reflectionRadius;

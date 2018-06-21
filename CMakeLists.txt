@@ -47,7 +47,7 @@ set(SOURCES src/Dbscan.cpp
 
 			src/ReciprocalToRealProjection.cpp
 			src/SimpleDiffractionPatternPrediction.cpp
-			src/SimpleProjection.cpp
+			src/SimpleMonochromaticProjection.cpp
 
 			src/adaptions/crystfel/IndexerPlain.cpp
 			src/adaptions/crystfel/ExperimentSettings.cpp

@@ -17,7 +17,7 @@
 #include "LatticeAssembler.h"
 #include "SamplePointsGenerator.h"
 #include "SimpleDiffractionPatternPrediction.h"
-#include "SimpleProjection.h"
+#include "SimpleMonochromaticProjection.h"
 #include "SparsePeakFinder.h"
 #include "eigenDiskImport.h"
 #include "pointAutocorrelation.h"
