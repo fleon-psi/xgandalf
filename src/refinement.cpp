@@ -181,10 +181,10 @@ void refineReciprocalBasis_meanSquaredDist_fixedBasisParameters_kabsch(Matrix3f&
 
 	Matrix3f H = P*Q.transpose();
 
-	JacobiSVD<MatrixXf> svd(H.rows(), H.cols(), ComputeThinU | ComputeThinV);
+	JacobiSVD<MatrixXf> svd(H.rows(), H.cols(), ComputeFullU | ComputeFullV);
 	svd.compute(H);
 	Matrix3f U = svd.matrixU();
-	MatrixXf V = svd.matrixV();
+	Matrix3f V = svd.matrixV();
 
 	float d = (V*U.transpose()).determinant();
 
