@@ -62,6 +62,46 @@ void testPatternPrediction()
     myfile2.close();
 }
 
+void test_fixedBasisRefinementKabsch()
+{
+	Matrix3f B, B_sample;
+	Matrix3Xf M(3, 5);
+	Matrix3Xf N(3, 5);
+	Matrix3f gradient;
+	Matrix3f summedGradient;
+
+	B << 1, 3, 5, 7, 9, 2, 4, 6, 8;
+	M << 1, 4, 7, 8, 5, 2, 3, 6, 9, 1, 4, 7, 8, 5, 2;
+	N << 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3;
+	N += B * M;
+
+	B_sample = B;
+
+	refineReciprocalBasis_meanSquaredDist_fixedBasisParameters_kabsch(B, M, N, B_sample);
+
+	cout << "B_sample\n" << B_sample << "\nB\n" << B;
+
+	Matrix2Xd detectorPeakDirections = N.bottomRows(2).colwise().normalized().cast<double>();
+	Matrix3Xd predictedPoints = (B * M).cast<double>();
+	RowVectorXd projectionNorms = (predictedPoints.bottomRows(2).cwiseProduct(detectorPeakDirections)).colwise().sum(); // colwise dot product
+	Matrix2Xd predictedPointsProjected = detectorPeakDirections.array().rowwise() * projectionNorms.array();
+	float meanAngleDefect = (predictedPoints.bottomRows(2) - predictedPointsProjected).colwise().norm().mean();
+	float meanReciprocalDistDefect = (B * M - N).colwise().norm().mean();
+	cout << endl << "start meanReciprocalDistDefect = " << meanReciprocalDistDefect << endl << "start meanAngleDefect" << meanAngleDefect << endl;
+
+	refineReciprocalBasis_meanDist_detectorAngleMatchFixedParameters(B, M, N);
+
+	detectorPeakDirections = N.bottomRows(2).colwise().normalized().cast<double>();
+	predictedPoints = (B * M).cast<double>();
+	projectionNorms = (predictedPoints.bottomRows(2).cwiseProduct(detectorPeakDirections)).colwise().sum(); // colwise dot product
+	predictedPointsProjected = detectorPeakDirections.array().rowwise() * projectionNorms.array();
+	meanAngleDefect = (predictedPoints.bottomRows(2) - predictedPointsProjected).colwise().norm().mean();
+	meanReciprocalDistDefect = (B * M - N).colwise().norm().mean();
+	cout << "end meanReciprocalDistDefect = " << meanReciprocalDistDefect << endl << "end meanAngleDefect" << meanAngleDefect << endl;
+
+	cout << "\nB last\n" << B << endl << endl << endl;
+}
+
 void test_fixedBasisRefinement()
 {
     Matrix3f B, B_sample;
@@ -87,7 +127,7 @@ void test_fixedBasisRefinement()
     Matrix2Xd predictedPointsProjected = detectorPeakDirections.array().rowwise() * projectionNorms.array();
     float meanAngleDefect = (predictedPoints.bottomRows(2) - predictedPointsProjected).colwise().norm().mean();
     float meanReciprocalDistDefect = (B * M - N).colwise().norm().mean();
-    cout << "start meanReciprocalDistDefect = " << meanReciprocalDistDefect << endl << "start meanAngleDefect" << meanAngleDefect << endl;
+    cout << endl << "start meanReciprocalDistDefect = " << meanReciprocalDistDefect << endl << "start meanAngleDefect" << meanAngleDefect << endl;
 
     refineReciprocalBasis_meanDist_detectorAngleMatchFixedParameters(B, M, N);
 
@@ -99,7 +139,7 @@ void test_fixedBasisRefinement()
     meanReciprocalDistDefect = (B * M - N).colwise().norm().mean();
     cout << "end meanReciprocalDistDefect = " << meanReciprocalDistDefect << endl << "end meanAngleDefect" << meanAngleDefect << endl;
 
-    cout << "\nB last\n" << B;
+    cout << "\nB last\n" << B << endl << endl << endl;
 }
 
 void test_mixedGradientDescentRefinement()

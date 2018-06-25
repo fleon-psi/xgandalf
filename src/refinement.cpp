@@ -170,6 +170,32 @@ void refineReciprocalBasis_meanSquaredDist_fixedBasisParameters(Matrix3f& B, con
     B = estimatedR * B_sample;
 }
 
+// B: reciprocal basis
+// B_sample: sample reciprocal basis (with correct lattice parameters)
+// M: miller indices (reciprocal)
+// N: reciprocal peaks
+void refineReciprocalBasis_meanSquaredDist_fixedBasisParameters_kabsch(Matrix3f& B, const Matrix3Xf& M, const Matrix3Xf& N, const Matrix3f& B_sample)
+{
+	const Matrix3Xf& Q = N;
+	Matrix3Xf P = B_sample*M;
+
+	Matrix3f H = P*Q.transpose();
+
+	JacobiSVD<MatrixXf> svd(H.rows(), H.cols(), ComputeThinU | ComputeThinV);
+	svd.compute(H);
+	Matrix3f U = svd.matrixU();
+	MatrixXf V = svd.matrixV();
+
+	float d = (V*U.transpose()).determinant();
+
+	Matrix3f rightHandInsurance = Matrix3f::Identity();
+	rightHandInsurance(2, 2) = d;
+
+	Matrix3f estimatedR = V*rightHandInsurance*U.transpose();
+
+	B = estimatedR * B_sample;
+}
+
 
 // B: reciprocal basis
 // M: miller indices (reciprocal)

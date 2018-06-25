@@ -32,16 +32,17 @@ int main()
 {
     try
     {
-		testPatternPrediction();
+		// testPatternPrediction();
         // test_filterSamplePointsForNorm();
         // test_indexerAutocorrPrefit();
-         //test_indexerPlain();
+        test_indexerPlain();
         // test_crystfelAdaption();
         // test_crystfelAdaption2();
         // test_latticeReorder();
         // test_gradientDescentRefinement();
         // test_mixedGradientDescentRefinement();
-        //test_fixedBasisRefinement();
+        // test_fixedBasisRefinement();
+		// test_fixedBasisRefinementKabsch();
     }
     catch (exception& e)
     {

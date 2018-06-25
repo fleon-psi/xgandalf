@@ -10,6 +10,7 @@
 
 void test();
 void testPatternPrediction();
+void test_fixedBasisRefinementKabsch();
 void test_fixedBasisRefinement();
 void test_mixedGradientDescentRefinement();
 void test_gradientDescentRefinement();
