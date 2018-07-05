@@ -16,7 +16,7 @@
 #include "Lattice.h"
 #include "LatticeAssembler.h"
 #include "SamplePointsGenerator.h"
-#include "SimpleDiffractionPatternPrediction.h"
+#include "SimpleMonochromaticDiffractionPatternPrediction.h"
 #include "SimpleMonochromaticProjection.h"
 #include "SparsePeakFinder.h"
 #include "eigenDiskImport.h"
@@ -43,20 +43,20 @@ void testPatternPrediction()
 {
     ExperimentSettings experimentSettings = getExperimentSettingLys();
 
-    SimpleDiffractionPatternPrediction simpleDiffractionPatternPrediction(experimentSettings);
+    SimpleMonochromaticDiffractionPatternPrediction simpleMonochromaticDiffractionPatternPrediction(experimentSettings);
 
     Lattice lattice = experimentSettings.getSampleReciprocalLattice_1A();
     Matrix3Xf peaksOnEwaldSphere;
     Matrix3Xi millerIndices;
     Matrix3Xf projectionDirections;
-    simpleDiffractionPatternPrediction.getPeaksOnEwaldSphere(peaksOnEwaldSphere, millerIndices, lattice);
+    simpleMonochromaticDiffractionPatternPrediction.getPeaksOnEwaldSphere(peaksOnEwaldSphere, millerIndices, lattice);
 
     ofstream myfile("C:\\DesyFiles\\workspaces\\VisualStudio_workspace\\xgandalf\\workfolder\\peaksOnEwaldSphere");
     myfile << peaksOnEwaldSphere;
     myfile.close();
 
     Matrix2Xf predictedPeaks;
-    simpleDiffractionPatternPrediction.predictPattern(predictedPeaks, millerIndices, projectionDirections, lattice);
+    simpleMonochromaticDiffractionPatternPrediction.predictPattern(predictedPeaks, millerIndices, projectionDirections, lattice);
     ofstream myfile2("C:\\DesyFiles\\workspaces\\VisualStudio_workspace\\xgandalf\\workfolder\\peaksOnDetector_m");
     myfile2 << predictedPeaks;
     myfile2.close();

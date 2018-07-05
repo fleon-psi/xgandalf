@@ -46,7 +46,7 @@ set(SOURCES src/Dbscan.cpp
             src/SparsePeakFinder.cpp
 
 			src/ReciprocalToRealProjection.cpp
-			src/SimpleDiffractionPatternPrediction.cpp
+			src/simpleMonochromaticDiffractionPatternPrediction.cpp
 			src/SimpleMonochromaticProjection.cpp
 
 			src/adaptions/crystfel/IndexerPlain.cpp
@@ -54,7 +54,7 @@ set(SOURCES src/Dbscan.cpp
 			src/adaptions/crystfel/indexerData.cpp
 
 			src/adaptions/crystfel/projectionData.cpp
-			src/adaptions/crystfel/SimpleDiffractionPatternPrediction.cpp
+			src/adaptions/crystfel/SimpleMonochromaticDiffractionPatternPrediction.cpp
   )
 
 set(SOURCES_test src/main.cpp

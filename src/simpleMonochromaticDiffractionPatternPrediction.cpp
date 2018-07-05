@@ -1,4 +1,4 @@
-#include "SimpleDiffractionPatternPrediction.h"
+#include "SimpleMonochromaticDiffractionPatternPrediction.h"
 
 #include "eigenSTLContainers.h"
 #include <cmath>
@@ -7,7 +7,7 @@
 using namespace std;
 using namespace Eigen;
 
-SimpleDiffractionPatternPrediction::SimpleDiffractionPatternPrediction(const ExperimentSettings& experimentSettings)
+SimpleMonochromaticDiffractionPatternPrediction::SimpleMonochromaticDiffractionPatternPrediction(const ExperimentSettings& experimentSettings)
     : reciprocalToRealProjection(experimentSettings)
 {
     maxResolutionAngle = experimentSettings.getMaxResolutionAngle_rad();
@@ -19,7 +19,7 @@ SimpleDiffractionPatternPrediction::SimpleDiffractionPatternPrediction(const Exp
     detectorDistance = experimentSettings.getDetectorDistance_m();
 }
 
-void SimpleDiffractionPatternPrediction::predictPattern(Matrix2Xf& predictedPeaks, Matrix3Xi& millerIndices, Matrix3Xf& projectionDirections,
+void SimpleMonochromaticDiffractionPatternPrediction::predictPattern(Matrix2Xf& predictedPeaks, Matrix3Xi& millerIndices, Matrix3Xf& projectionDirections,
                                                         const Lattice& lattice)
 {
     Matrix3Xf peaksOnEwaldSphere;
@@ -33,7 +33,7 @@ void SimpleDiffractionPatternPrediction::predictPattern(Matrix2Xf& predictedPeak
     projectionDirections.colwise().normalize();
 }
 
-void SimpleDiffractionPatternPrediction::getPeaksOnEwaldSphere(Matrix3Xf& peaksOnEwaldSphere, Matrix3Xi& millerIndices, const Lattice& lattice)
+void SimpleMonochromaticDiffractionPatternPrediction::getPeaksOnEwaldSphere(Matrix3Xf& peaksOnEwaldSphere, Matrix3Xi& millerIndices, const Lattice& lattice)
 {
     EigenSTL::vector_Vector3f peaks;
     EigenSTL::vector_Vector3i millers;

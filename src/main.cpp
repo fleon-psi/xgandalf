@@ -35,7 +35,7 @@ int main()
 		// testPatternPrediction();
         // test_filterSamplePointsForNorm();
         // test_indexerAutocorrPrefit();
-        test_indexerPlain();
+        // test_indexerPlain();
         // test_crystfelAdaption();
         // test_crystfelAdaption2();
         // test_latticeReorder();
@@ -43,15 +43,14 @@ int main()
         // test_mixedGradientDescentRefinement();
         // test_fixedBasisRefinement();
 		// test_fixedBasisRefinementKabsch();
+		test_hillClimbing();
     }
     catch (exception& e)
     {
         cout << e.what();
     }
 
-	cout << endl << 
-		
-		"done";
+	cout << endl << "done";
     getchar();
 
     return 0;

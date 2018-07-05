@@ -1,18 +1,19 @@
-#include "adaptions/crystfel/SimpleDiffractionPatternPrediction.h"
-#include "SimpleDiffractionPatternPrediction.h"
+#include "adaptions/crystfel/SimpleMonochromaticDiffractionPatternPrediction.h"
+#include "SimpleMonochromaticDiffractionPatternPrediction.h"
 
-extern "C" SimpleDiffractionPatternPrediction* SimpleDiffractionPrediction_new(ExperimentSettings* experimentSettings)
+extern "C" SimpleMonochromaticDiffractionPatternPrediction* SimpleMonochromaticDiffractionPatternPrediction_new(ExperimentSettings* experimentSettings)
 {
-    return new SimpleDiffractionPatternPrediction(*experimentSettings);
+    return new SimpleMonochromaticDiffractionPatternPrediction(*experimentSettings);
 }
 
-extern "C" void SimpleDiffractionPatternPrediction_delete(SimpleDiffractionPatternPrediction* simpleDiffractionPatternPrediction)
+extern "C" void
+SimpleMonochromaticDiffractionPatternPrediction_delete(SimpleMonochromaticDiffractionPatternPrediction* simpleMonochromaticDiffractionPatternPrediction)
 {
-    delete simpleDiffractionPatternPrediction;
+    delete simpleMonochromaticDiffractionPatternPrediction;
 }
 
-extern "C" void SDPP_getPeaksOnEwaldSphere(SimpleDiffractionPatternPrediction* simpleDiffractionPatternPrediction,
-                                      reciprocalPeaks_1_per_A_t* reciprocalPeaks_1_per_A, Lattice_t lattice)
+extern "C" void SMDPP_getPeaksOnEwaldSphere(SimpleMonochromaticDiffractionPatternPrediction* simpleMonochromaticDiffractionPatternPrediction,
+                                            reciprocalPeaks_1_per_A_t* reciprocalPeaks_1_per_A, Lattice_t lattice)
 {
     Eigen::Matrix3Xf reciprocalPeaks_1_per_A_matrix;
     Eigen::Matrix3Xi millerIndices_matrix;
@@ -22,7 +23,7 @@ extern "C" void SDPP_getPeaksOnEwaldSphere(SimpleDiffractionPatternPrediction* s
     basis << l.ax, l.bx, l.cx, l.ay, l.by, l.cy, l.az, l.bz, l.cz;
     Lattice lattice_class(basis);
 
-    simpleDiffractionPatternPrediction->getPeaksOnEwaldSphere(reciprocalPeaks_1_per_A_matrix, millerIndices_matrix, lattice_class);
+    simpleMonochromaticDiffractionPatternPrediction->getPeaksOnEwaldSphere(reciprocalPeaks_1_per_A_matrix, millerIndices_matrix, lattice_class);
 
     int peakCount = std::min(MAX_PEAK_COUNT_FOR_PROJECTION, (int)reciprocalPeaks_1_per_A_matrix.cols());
     reciprocalPeaks_1_per_A->peakCount = peakCount;
@@ -34,8 +35,9 @@ extern "C" void SDPP_getPeaksOnEwaldSphere(SimpleDiffractionPatternPrediction* s
     }
 }
 
-extern "C" void SDPP_predictPattern(SimpleDiffractionPatternPrediction* simpleDiffractionPatternPrediction, millerIndices_t* millerIndices,
-                               projectionDirections_t* projectionDirections, Lattice_t lattice)
+extern "C" void SMDPP_predictPattern(SimpleMonochromaticDiffractionPatternPrediction* simpleMonochromaticDiffractionPatternPrediction,
+                                     millerIndices_t* millerIndices,
+                                     projectionDirections_t* projectionDirections, Lattice_t lattice)
 {
     Eigen::Matrix2Xf predictedPeaks_m_matrix;
     Eigen::Matrix3Xi millerIndices_matrix;
@@ -46,7 +48,7 @@ extern "C" void SDPP_predictPattern(SimpleDiffractionPatternPrediction* simpleDi
     basis << l.ax, l.bx, l.cx, l.ay, l.by, l.cy, l.az, l.bz, l.cz;
     Lattice lattice_class(basis);
 
-    simpleDiffractionPatternPrediction->predictPattern(predictedPeaks_m_matrix, millerIndices_matrix, projectionDirections_matrix, lattice_class);
+    simpleMonochromaticDiffractionPatternPrediction->predictPattern(predictedPeaks_m_matrix, millerIndices_matrix, projectionDirections_matrix, lattice_class);
 
     int peakCount = std::min(MAX_PEAK_COUNT_FOR_PROJECTION, (int)predictedPeaks_m_matrix.cols());
     millerIndices->peakCount = peakCount;
