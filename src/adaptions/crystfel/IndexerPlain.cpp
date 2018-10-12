@@ -181,15 +181,15 @@ void reduceLattice(Lattice_t* lattice, LatticeTransform_t* appliedReductionTrans
 
     reducedBasis = latticeWrapper.minimize().getBasis();
 
-    lattice->ax = basis(0, 0);
-    lattice->ay = basis(1, 0);
-    lattice->az = basis(2, 0);
-    lattice->bx = basis(0, 1);
-    lattice->by = basis(1, 1);
-    lattice->bz = basis(2, 1);
-    lattice->cx = basis(0, 2);
-    lattice->cy = basis(1, 2);
-    lattice->cz = basis(2, 2);
+    lattice->ax = reducedBasis(0, 0);
+    lattice->ay = reducedBasis(1, 0);
+    lattice->az = reducedBasis(2, 0);
+    lattice->bx = reducedBasis(0, 1);
+    lattice->by = reducedBasis(1, 1);
+    lattice->bz = reducedBasis(2, 1);
+    lattice->cx = reducedBasis(0, 2);
+    lattice->cy = reducedBasis(1, 2);
+    lattice->cz = reducedBasis(2, 2);
 
     Eigen::Matrix3f transformMatrix = basis.inverse() * reducedBasis;
 
