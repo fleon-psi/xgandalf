@@ -16,5 +16,18 @@ typedef struct
     float cz;
 } Lattice_t;
 
+typedef struct
+{
+    float matrixElement_0_0;
+    float matrixElement_1_0;
+    float matrixElement_2_0;
+    float matrixElement_0_1;
+    float matrixElement_1_1;
+    float matrixElement_2_1;
+    float matrixElement_0_2;
+    float matrixElement_1_2;
+    float matrixElement_2_2;
+} LatticeTransform_t;
+
 
 #endif
