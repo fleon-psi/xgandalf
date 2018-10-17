@@ -52,6 +52,7 @@ set(SOURCES src/Dbscan.cpp
 			src/adaptions/crystfel/IndexerPlain.cpp
 			src/adaptions/crystfel/ExperimentSettings.cpp
 			src/adaptions/crystfel/indexerData.cpp
+			src/adaptions/crystfel/lattice.cpp
 
 			src/adaptions/crystfel/projectionData.cpp
 			src/adaptions/crystfel/SimpleMonochromaticDiffractionPatternPrediction.cpp

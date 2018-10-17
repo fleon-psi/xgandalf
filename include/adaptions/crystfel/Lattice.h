@@ -29,5 +29,16 @@ typedef struct
     float matrixElement_2_2;
 } LatticeTransform_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void reorderLattice(const Lattice_t* prototype, Lattice_t* lattice);
+void reduceLattice(Lattice_t* lattice, LatticeTransform_t* appliedReductionTransform);
+void restoreLattice(Lattice_t* lattice, LatticeTransform_t* appliedReductionTransform);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
