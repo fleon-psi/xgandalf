@@ -53,6 +53,7 @@ class IndexerPlain : public IndexerBase
 
   private:
     void precompute();
+    void reducePeakCount(Eigen::Matrix3Xf& reciprocalPeaks_1_per_A);
 
     Eigen::Matrix3Xf precomputedSamplePoints;
 

@@ -196,15 +196,18 @@ void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::M
 
     Matrix3Xf samplePoints = precomputedSamplePoints;
 
+	Matrix3Xf reciprocalPeaksReduced_1_per_A = reciprocalPeaks_1_per_A;
+    reducePeakCount(reciprocalPeaksReduced_1_per_A);
+
     // global hill climbing
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_global);
-    hillClimbingOptimizer.performOptimization(reciprocalPeaks_1_per_A, samplePoints);
+        hillClimbingOptimizer.performOptimization(reciprocalPeaksReduced_1_per_A, samplePoints);
     RowVectorXf globalHillClimbingPointEvaluation = hillClimbingOptimizer.getLastInverseTransformEvaluation();
     Matrix3Xf globalHillClimbingSamplePoints = samplePoints;
 
     // additional global hill climbing
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_additionalGlobal);
-    hillClimbingOptimizer.performOptimization(reciprocalPeaks_1_per_A, samplePoints);
+    hillClimbingOptimizer.performOptimization(reciprocalPeaksReduced_1_per_A, samplePoints);
     RowVectorXf& additionalGlobalHillClimbingPointEvaluation = hillClimbingOptimizer.getLastInverseTransformEvaluation();
     Matrix3Xf& additionalGlobalHillClimbingSamplePoints = samplePoints;
 
@@ -223,7 +226,7 @@ void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::M
 
     // peaks hill climbing
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_peaks);
-    hillClimbingOptimizer.performOptimization(reciprocalPeaks_1_per_A, peakSamplePoints);
+    hillClimbingOptimizer.performOptimization(reciprocalPeaksReduced_1_per_A, peakSamplePoints);
 
     // final peaks extra evaluation
     inverseSpaceTransform.setPointsToTransform(reciprocalPeaks_1_per_A);
@@ -402,4 +405,31 @@ void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCo
     peaks.stepComputationAccuracyConstants.maxStep = meanRealLatticeVectorLength / 300;
     peaks.stepComputationAccuracyConstants.minStep = meanRealLatticeVectorLength / 20000;
     peaks.stepComputationAccuracyConstants.directionChangeFactor = 2.5;
+}
+
+void IndexerPlain::reducePeakCount(Matrix3Xf& reciprocalPeaks_1_per_A)
+{
+    int consideredPeaksCount = 250;
+
+    if (consideredPeaksCount >= reciprocalPeaks_1_per_A.cols())
+        return;
+
+    int peaksToRemoveCount = reciprocalPeaks_1_per_A.cols() - consideredPeaksCount;
+
+    RowVectorXf norms = reciprocalPeaks_1_per_A.colwise().norm();
+    RowVectorXf norms_sorted = norms;
+    sort((float*)norms_sorted.data(), (float*)norms_sorted.data() + norms_sorted.size());
+    float maxNorm = norms_sorted[consideredPeaksCount - 1];
+
+	int peaksKept_norms;
+    for (int i = 0; i < norms.cols(); i++)
+    {
+        if (norms[i] <= maxNorm)
+        {
+            reciprocalPeaks_1_per_A.col(peaksKept_norms) = reciprocalPeaks_1_per_A.col(i);
+            peaksKept_norms++;
+        }
+    }
+
+    reciprocalPeaks_1_per_A.conservativeResize(NoChange, consideredPeaksCount);
 }
