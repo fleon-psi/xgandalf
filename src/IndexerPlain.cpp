@@ -421,7 +421,7 @@ void IndexerPlain::reducePeakCount(Matrix3Xf& reciprocalPeaks_1_per_A)
     sort((float*)norms_sorted.data(), (float*)norms_sorted.data() + norms_sorted.size());
     float maxNorm = norms_sorted[consideredPeaksCount - 1];
 
-	int peaksKept_norms;
+	int peaksKept_norms = 0;
     for (int i = 0; i < norms.cols(); i++)
     {
         if (norms[i] <= maxNorm)
