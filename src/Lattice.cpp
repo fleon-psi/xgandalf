@@ -114,8 +114,6 @@ static inline void getMinA(Matrix3f& basis, Vector3f& minA, float& minALengthSqu
 // algorithm implemented after http://www.csie.nuk.edu.tw/~cychen/Lattices/A%203-Dimensional%20Lattice%20Reduction%20Algorithm.pdf
 Lattice& Lattice::minimize()
 {
-    assert(abs(basis.determinant()) >= 1e-10); // nonsingular (value for normal crystal... can bee too high!)
-
     Vector3f minA(0, 0, 0); // initialization not required, but if not done, compiler issues warning
 
     bool terminationFlag = false;
