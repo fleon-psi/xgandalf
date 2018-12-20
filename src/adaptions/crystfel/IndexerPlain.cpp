@@ -83,9 +83,14 @@ extern "C" void IndexerPlain_setGradientDescentIterationsCount(IndexerPlain* ind
     indexerPlain->setGradientDescentIterationsCount(iterationsCount);
 }
 
-void IndexerPlain_setRefineWithExactLattice(IndexerPlain* indexerPlain, int flag)
+extern "C" void IndexerPlain_setRefineWithExactLattice(IndexerPlain* indexerPlain, int flag)
 {
     indexerPlain->setRefineWithExactLattice((bool)flag);
+}
+
+extern "C" void IndexerPlain_setMaxPeaksToUseForIndexing(IndexerPlain* indexerPlain, int maxPeaksToUseForIndexing)
+{
+    indexerPlain->setMaxPeaksToUseForIndexing(maxPeaksToUseForIndexing);
 }
 
 extern "C" void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assembledLattices, int* assembledLatticesCount, int maxAssambledLatticesCount,

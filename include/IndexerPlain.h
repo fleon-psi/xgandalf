@@ -48,6 +48,7 @@ class IndexerPlain : public IndexerBase
     void setSamplingPitch(SamplingPitch samplingPitch);
     void setSamplingPitch(float unitPitch, bool coverSecondaryMillerIndices);
     void setRefineWithExactLattice(bool flag);
+    void setMaxPeaksToUseForIndexing(int maxPeaksToUseForIndexing);
 
     void setGradientDescentIterationsCount(GradientDescentIterationsCount gradientDescentIterationsCount);
 
@@ -62,6 +63,7 @@ class IndexerPlain : public IndexerBase
     InverseSpaceTransform inverseSpaceTransform;
 
     float maxCloseToPointDeviation;
+    int maxPeaksToUseForIndexing;
 
     HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_global;
     HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_additionalGlobal;

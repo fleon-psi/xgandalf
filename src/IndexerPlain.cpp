@@ -22,6 +22,7 @@ IndexerPlain::IndexerPlain(const ExperimentSettings& experimentSettings)
 void IndexerPlain::precompute()
 {
     maxCloseToPointDeviation = 0.15;
+    maxPeaksToUseForIndexing = 250;
 
     setSamplingPitch(SamplingPitch::standard);
     setGradientDescentIterationsCount(GradientDescentIterationsCount::standard);
@@ -179,6 +180,10 @@ void IndexerPlain::setRefineWithExactLattice(bool flag)
     accuracyConstants.refineWithExactLattice = flag;
 
     latticeAssembler.setAccuracyConstants(accuracyConstants);
+}
+
+void IndexerPlain::setMaxPeaksToUseForIndexing(int maxPeaksToUseForIndexing) {
+    this->maxPeaksToUseForIndexing = maxPeaksToUseForIndexing;
 }
 
 void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A)
@@ -409,17 +414,13 @@ void IndexerPlain::setGradientDescentIterationsCount(GradientDescentIterationsCo
 
 void IndexerPlain::reducePeakCount(Matrix3Xf& reciprocalPeaks_1_per_A)
 {
-    int consideredPeaksCount = 250;
-
-    if (consideredPeaksCount >= reciprocalPeaks_1_per_A.cols())
+    if (maxPeaksToUseForIndexing >= reciprocalPeaks_1_per_A.cols())
         return;
-
-    int peaksToRemoveCount = reciprocalPeaks_1_per_A.cols() - consideredPeaksCount;
 
     RowVectorXf norms = reciprocalPeaks_1_per_A.colwise().norm();
     RowVectorXf norms_sorted = norms;
     sort((float*)norms_sorted.data(), (float*)norms_sorted.data() + norms_sorted.size());
-    float maxNorm = norms_sorted[consideredPeaksCount - 1];
+    float maxNorm = norms_sorted[maxPeaksToUseForIndexing - 1];
 
 	int peaksKept_norms = 0;
     for (int i = 0; i < norms.cols(); i++)
@@ -431,5 +432,5 @@ void IndexerPlain::reducePeakCount(Matrix3Xf& reciprocalPeaks_1_per_A)
         }
     }
 
-    reciprocalPeaks_1_per_A.conservativeResize(NoChange, consideredPeaksCount);
+    reciprocalPeaks_1_per_A.conservativeResize(NoChange, maxPeaksToUseForIndexing);
 }
