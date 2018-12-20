@@ -74,8 +74,9 @@ void LatticeAssembler::setKnownLatticeParameters(const Lattice& sampleRealLattic
     knownLatticeParametersTolerance = tolerance;
 }
 
-LatticeAssembler::accuracyConstants_t LatticeAssembler::getAccuracyConstants() {
-	return accuracyConstants;
+LatticeAssembler::accuracyConstants_t LatticeAssembler::getAccuracyConstants()
+{
+    return accuracyConstants;
 }
 
 void LatticeAssembler::assembleLattices(vector<Lattice>& assembledLattices, Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights,
@@ -98,11 +99,11 @@ void LatticeAssembler::assembleLattices(vector<Lattice>& assembledLattices, vect
 
     filterCandidateLatticesByWeight(accuracyConstants.maxCountGlobalPassingWeightFilter);
 
-    for (auto& candidateLattice : candidateLattices)
+    for (auto candidateLattice = candidateLattices.begin(); candidateLattice != candidateLattices.end(); ++candidateLattice)
     {
-        candidateLattice.realSpaceLattice.minimize();
-        candidateLattice.det = abs(candidateLattice.realSpaceLattice.det());
-        computeAssembledLatticeStatistics(candidateLattice, pointsToFitInReciprocalSpace);
+        candidateLattice->realSpaceLattice.minimize();
+        candidateLattice->det = abs(candidateLattice->realSpaceLattice.det());
+        computeAssembledLatticeStatistics(*candidateLattice, pointsToFitInReciprocalSpace);
     };
 
     // assume that candidateVectors is sorted descending for weight!
@@ -115,26 +116,26 @@ void LatticeAssembler::assembleLattices(vector<Lattice>& assembledLattices, vect
 
     selectBestLattices(assembledLattices, assembledLatticesStatistics, finalCandidateLattices);
 
-    for (auto& lattice : assembledLattices)
+    for (auto lattice = assembledLattices.begin(); lattice != assembledLattices.end(); ++lattice)
     {
-		//cout << latticeParametersKnown << accuracyConstants.refineWithExactLattice;
+        // cout << latticeParametersKnown << accuracyConstants.refineWithExactLattice;
         if (latticeParametersKnown)
         {
             if (accuracyConstants.refineWithExactLattice)
             {
-                lattice.reorder(knownSampleRealLattice_A);
-                refineLattice_peaksAndAngle_fixedBasisParameters(lattice, pointsToFitInReciprocalSpace);
+                lattice->reorder(knownSampleRealLattice_A);
+                refineLattice_peaksAndAngle_fixedBasisParameters(*lattice, pointsToFitInReciprocalSpace);
             }
             else
             {
-                refineLattice_peaksAndAngle(lattice, pointsToFitInReciprocalSpace);
+                refineLattice_peaksAndAngle(*lattice, pointsToFitInReciprocalSpace);
             }
         }
         else
         {
-            refineLattice_peaksAndAngle(lattice, pointsToFitInReciprocalSpace);
+            refineLattice_peaksAndAngle(*lattice, pointsToFitInReciprocalSpace);
 
-            lattice.normalizeAngles();
+            lattice->normalizeAngles();
         }
     }
 }
@@ -213,9 +214,10 @@ void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, 
     }
 
     assembledLattices.reserve(finalCandidateLattices.size());
-    for (auto& selectedCandidateLattice : finalCandidateLattices) {
-        assembledLattices.push_back(selectedCandidateLattice.realSpaceLattice);
-        assembledLatticesStatistics.push_back(selectedCandidateLattice.assembledLatticeStatistics);
+    for (auto selectedCandidateLattice = finalCandidateLattices.begin(); selectedCandidateLattice != finalCandidateLattices.end(); 
+		++selectedCandidateLattice) {
+        assembledLattices.push_back(selectedCandidateLattice->realSpaceLattice);
+        assembledLatticesStatistics.push_back(selectedCandidateLattice->assembledLatticeStatistics);
     }
 
 }

@@ -68,8 +68,8 @@ void IndexerAutocorrPrefit::setSamplingPitch(float unitPitch)
 {
     if (experimentSettings.isLatticeParametersKnown())
     {
-        //float tolerance = max(unitPitch, experimentSettings.getTolerance());
-		float tolerance = experimentSettings.getTolerance();
+        // float tolerance = max(unitPitch, experimentSettings.getTolerance());
+        float tolerance = experimentSettings.getTolerance();
 
         samplePointsGenerator.getTightGrid(precomputedSamplePoints, unitPitch, tolerance, experimentSettings.getDifferentRealLatticeVectorLengths_A());
     }
@@ -97,11 +97,12 @@ void IndexerAutocorrPrefit::getGoodAutocorrelationPoints(Matrix3Xf& goodAutocorr
 
     Array<uint8_t, 1, Dynamic> autocorrelationPointIsInCluster(autocorrelationPoints.cols());
     autocorrelationPointIsInCluster.setZero();
-    for (auto& cluster : clusters)
+    for (auto cluster = clusters.cbegin(); cluster != clusters.cend(); ++cluster)
     {
-        for (uint32_t index : cluster)
+        const auto end = cluster->cend();
+        for (auto index = cluster->cbegin(); index != end; ++index)
         {
-            autocorrelationPointIsInCluster[index] = 1;
+            autocorrelationPointIsInCluster[*index] = 1;
         }
     }
     uint32_t pointsOutsideOfClustersCount = autocorrelationPointIsInCluster.size() - autocorrelationPointIsInCluster.sum();
@@ -115,9 +116,9 @@ void IndexerAutocorrPrefit::getGoodAutocorrelationPoints(Matrix3Xf& goodAutocorr
     for (; goodAutocorrelationPointsCount < clusterMeansToTakeCount; ++goodAutocorrelationPointsCount)
     {
         Vector3f sum(0, 0, 0);
-        for (uint32_t index : clusters[goodAutocorrelationPointsCount])
+        for (auto index = clusters[goodAutocorrelationPointsCount].begin(); index != clusters[goodAutocorrelationPointsCount].end(); ++index)
         {
-            sum += autocorrelationPoints.col(index);
+            sum += autocorrelationPoints.col(*index);
         }
         Vector3f mean = sum / clusters[goodAutocorrelationPointsCount].size();
 
@@ -320,8 +321,8 @@ void IndexerAutocorrPrefit::index(std::vector<Lattice>& assembledLattices, const
     accuracyConstants_LatticeAssembler.maxCountLocalPassingWeightFilter = 15;
     accuracyConstants_LatticeAssembler.maxCountPassingRelativeDefectFilter = 50;
     accuracyConstants_LatticeAssembler.minPointsOnLattice = 5;
-	accuracyConstants_LatticeAssembler.maxCloseToPointDeviation = maxCloseToPointDeviation;
-	accuracyConstants_LatticeAssembler.refineWithExactLattice = false; //TODO take as parameter
+    accuracyConstants_LatticeAssembler.maxCloseToPointDeviation = maxCloseToPointDeviation;
+    accuracyConstants_LatticeAssembler.refineWithExactLattice = false; // TODO take as parameter
 
     //    latticeAssembler.setDeterminantRange(experimentSettings.getMinRealLatticeDeterminant_A3(), experimentSettings.getMaxRealLatticeDeterminant_A3());
     latticeAssembler.setDeterminantRange(experimentSettings.getRealLatticeDeterminant_A3() * 0.8, experimentSettings.getRealLatticeDeterminant_A3() * 1.2);

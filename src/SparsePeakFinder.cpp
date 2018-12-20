@@ -112,9 +112,9 @@ void SparsePeakFinder::findPeaks_fast(Matrix3Xf& pointPositions, RowVectorXf& po
                     bin_t* currentBin_p = &discretizationVolume[binIndex];
                     bin_t& currentBin = *currentBin_p;
                     bool isPeak = true;
-                    for (int neighbourBinIndexOffset : neighbourBinIndexOffsets)
+                    for (int i = 0; i < 26; ++i)
                     {
-                        bin_t& neighbourBin = *(currentBin_p + neighbourBinIndexOffset);
+                        bin_t& neighbourBin = *(currentBin_p + neighbourBinIndexOffsets[i]);
                         if (neighbourBin.value > currentBin.value &&
                             (pointPositions.col(neighbourBin.pointIndex) - pointPositions.col(currentBin.pointIndex)).squaredNorm() <
                                 minDistanceBetweenRealPeaks_squared)

@@ -135,15 +135,15 @@ void IndexerPlain::setSamplingPitch(float unitPitch, bool coverSecondaryMillerIn
         }
         else
         {
-            auto sampleReaalBasis = experimentSettings.getSampleRealLattice_A().getBasis();
+            const Matrix3f& sampleRealBasis = experimentSettings.getSampleRealLattice_A().getBasis();
 
             vector<float> radii(6);
-            radii[0] = sampleReaalBasis.col(0).norm();
-            radii[1] = sampleReaalBasis.col(1).norm();
-            radii[2] = sampleReaalBasis.col(2).norm();
-            radii[3] = (sampleReaalBasis.col(0) + sampleReaalBasis.col(1)).norm();
-            radii[4] = (sampleReaalBasis.col(1) + sampleReaalBasis.col(2)).norm();
-            radii[5] = (sampleReaalBasis.col(2) + sampleReaalBasis.col(0)).norm();
+            radii[0] = sampleRealBasis.col(0).norm();
+            radii[1] = sampleRealBasis.col(1).norm();
+            radii[2] = sampleRealBasis.col(2).norm();
+            radii[3] = (sampleRealBasis.col(0) + sampleRealBasis.col(1)).norm();
+            radii[4] = (sampleRealBasis.col(1) + sampleRealBasis.col(2)).norm();
+            radii[5] = (sampleRealBasis.col(2) + sampleRealBasis.col(0)).norm();
 
             sort(radii.begin(), radii.end());
             auto it = std::unique(radii.begin(), radii.end());
@@ -182,7 +182,8 @@ void IndexerPlain::setRefineWithExactLattice(bool flag)
     latticeAssembler.setAccuracyConstants(accuracyConstants);
 }
 
-void IndexerPlain::setMaxPeaksToUseForIndexing(int maxPeaksToUseForIndexing) {
+void IndexerPlain::setMaxPeaksToUseForIndexing(int maxPeaksToUseForIndexing)
+{
     this->maxPeaksToUseForIndexing = maxPeaksToUseForIndexing;
 }
 
@@ -201,12 +202,12 @@ void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::M
 
     Matrix3Xf samplePoints = precomputedSamplePoints;
 
-	Matrix3Xf reciprocalPeaksReduced_1_per_A = reciprocalPeaks_1_per_A;
+    Matrix3Xf reciprocalPeaksReduced_1_per_A = reciprocalPeaks_1_per_A;
     reducePeakCount(reciprocalPeaksReduced_1_per_A);
 
     // global hill climbing
     hillClimbingOptimizer.setHillClimbingAccuracyConstants(hillClimbing_accuracyConstants_global);
-        hillClimbingOptimizer.performOptimization(reciprocalPeaksReduced_1_per_A, samplePoints);
+    hillClimbingOptimizer.performOptimization(reciprocalPeaksReduced_1_per_A, samplePoints);
     RowVectorXf globalHillClimbingPointEvaluation = hillClimbingOptimizer.getLastInverseTransformEvaluation();
     Matrix3Xf globalHillClimbingSamplePoints = samplePoints;
 
@@ -248,12 +249,13 @@ void IndexerPlain::index(std::vector<Lattice>& assembledLattices, const Eigen::M
     Matrix3Xf reciprocalPeaksCopy_1_per_A = reciprocalPeaks_1_per_A;
     latticeAssembler.assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors, candidateVectorWeights, pointIndicesOnVector,
                                       reciprocalPeaksCopy_1_per_A);
-	
-	peakCountOnLattices.clear();
-	peakCountOnLattices.reserve(assembledLatticesStatistics.size());
-    for (const auto &assembledLatticeStatistics : assembledLatticesStatistics)
+
+    peakCountOnLattices.clear();
+    peakCountOnLattices.reserve(assembledLatticesStatistics.size());
+    for (auto assembledLatticeStatistics = assembledLatticesStatistics.cbegin(); assembledLatticeStatistics != assembledLatticesStatistics.cend();
+         ++assembledLatticeStatistics)
     {
-		peakCountOnLattices.push_back(assembledLatticeStatistics.occupiedLatticePointsCount);
+        peakCountOnLattices.push_back(assembledLatticeStatistics->occupiedLatticePointsCount);
     }
 
 
@@ -422,7 +424,7 @@ void IndexerPlain::reducePeakCount(Matrix3Xf& reciprocalPeaks_1_per_A)
     sort((float*)norms_sorted.data(), (float*)norms_sorted.data() + norms_sorted.size());
     float maxNorm = norms_sorted[maxPeaksToUseForIndexing - 1];
 
-	int peaksKept_norms = 0;
+    int peaksKept_norms = 0;
     for (int i = 0; i < norms.cols(); i++)
     {
         if (norms[i] <= maxNorm)

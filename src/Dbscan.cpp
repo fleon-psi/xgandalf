@@ -51,9 +51,9 @@ void Dbscan::init(float maxEpsilon, float maxPossiblePointNorm)
     discretizationVolume.resize(binCount);
 
     const uint32_t typicalMaxPointsPerBin = 50;
-    for (auto& bin : discretizationVolume)
+    for (auto bin = discretizationVolume.begin(); bin != discretizationVolume.end(); ++bin)
     {
-        bin.reserve(typicalMaxPointsPerBin);
+        bin->reserve(typicalMaxPointsPerBin);
     }
 
     neighbourBinIndexOffsets[0] = 0;
@@ -94,9 +94,10 @@ void Dbscan::computeClusters(vector<cluster_t>& clusters, const Matrix3Xf& point
 
     fillDiscretizationVolume(points);
 
-    for (bin_t* bin_p : usedBins)
+	const auto end = usedBins.end();
+    for (auto bin_p = usedBins.begin(); bin_p != end; ++bin_p)
     {
-        bin_t& bin = *bin_p;
+        bin_t& bin = **bin_p;
         for (uint32_t i = 0; i < bin.size(); ++i)
         {
             if (bin[i].visited)
@@ -104,7 +105,7 @@ void Dbscan::computeClusters(vector<cluster_t>& clusters, const Matrix3Xf& point
                 continue;
             }
 
-            Neighbour currentPoint(bin_p, &bin[i]);
+            Neighbour currentPoint(*bin_p, &bin[i]);
 
             currentPoint.markVisited();
 
@@ -126,9 +127,9 @@ void Dbscan::expandCluster(cluster_t& cluster, std::vector<Neighbour>& neighbour
     cluster.push_back(currentPoint.pointIndex());
     currentPoint.markIsMemberOfCluster();
 
-    for (auto neighbour_i = neighbourhood.begin(); neighbour_i != neighbourhood.end(); ++neighbour_i)
+    for (vector<Neighbour>::iterator neighbour_i = neighbourhood.begin(); neighbour_i != neighbourhood.end(); ++neighbour_i)
     { // cannot be made a for-each loop, since neighbourhood size changes
-        auto& neighbour = *neighbour_i;
+        Neighbour& neighbour = *neighbour_i;
         if (!neighbour.isVisited())
         {
             neighbour.markVisited();
@@ -152,8 +153,10 @@ uint32_t Dbscan::regionQuery(std::vector<Neighbour>& nieghbourhood, const Neighb
     nieghbourhood.clear();
 
     const Vector4f& currentPointPos = currentPoint.point();
-    for (int neighbourBinIndexOffset : neighbourBinIndexOffsets)
+    for (int j = 0; j < 27; j++)
     {
+        int neighbourBinIndexOffset = neighbourBinIndexOffsets[j];
+
         bin_t& neighbourBin = *(currentPoint.bin + neighbourBinIndexOffset);
         for (uint32_t i = 0; i < neighbourBin.size(); ++i)
         {
@@ -196,8 +199,9 @@ void Dbscan::fillDiscretizationVolume(const Eigen::Matrix3Xf& points)
 
 void Dbscan::cleanUpDiscretizationVolume()
 {
-    for (bin_t* bin_p : usedBins)
+    const auto end = usedBins.end();
+    for (auto bin_p = usedBins.begin(); bin_p != end; bin_p++)
     {
-        (*bin_p).clear();
+        (*bin_p)->clear();
     }
 }
