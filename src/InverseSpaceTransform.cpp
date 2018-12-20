@@ -456,7 +456,12 @@ vector<vector<uint16_t>>& InverseSpaceTransform::getPointsCloseToEvaluationPosit
 {
     const int typicalMaxClosePointsCount = 100;
     pointsCloseToEvaluationPositions_indices.resize(closeToPoint.cols(), vector<uint16_t>(typicalMaxClosePointsCount));
-    for_each(pointsCloseToEvaluationPositions_indices.begin(), pointsCloseToEvaluationPositions_indices.end(), [](vector<uint16_t>& v) { v.clear(); });
+
+	const auto end = pointsCloseToEvaluationPositions_indices.end();
+    for (auto it = pointsCloseToEvaluationPositions_indices.begin(); it < end; ++it)
+    {
+        it->clear();
+	}
 
     if (resultsUpToDate)
     {

@@ -278,7 +278,11 @@ void LatticeAssembler::computeCandidateLattices(Matrix3Xf& candidateVectors, Row
     }
 
     // needed for easier intersection computation later
-    for_each(pointIndicesOnVector.begin(), pointIndicesOnVector.end(), [](vector<uint16_t>& v) { sort(v.begin(), v.end()); });
+    const auto end = pointIndicesOnVector.end();
+    for (auto it = pointIndicesOnVector.begin(); it < end; ++it)
+    {
+        sort(it->begin(), it->end());
+    }
 
     candidateLattices.reserve(10000);
     int candidateVectorsCount = candidateVectors.cols();
