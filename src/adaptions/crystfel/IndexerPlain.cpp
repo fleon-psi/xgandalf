@@ -107,7 +107,7 @@ extern "C" void IndexerPlain_index(IndexerPlain* indexerPlain, Lattice_t* assemb
     std::vector<int> peakCountOnLatticesVector;
     indexerPlain->index(assembledLatticesVector, reciprocalPeaks_1_per_A_matrix, peakCountOnLatticesVector);
 
-    for (*assembledLatticesCount = 0; (int)*assembledLatticesCount < assembledLatticesVector.size() && *assembledLatticesCount < maxAssambledLatticesCount;
+    for (*assembledLatticesCount = 0; (size_t)*assembledLatticesCount < assembledLatticesVector.size() && *assembledLatticesCount < maxAssambledLatticesCount;
          (*assembledLatticesCount)++)
     {
         Eigen::Matrix3f basis = assembledLatticesVector[*assembledLatticesCount].getBasis();
