@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -26,21 +26,27 @@
 #ifndef SAMPLEPOINTSGENERATOR_H_
 #define SAMPLEPOINTSGENERATOR_H_
 
-#include <string.h>
 #include <Eigen/Dense>
+#include <string.h>
 
-class SamplePointsGenerator {
-public:
-    SamplePointsGenerator();
+namespace xgandalf
+{
 
-    void getDenseGrid(Eigen::Matrix3Xf& samplePoints, float unitPitch, float minRadius, float maxRadius);
+    class SamplePointsGenerator
+    {
+      public:
+        SamplePointsGenerator();
 
-    void getTightGrid(Eigen::Matrix3Xf& samplePoints, float unitPitch, float tolerance, const Eigen::VectorXf radii);
+        void getDenseGrid(Eigen::Matrix3Xf& samplePoints, float unitPitch, float minRadius, float maxRadius);
 
-private:
-    std::string precomputedSamplePointsPath;
+        void getTightGrid(Eigen::Matrix3Xf& samplePoints, float unitPitch, float tolerance, const Eigen::VectorXf radii);
 
-    void loadPrecomputedSamplePoints(Eigen::Matrix3Xf& samplePoints, float unitPitch, float tolerance);
-};
+      private:
+        std::string precomputedSamplePointsPath;
+
+        void loadPrecomputedSamplePoints(Eigen::Matrix3Xf& samplePoints, float unitPitch, float tolerance);
+    };
+
+} // namespace xgandalf
 
 #endif /* SAMPLEPOINTSGENERATOR_H_ */

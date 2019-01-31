@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -28,20 +28,23 @@
 
 #include <CustomException.h>
 
-//! A specialization of MyException.
-/*!
- * This exception is thrown whenever the input to a method/function is not as expected
- */
-class BadInputException: public CustomException {
-public:
-    BadInputException(const std::string& msg) :
-            CustomException(msg)
-    {
-    }
+namespace xgandalf
+{
 
-    virtual ~BadInputException() throw ()
+    //! A specialization of MyException.
+    /*!
+     * This exception is thrown whenever the input to a method/function is not as expected
+     */
+    class BadInputException : public CustomException
     {
-    }
-};
+      public:
+        BadInputException(const std::string& msg)
+            : CustomException(msg)
+        {
+        }
+
+        virtual ~BadInputException() throw() {}
+    };
+} // namespace xgandalf
 
 #endif /* BADINPUTEXCEPTION_H_ */

@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -28,13 +28,18 @@
 #include "ReciprocalToRealProjection.h"
 #include <Eigen/Dense>
 
-class SimpleMonochromaticProjection : public ReciprocalToRealProjection
+namespace xgandalf
 {
-  public:
-	  SimpleMonochromaticProjection(const ExperimentSettings& experimentSettings);
 
-    void project(Eigen::Matrix2Xf& projectedPeaks, const Eigen::Matrix3Xf& reciprocalPeaks);
+    class SimpleMonochromaticProjection : public ReciprocalToRealProjection
+    {
+      public:
+        SimpleMonochromaticProjection(const ExperimentSettings& experimentSettings);
 
-  private:
-	  float reciprocalLambda_1A;
-};
+        void project(Eigen::Matrix2Xf& projectedPeaks, const Eigen::Matrix3Xf& reciprocalPeaks);
+
+      private:
+        float reciprocalLambda_1A;
+    };
+
+} // namespace xgandalf

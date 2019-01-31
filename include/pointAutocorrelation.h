@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -26,15 +26,19 @@
 #ifndef POINTAUTOCORRELATION_H_
 #define POINTAUTOCORRELATION_H_
 
-#include <Eigen/Dense> 
+#include <Eigen/Dense>
 #include <limits>
 
-// all autocorrelation results will have only half of the possible points, since symmetric points (at z < 0) will be removed
+namespace xgandalf
+{
 
-void getPointAutocorrelation(Eigen::Matrix3Xf& autocorrelationPoints, const Eigen::Matrix3Xf& points,
-        float minNormInAutocorrelation, float maxNormInAutocorrelation);
+    // all autocorrelation results will have only half of the possible points, since symmetric points (at z < 0) will be removed
 
-void getPointAutocorrelation(Eigen::Matrix3Xf& autocorrelationPoints, Eigen::VectorXi& centerPointIndices, Eigen::VectorXi& shiftedPointIndices,
-        const Eigen::Matrix3Xf& points, float minNormInAutocorrelation, float maxNormInAutocorrelation);
+    void getPointAutocorrelation(Eigen::Matrix3Xf& autocorrelationPoints, const Eigen::Matrix3Xf& points, float minNormInAutocorrelation,
+                                 float maxNormInAutocorrelation);
 
+    void getPointAutocorrelation(Eigen::Matrix3Xf& autocorrelationPoints, Eigen::VectorXi& centerPointIndices, Eigen::VectorXi& shiftedPointIndices,
+                                 const Eigen::Matrix3Xf& points, float minNormInAutocorrelation, float maxNormInAutocorrelation);
+
+} // namespace xgandalf
 #endif /* POINTAUTOCORRELATION_H_ */

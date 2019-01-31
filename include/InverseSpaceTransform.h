@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -26,70 +26,75 @@
 #ifndef INVERSESPACETRANSFORM_H_
 #define INVERSESPACETRANSFORM_H_
 
+#include "BadInputException.h"
 #include <Eigen/Dense>
 #include <ctype.h>
 #include <vector>
-#include "BadInputException.h"
 
-class InverseSpaceTransform {
-public:
-    typedef struct {
-        int functionSelection;
-        float optionalFunctionArgument;
-        bool localTransform;
-        bool radialWeighting;
+namespace xgandalf
+{
 
-        float maxCloseToPointDeviation;
-    } accuracyConstants_t;
+    class InverseSpaceTransform
+    {
+      public:
+        typedef struct
+        {
+            int functionSelection;
+            float optionalFunctionArgument;
+            bool localTransform;
+            bool radialWeighting;
 
-    InverseSpaceTransform();
-    InverseSpaceTransform(float maxCloseToPointDeviation);
+            float maxCloseToPointDeviation;
+        } accuracyConstants_t;
 
-    void performTransform(const Eigen::Matrix3Xf& positionsToEvaluate);
+        InverseSpaceTransform();
+        InverseSpaceTransform(float maxCloseToPointDeviation);
 
-    void setPointsToTransform(const Eigen::Matrix3Xf& pointsToTransform);
-    void setPointsToTransformWeights(const Eigen::RowVectorXf& pointsToTransformWeights);
+        void performTransform(const Eigen::Matrix3Xf& positionsToEvaluate);
 
-    void setMaxCloseToPointDeviation(float maxCloseToPointDeviation);
-    void setFunctionSelection(int functionSelection);
-    void setOptionalFunctionArgument(float optionalFunctionArgument);
-    void setLocalTransformFlag();
-    void clearLocalTransformFlag();
-    void setRadialWeightingFlag();
-    void clearRadialWeightingFlag();
+        void setPointsToTransform(const Eigen::Matrix3Xf& pointsToTransform);
+        void setPointsToTransformWeights(const Eigen::RowVectorXf& pointsToTransformWeights);
 
-    Eigen::Matrix3Xf& getGradient();
-    Eigen::RowVectorXf& getInverseTransformEvaluation();
-    Eigen::RowVectorXf& getCloseToPointsCount();
+        void setMaxCloseToPointDeviation(float maxCloseToPointDeviation);
+        void setFunctionSelection(int functionSelection);
+        void setOptionalFunctionArgument(float optionalFunctionArgument);
+        void setLocalTransformFlag();
+        void clearLocalTransformFlag();
+        void setRadialWeightingFlag();
+        void clearRadialWeightingFlag();
 
-    std::vector< std::vector< uint16_t > >& getPointsCloseToEvaluationPositions_indices();
+        Eigen::Matrix3Xf& getGradient();
+        Eigen::RowVectorXf& getInverseTransformEvaluation();
+        Eigen::RowVectorXf& getCloseToPointsCount();
 
-private:
-    void onePeriodicFunction(Eigen::ArrayXXf& x);
+        std::vector<std::vector<uint16_t>>& getPointsCloseToEvaluationPositions_indices();
 
-    void update_pointsToTransformWeights();
+      private:
+        void onePeriodicFunction(Eigen::ArrayXXf& x);
 
-    Eigen::Matrix3Xf pointsToTransform;
-    Eigen::RowVectorXf pointsToTransformWeights_userPreset;
-    Eigen::RowVectorXf pointsToTransformWeights;
+        void update_pointsToTransformWeights();
 
-    accuracyConstants_t accuracyConstants;
+        Eigen::Matrix3Xf pointsToTransform;
+        Eigen::RowVectorXf pointsToTransformWeights_userPreset;
+        Eigen::RowVectorXf pointsToTransformWeights;
 
-    //output 
-    Eigen::Matrix3Xf gradient;
-    Eigen::RowVectorXf inverseTransformEvaluation;
-    Eigen::RowVectorXf closeToPointsCount;
+        accuracyConstants_t accuracyConstants;
 
-    // interna
-    Eigen::ArrayXXf functionEvaluation;
-    Eigen::ArrayXXf slope;
-    Eigen::Array< bool, Eigen::Dynamic, Eigen::Dynamic > closeToPoint;
+        // output
+        Eigen::Matrix3Xf gradient;
+        Eigen::RowVectorXf inverseTransformEvaluation;
+        Eigen::RowVectorXf closeToPointsCount;
 
-    std::vector< std::vector< uint16_t > > pointsCloseToEvaluationPositions_indices;
+        // interna
+        Eigen::ArrayXXf functionEvaluation;
+        Eigen::ArrayXXf slope;
+        Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> closeToPoint;
 
-    float inverseTransformEvaluationScalingFactor;
+        std::vector<std::vector<uint16_t>> pointsCloseToEvaluationPositions_indices;
 
-    bool resultsUpToDate;
-};
+        float inverseTransformEvaluationScalingFactor;
 
+        bool resultsUpToDate;
+    };
+} // namespace xgandalf
 #endif /* INVERSESPACETRANSFORM_H_ */

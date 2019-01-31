@@ -1,6 +1,6 @@
-/* 
+/*
  * Lattice.h
- * 
+ *
  * Copyright © 2019 Deutsches Elektronen-Synchrotron DESY,
  *                       a research centre of the Helmholtz Association.
  *
@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -56,14 +56,17 @@ typedef struct
 } LatticeTransform_t;
 
 #ifdef __cplusplus
-extern "C" {
+namespace xgandalf
+{
+    extern "C" {
 #endif
 
-void reorderLattice(const Lattice_t* prototype, Lattice_t* lattice);
-void reduceLattice(Lattice_t* lattice, LatticeTransform_t* appliedReductionTransform);
-void restoreLattice(Lattice_t* lattice, LatticeTransform_t* appliedReductionTransform);
+    void reorderLattice(const Lattice_t* prototype, Lattice_t* lattice);
+    void reduceLattice(Lattice_t* lattice, LatticeTransform_t* appliedReductionTransform);
+    void restoreLattice(Lattice_t* lattice, LatticeTransform_t* appliedReductionTransform);
 
 #ifdef __cplusplus
+    }
 }
 #endif
 

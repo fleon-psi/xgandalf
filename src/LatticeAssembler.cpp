@@ -2,7 +2,7 @@
  * LatticeAssembler.cpp
  *
  * SimpleMonochromaticDiffractionPatternPrediction.h
- * 
+ *
  * Copyright © 2019 Deutsches Elektronen-Synchrotron DESY,
  *                       a research centre of the Helmholtz Association.
  *
@@ -13,7 +13,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -36,131 +36,132 @@
 
 #include <iostream>
 
-
-using namespace Eigen;
-using namespace std;
-
-LatticeAssembler::LatticeAssembler()
+namespace xgandalf
 {
-    setStandardValues();
-}
-LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange)
-{
-    setStandardValues();
-    setDeterminantRange(determinantRange);
-}
-LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange, const Lattice& sampleRealLattice_A, float knownLatticeTolerance)
-{
-    setStandardValues();
-    setDeterminantRange(determinantRange);
-    setKnownLatticeParameters(sampleRealLattice_A, knownLatticeTolerance);
-}
-LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange, const accuracyConstants_t& accuracyConstants)
-{
-    setStandardValues();
-    setDeterminantRange(determinantRange);
-    setAccuracyConstants(accuracyConstants);
-}
-LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange, const Lattice& sampleRealLattice_A, float knownLatticeTolerance,
-                                   const accuracyConstants_t& accuracyConstants)
-{
-    setDeterminantRange(determinantRange);
-    setKnownLatticeParameters(sampleRealLattice_A, knownLatticeTolerance);
-    setAccuracyConstants(accuracyConstants);
-}
+    using namespace Eigen;
+    using namespace std;
 
-void LatticeAssembler::setStandardValues()
-{
-    determinantRange << 0, numeric_limits<float>::max();
-
-    latticeParametersKnown = false;
-    knownLatticeParametersTolerance = 0;
-
-    accuracyConstants.maxCountGlobalPassingWeightFilter = 500;
-    accuracyConstants.maxCountLocalPassingWeightFilter = 15;
-    accuracyConstants.maxCountPassingRelativeDefectFilter = 50;
-
-    accuracyConstants.minPointsOnLattice = 5;
-
-    accuracyConstants.maxCloseToPointDeviation = 0.15;
-}
-
-void LatticeAssembler::setKnownLatticeParameters(const Lattice& sampleRealLattice_A, float tolerance)
-{
-    latticeParametersKnown = true;
-    knownSampleRealLattice_A = sampleRealLattice_A;
-    knownLatticeParameters << sampleRealLattice_A.getBasisVectorNorms(), sampleRealLattice_A.getBasisVectorAnglesNormalized_deg();
-    knownLatticeParametersInverse = 1.0f / knownLatticeParameters;
-    knownLatticeParametersTolerance = tolerance;
-}
-
-LatticeAssembler::accuracyConstants_t LatticeAssembler::getAccuracyConstants()
-{
-    return accuracyConstants;
-}
-
-void LatticeAssembler::assembleLattices(vector<Lattice>& assembledLattices, Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights,
-                                        vector<vector<uint16_t>>& pointIndicesOnVector, Matrix3Xf& pointsToFitInReciprocalSpace)
-{
-    vector<assembledLatticeStatistics_t> assembledLatticesStatistics;
-    assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors, candidateVectorWeights, pointIndicesOnVector,
-                     pointsToFitInReciprocalSpace);
-}
-
-void LatticeAssembler::assembleLattices(vector<Lattice>& assembledLattices, vector<assembledLatticeStatistics_t>& assembledLatticesStatistics,
-                                        Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights, vector<vector<uint16_t>>& pointIndicesOnVector,
-                                        Matrix3Xf& pointsToFitInReciprocalSpace)
-{
-    reset();
-
-    computeCandidateLattices(candidateVectors, candidateVectorWeights, pointIndicesOnVector);
-
-    list<candidateLattice_t> finalCandidateLattices;
-
-    filterCandidateLatticesByWeight(accuracyConstants.maxCountGlobalPassingWeightFilter);
-
-    for (auto candidateLattice = candidateLattices.begin(); candidateLattice != candidateLattices.end(); ++candidateLattice)
+    LatticeAssembler::LatticeAssembler()
     {
-        candidateLattice->realSpaceLattice.minimize();
-        candidateLattice->det = abs(candidateLattice->realSpaceLattice.det());
-        computeAssembledLatticeStatistics(*candidateLattice, pointsToFitInReciprocalSpace);
-    };
-
-    // assume that candidateVectors is sorted descending for weight!
-    finalCandidateLattices.insert(finalCandidateLattices.end(), candidateLattices.begin(),
-                                  candidateLattices.begin() + min((uint32_t)candidateLattices.size(), accuracyConstants.maxCountLocalPassingWeightFilter));
-
-    filterCandidateBasesByMeanRelativeDefect(accuracyConstants.maxCountPassingRelativeDefectFilter);
-
-    finalCandidateLattices.insert(finalCandidateLattices.end(), candidateLattices.begin(), candidateLattices.end());
-
-    selectBestLattices(assembledLattices, assembledLatticesStatistics, finalCandidateLattices);
-
-    for (auto lattice = assembledLattices.begin(); lattice != assembledLattices.end(); ++lattice)
+        setStandardValues();
+    }
+    LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange)
     {
-        // cout << latticeParametersKnown << accuracyConstants.refineWithExactLattice;
-        if (latticeParametersKnown)
+        setStandardValues();
+        setDeterminantRange(determinantRange);
+    }
+    LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange, const Lattice& sampleRealLattice_A, float knownLatticeTolerance)
+    {
+        setStandardValues();
+        setDeterminantRange(determinantRange);
+        setKnownLatticeParameters(sampleRealLattice_A, knownLatticeTolerance);
+    }
+    LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange, const accuracyConstants_t& accuracyConstants)
+    {
+        setStandardValues();
+        setDeterminantRange(determinantRange);
+        setAccuracyConstants(accuracyConstants);
+    }
+    LatticeAssembler::LatticeAssembler(const Vector2f& determinantRange, const Lattice& sampleRealLattice_A, float knownLatticeTolerance,
+                                       const accuracyConstants_t& accuracyConstants)
+    {
+        setDeterminantRange(determinantRange);
+        setKnownLatticeParameters(sampleRealLattice_A, knownLatticeTolerance);
+        setAccuracyConstants(accuracyConstants);
+    }
+
+    void LatticeAssembler::setStandardValues()
+    {
+        determinantRange << 0, numeric_limits<float>::max();
+
+        latticeParametersKnown = false;
+        knownLatticeParametersTolerance = 0;
+
+        accuracyConstants.maxCountGlobalPassingWeightFilter = 500;
+        accuracyConstants.maxCountLocalPassingWeightFilter = 15;
+        accuracyConstants.maxCountPassingRelativeDefectFilter = 50;
+
+        accuracyConstants.minPointsOnLattice = 5;
+
+        accuracyConstants.maxCloseToPointDeviation = 0.15;
+    }
+
+    void LatticeAssembler::setKnownLatticeParameters(const Lattice& sampleRealLattice_A, float tolerance)
+    {
+        latticeParametersKnown = true;
+        knownSampleRealLattice_A = sampleRealLattice_A;
+        knownLatticeParameters << sampleRealLattice_A.getBasisVectorNorms(), sampleRealLattice_A.getBasisVectorAnglesNormalized_deg();
+        knownLatticeParametersInverse = 1.0f / knownLatticeParameters;
+        knownLatticeParametersTolerance = tolerance;
+    }
+
+    LatticeAssembler::accuracyConstants_t LatticeAssembler::getAccuracyConstants()
+    {
+        return accuracyConstants;
+    }
+
+    void LatticeAssembler::assembleLattices(vector<Lattice>& assembledLattices, Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights,
+                                            vector<vector<uint16_t>>& pointIndicesOnVector, Matrix3Xf& pointsToFitInReciprocalSpace)
+    {
+        vector<assembledLatticeStatistics_t> assembledLatticesStatistics;
+        assembleLattices(assembledLattices, assembledLatticesStatistics, candidateVectors, candidateVectorWeights, pointIndicesOnVector,
+                         pointsToFitInReciprocalSpace);
+    }
+
+    void LatticeAssembler::assembleLattices(vector<Lattice>& assembledLattices, vector<assembledLatticeStatistics_t>& assembledLatticesStatistics,
+                                            Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights, vector<vector<uint16_t>>& pointIndicesOnVector,
+                                            Matrix3Xf& pointsToFitInReciprocalSpace)
+    {
+        reset();
+
+        computeCandidateLattices(candidateVectors, candidateVectorWeights, pointIndicesOnVector);
+
+        list<candidateLattice_t> finalCandidateLattices;
+
+        filterCandidateLatticesByWeight(accuracyConstants.maxCountGlobalPassingWeightFilter);
+
+        for (auto candidateLattice = candidateLattices.begin(); candidateLattice != candidateLattices.end(); ++candidateLattice)
         {
-            if (accuracyConstants.refineWithExactLattice)
+            candidateLattice->realSpaceLattice.minimize();
+            candidateLattice->det = abs(candidateLattice->realSpaceLattice.det());
+            computeAssembledLatticeStatistics(*candidateLattice, pointsToFitInReciprocalSpace);
+        };
+
+        // assume that candidateVectors is sorted descending for weight!
+        finalCandidateLattices.insert(finalCandidateLattices.end(), candidateLattices.begin(),
+                                      candidateLattices.begin() + min((uint32_t)candidateLattices.size(), accuracyConstants.maxCountLocalPassingWeightFilter));
+
+        filterCandidateBasesByMeanRelativeDefect(accuracyConstants.maxCountPassingRelativeDefectFilter);
+
+        finalCandidateLattices.insert(finalCandidateLattices.end(), candidateLattices.begin(), candidateLattices.end());
+
+        selectBestLattices(assembledLattices, assembledLatticesStatistics, finalCandidateLattices);
+
+        for (auto lattice = assembledLattices.begin(); lattice != assembledLattices.end(); ++lattice)
+        {
+            // cout << latticeParametersKnown << accuracyConstants.refineWithExactLattice;
+            if (latticeParametersKnown)
             {
-                lattice->reorder(knownSampleRealLattice_A);
-                refineLattice_peaksAndAngle_fixedBasisParameters(*lattice, pointsToFitInReciprocalSpace);
+                if (accuracyConstants.refineWithExactLattice)
+                {
+                    lattice->reorder(knownSampleRealLattice_A);
+                    refineLattice_peaksAndAngle_fixedBasisParameters(*lattice, pointsToFitInReciprocalSpace);
+                }
+                else
+                {
+                    refineLattice_peaksAndAngle(*lattice, pointsToFitInReciprocalSpace);
+                }
             }
             else
             {
                 refineLattice_peaksAndAngle(*lattice, pointsToFitInReciprocalSpace);
+
+                lattice->normalizeAngles();
             }
         }
-        else
-        {
-            refineLattice_peaksAndAngle(*lattice, pointsToFitInReciprocalSpace);
-
-            lattice->normalizeAngles();
-        }
     }
-}
 
-// clang-format off
+    // clang-format off
 void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, vector< assembledLatticeStatistics_t >& assembledLatticesStatistics,
         list< candidateLattice_t >& finalCandidateLattices)
 {
@@ -241,125 +242,126 @@ void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, 
     }
 
 }
-// clang-format on
+    // clang-format on
 
-uint16_t LatticeAssembler::countUniqueColumns(const Matrix3Xf& millerIndices)
-{
-    uint16_t count = 0;
-
-    sortIndices.resize(millerIndices.cols());
-    iota(sortIndices.begin(), sortIndices.end(), 0);
-    sort(sortIndices.begin(), sortIndices.end(), [&millerIndices](uint16_t i, uint16_t j) { return millerIndices(0, i) < millerIndices(0, j); });
-
-    Matrix3Xf millerIndices_sorted(3, millerIndices.cols() + 1);
-    for (int i = 0; i < millerIndices.cols(); ++i)
+    uint16_t LatticeAssembler::countUniqueColumns(const Matrix3Xf& millerIndices)
     {
-        millerIndices_sorted.col(i) = millerIndices.col(sortIndices[i]);
-    }
-    millerIndices_sorted(0, millerIndices.cols()) = 0.5f; // not a valid miller index! This saves an out of bounds check in a later loop
+        uint16_t count = 0;
 
-    for (int i = 0; i < millerIndices.cols(); ++i)
-    {
-        bool isUnique = true;
-        for (int j = i + 1; millerIndices_sorted(0, i) == millerIndices_sorted(0, j); j++)
+        sortIndices.resize(millerIndices.cols());
+        iota(sortIndices.begin(), sortIndices.end(), 0);
+        sort(sortIndices.begin(), sortIndices.end(), [&millerIndices](uint16_t i, uint16_t j) { return millerIndices(0, i) < millerIndices(0, j); });
+
+        Matrix3Xf millerIndices_sorted(3, millerIndices.cols() + 1);
+        for (int i = 0; i < millerIndices.cols(); ++i)
         {
-            if ((millerIndices_sorted(1, i) == millerIndices_sorted(1, j)) & (millerIndices_sorted(2, i) == millerIndices_sorted(2, j)))
+            millerIndices_sorted.col(i) = millerIndices.col(sortIndices[i]);
+        }
+        millerIndices_sorted(0, millerIndices.cols()) = 0.5f; // not a valid miller index! This saves an out of bounds check in a later loop
+
+        for (int i = 0; i < millerIndices.cols(); ++i)
+        {
+            bool isUnique = true;
+            for (int j = i + 1; millerIndices_sorted(0, i) == millerIndices_sorted(0, j); j++)
             {
-                isUnique = false;
-                break;
+                if ((millerIndices_sorted(1, i) == millerIndices_sorted(1, j)) & (millerIndices_sorted(2, i) == millerIndices_sorted(2, j)))
+                {
+                    isUnique = false;
+                    break;
+                }
+            }
+            if (isUnique)
+            {
+                count++;
             }
         }
-        if (isUnique)
-        {
-            count++;
-        }
+
+        return count;
     }
 
-    return count;
-}
-
-void LatticeAssembler::computeCandidateLattices(Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights,
-                                                vector<vector<uint16_t>>& pointIndicesOnVector)
-{
-    // hand-crafted remove-if for three variables.
-    for (int i = candidateVectors.cols() - 1; i >= 0; i--)
+    void LatticeAssembler::computeCandidateLattices(Matrix3Xf& candidateVectors, RowVectorXf& candidateVectorWeights,
+                                                    vector<vector<uint16_t>>& pointIndicesOnVector)
     {
-        if (pointIndicesOnVector[i].size() < accuracyConstants.minPointsOnLattice)
+        // hand-crafted remove-if for three variables.
+        for (int i = candidateVectors.cols() - 1; i >= 0; i--)
         {
-            pointIndicesOnVector[i] = pointIndicesOnVector.back();
-            pointIndicesOnVector.pop_back();
-
-            candidateVectors.col(i) = candidateVectors.col(candidateVectors.cols() - 1);
-            candidateVectors.conservativeResize(NoChange, candidateVectors.cols() - 1); // possibly slow, because of call to realloc. can be avoided if needed
-
-            candidateVectorWeights[i] = candidateVectorWeights[candidateVectorWeights.size() - 1];
-            candidateVectorWeights.conservativeResize(candidateVectorWeights.size() - 1);
-        }
-    }
-
-    // needed for easier intersection computation later
-    const auto end = pointIndicesOnVector.end();
-    for (auto it = pointIndicesOnVector.begin(); it < end; ++it)
-    {
-        sort(it->begin(), it->end());
-    }
-
-    candidateLattices.reserve(10000);
-    int candidateVectorsCount = candidateVectors.cols();
-    for (uint16_t i = 0; i < candidateVectorsCount - 2; ++i)
-    {
-        for (uint16_t j = (i + 1); j < candidateVectorsCount - 1; ++j)
-        {
-            for (uint16_t k = (j + 1); k < candidateVectorsCount; ++k)
+            if (pointIndicesOnVector[i].size() < accuracyConstants.minPointsOnLattice)
             {
-                Lattice latticeToCheck(candidateVectors.col(i), candidateVectors.col(j), candidateVectors.col(k));
+                pointIndicesOnVector[i] = pointIndicesOnVector.back();
+                pointIndicesOnVector.pop_back();
 
-                float absDet = abs(latticeToCheck.det());
-                if ((absDet < determinantRange[0]) | (absDet > determinantRange[1]))
-                {
-                    continue;
-                }
+                candidateVectors.col(i) = candidateVectors.col(candidateVectors.cols() - 1);
+                candidateVectors.conservativeResize(NoChange,
+                                                    candidateVectors.cols() - 1); // possibly slow, because of call to realloc. can be avoided if needed
 
-                vector<uint16_t> pointIndicesOnTwoVectors(max(pointIndicesOnVector[i].size(), pointIndicesOnVector[j].size()));
-                auto it = set_intersection(pointIndicesOnVector[i].begin(), pointIndicesOnVector[i].end(), pointIndicesOnVector[j].begin(),
-                                           pointIndicesOnVector[j].end(), pointIndicesOnTwoVectors.begin());
-                uint16_t pointsOnBothVectorsCount = it - pointIndicesOnTwoVectors.begin();
-                if (pointsOnBothVectorsCount < accuracyConstants.minPointsOnLattice)
-                {
-                    continue;
-                }
-                pointIndicesOnTwoVectors.resize(pointsOnBothVectorsCount);
+                candidateVectorWeights[i] = candidateVectorWeights[candidateVectorWeights.size() - 1];
+                candidateVectorWeights.conservativeResize(candidateVectorWeights.size() - 1);
+            }
+        }
 
-                vector<uint16_t> pointIndicesOnLatticeToCheck(max(pointIndicesOnTwoVectors.size(), pointIndicesOnVector[k].size()));
-                it = set_intersection(pointIndicesOnTwoVectors.begin(), pointIndicesOnTwoVectors.end(), pointIndicesOnVector[k].begin(),
-                                      pointIndicesOnVector[k].end(), pointIndicesOnLatticeToCheck.begin());
-                uint16_t pointsOnLatticeToCheckCount = it - pointIndicesOnLatticeToCheck.begin();
-                if (pointsOnLatticeToCheckCount < accuracyConstants.minPointsOnLattice)
-                {
-                    continue;
-                }
-                pointIndicesOnLatticeToCheck.resize(pointsOnLatticeToCheckCount);
+        // needed for easier intersection computation later
+        const auto end = pointIndicesOnVector.end();
+        for (auto it = pointIndicesOnVector.begin(); it < end; ++it)
+        {
+            sort(it->begin(), it->end());
+        }
 
-                if (latticeParametersKnown)
+        candidateLattices.reserve(10000);
+        int candidateVectorsCount = candidateVectors.cols();
+        for (uint16_t i = 0; i < candidateVectorsCount - 2; ++i)
+        {
+            for (uint16_t j = (i + 1); j < candidateVectorsCount - 1; ++j)
+            {
+                for (uint16_t k = (j + 1); k < candidateVectorsCount; ++k)
                 {
-                    if (!checkLatticeParameters(latticeToCheck))
+                    Lattice latticeToCheck(candidateVectors.col(i), candidateVectors.col(j), candidateVectors.col(k));
+
+                    float absDet = abs(latticeToCheck.det());
+                    if ((absDet < determinantRange[0]) | (absDet > determinantRange[1]))
                     {
                         continue;
                     }
-                }
 
-                candidateLattices.resize(candidateLattices.size() + 1);
-                auto& newCandidateBasis = candidateLattices.back();
-                newCandidateBasis.realSpaceLattice = latticeToCheck;
-                newCandidateBasis.weight = candidateVectorWeights[i] + candidateVectorWeights[j] + candidateVectorWeights[k];
-                newCandidateBasis.pointOnLatticeIndices.swap(pointIndicesOnLatticeToCheck);
-                newCandidateBasis.vectorIndices = {i, j, k};
+                    vector<uint16_t> pointIndicesOnTwoVectors(max(pointIndicesOnVector[i].size(), pointIndicesOnVector[j].size()));
+                    auto it = set_intersection(pointIndicesOnVector[i].begin(), pointIndicesOnVector[i].end(), pointIndicesOnVector[j].begin(),
+                                               pointIndicesOnVector[j].end(), pointIndicesOnTwoVectors.begin());
+                    uint16_t pointsOnBothVectorsCount = it - pointIndicesOnTwoVectors.begin();
+                    if (pointsOnBothVectorsCount < accuracyConstants.minPointsOnLattice)
+                    {
+                        continue;
+                    }
+                    pointIndicesOnTwoVectors.resize(pointsOnBothVectorsCount);
+
+                    vector<uint16_t> pointIndicesOnLatticeToCheck(max(pointIndicesOnTwoVectors.size(), pointIndicesOnVector[k].size()));
+                    it = set_intersection(pointIndicesOnTwoVectors.begin(), pointIndicesOnTwoVectors.end(), pointIndicesOnVector[k].begin(),
+                                          pointIndicesOnVector[k].end(), pointIndicesOnLatticeToCheck.begin());
+                    uint16_t pointsOnLatticeToCheckCount = it - pointIndicesOnLatticeToCheck.begin();
+                    if (pointsOnLatticeToCheckCount < accuracyConstants.minPointsOnLattice)
+                    {
+                        continue;
+                    }
+                    pointIndicesOnLatticeToCheck.resize(pointsOnLatticeToCheckCount);
+
+                    if (latticeParametersKnown)
+                    {
+                        if (!checkLatticeParameters(latticeToCheck))
+                        {
+                            continue;
+                        }
+                    }
+
+                    candidateLattices.resize(candidateLattices.size() + 1);
+                    auto& newCandidateBasis = candidateLattices.back();
+                    newCandidateBasis.realSpaceLattice = latticeToCheck;
+                    newCandidateBasis.weight = candidateVectorWeights[i] + candidateVectorWeights[j] + candidateVectorWeights[k];
+                    newCandidateBasis.pointOnLatticeIndices.swap(pointIndicesOnLatticeToCheck);
+                    newCandidateBasis.vectorIndices = {i, j, k};
+                }
             }
         }
     }
-}
 
-// clang-format off
+    // clang-format off
 void LatticeAssembler::computeAssembledLatticeStatistics(candidateLattice_t& candidateLattice, const Matrix3Xf& pointsToFitInReciprocalSpace)
 {
     auto& pointOnLatticeIndices = candidateLattice.pointOnLatticeIndices;
@@ -385,42 +387,42 @@ void LatticeAssembler::computeAssembledLatticeStatistics(candidateLattice_t& can
     candidateLattice.assembledLatticeStatistics.meanDefect = ((predictedPoints - currentPointsToFitInReciprocalSpace).colwise().norm()).mean();
     candidateLattice.assembledLatticeStatistics.meanRelativeDefect = ((factorsToReachPoints - millerIndices).colwise().norm()).mean();
 }
-// clang-format on
+    // clang-format on
 
-void LatticeAssembler::filterCandidateLatticesByWeight(uint32_t maxToTakeCount)
-{
-    uint32_t toTakeCount = min(maxToTakeCount, (uint32_t)candidateLattices.size());
-
-    sortIndices.resize(candidateLattices.size());
-    iota(sortIndices.begin(), sortIndices.end(), 0);
-    nth_element(sortIndices.begin(), sortIndices.begin() + toTakeCount, sortIndices.end(),
-                [&](uint32_t i, uint32_t j) { return candidateLattices[i].weight > candidateLattices[j].weight; }); // descending
-
-    sortIndices.resize(toTakeCount);
-    sort(sortIndices.begin(), sortIndices.end(),
-         [&](uint32_t i, uint32_t j) { return candidateLattices[i].weight > candidateLattices[j].weight; }); // descending
-
-    vector<candidateLattice_t> candidateLatticesFiltered;
-    candidateLatticesFiltered.resize(toTakeCount);
-    for (uint32_t i = 0; i < toTakeCount; ++i)
+    void LatticeAssembler::filterCandidateLatticesByWeight(uint32_t maxToTakeCount)
     {
-        candidateLatticesFiltered[i] = candidateLattices[sortIndices[i]];
+        uint32_t toTakeCount = min(maxToTakeCount, (uint32_t)candidateLattices.size());
+
+        sortIndices.resize(candidateLattices.size());
+        iota(sortIndices.begin(), sortIndices.end(), 0);
+        nth_element(sortIndices.begin(), sortIndices.begin() + toTakeCount, sortIndices.end(),
+                    [&](uint32_t i, uint32_t j) { return candidateLattices[i].weight > candidateLattices[j].weight; }); // descending
+
+        sortIndices.resize(toTakeCount);
+        sort(sortIndices.begin(), sortIndices.end(),
+             [&](uint32_t i, uint32_t j) { return candidateLattices[i].weight > candidateLattices[j].weight; }); // descending
+
+        vector<candidateLattice_t> candidateLatticesFiltered;
+        candidateLatticesFiltered.resize(toTakeCount);
+        for (uint32_t i = 0; i < toTakeCount; ++i)
+        {
+            candidateLatticesFiltered[i] = candidateLattices[sortIndices[i]];
+        }
+
+        candidateLattices.swap(candidateLatticesFiltered);
     }
 
-    candidateLattices.swap(candidateLatticesFiltered);
-}
 
+    bool LatticeAssembler::checkLatticeParameters(Lattice& lattice)
+    {
+        lattice.minimize();
 
-bool LatticeAssembler::checkLatticeParameters(Lattice& lattice)
-{
-    lattice.minimize();
+        Vector3f n = lattice.getBasisVectorNorms();
+        Vector3f a = lattice.getBasisVectorAnglesNormalized_deg();
 
-    Vector3f n = lattice.getBasisVectorNorms();
-    Vector3f a = lattice.getBasisVectorAnglesNormalized_deg();
+        Array<float, 6, 6> allPermutations;
 
-    Array<float, 6, 6> allPermutations;
-
-    // clang-format off
+        // clang-format off
     allPermutations <<
             n[0], n[0], n[1], n[1], n[2], n[2],
             n[1], n[2], n[0], n[2], n[0], n[1],
@@ -428,280 +430,282 @@ bool LatticeAssembler::checkLatticeParameters(Lattice& lattice)
             a[0], a[0], a[1], a[1], a[2], a[2],
             a[1], a[2], a[0], a[2], a[0], a[1],
             a[2], a[1], a[2], a[0], a[1], a[0];
-    // clang-format on
+        // clang-format on
 
-    auto rasiduals = ((allPermutations.colwise() - knownLatticeParameters).colwise() * knownLatticeParametersInverse).abs(); // Array< bool, 6, 6 >
+        auto rasiduals = ((allPermutations.colwise() - knownLatticeParameters).colwise() * knownLatticeParametersInverse).abs(); // Array< bool, 6, 6 >
 
-    auto parametersValid = rasiduals < knownLatticeParametersTolerance; // Array< bool, 6, 6 >
+        auto parametersValid = rasiduals < knownLatticeParametersTolerance; // Array< bool, 6, 6 >
 
-    auto permutationsValid = parametersValid.colwise().all(); // Array< bool, 1, 6 >
+        auto permutationsValid = parametersValid.colwise().all(); // Array< bool, 1, 6 >
 
-    bool latticeValid = permutationsValid.any();
+        bool latticeValid = permutationsValid.any();
 
-    return latticeValid;
-}
-
-
-void LatticeAssembler::filterCandidateBasesByMeanRelativeDefect(uint32_t maxToTakeCount)
-{
-    uint32_t toTakeCount = min(maxToTakeCount, (uint32_t)candidateLattices.size());
-
-    sortIndices.resize(candidateLattices.size());
-    iota(sortIndices.begin(), sortIndices.end(), 0);
-    nth_element(sortIndices.begin(), sortIndices.begin() + toTakeCount, sortIndices.end(), [&](uint32_t i, uint32_t j) {
-        return candidateLattices[i].assembledLatticeStatistics.meanRelativeDefect < candidateLattices[j].assembledLatticeStatistics.meanRelativeDefect;
-    });
-
-    sortIndices.resize(toTakeCount);
-    sort(sortIndices.begin(), sortIndices.end(), [&](uint32_t i, uint32_t j) {
-        return candidateLattices[i].assembledLatticeStatistics.meanRelativeDefect < candidateLattices[j].assembledLatticeStatistics.meanRelativeDefect;
-    });
-
-    vector<candidateLattice_t> candidateLatticesFiltered;
-    candidateLatticesFiltered.resize(toTakeCount);
-    for (uint32_t i = 0; i < toTakeCount; ++i)
-    {
-        candidateLatticesFiltered[i] = candidateLattices[sortIndices[i]];
+        return latticeValid;
     }
 
-    candidateLattices.swap(candidateLatticesFiltered);
-}
 
-void LatticeAssembler::setAccuracyConstants(const accuracyConstants_t& accuracyConstants)
-{
-    this->accuracyConstants = accuracyConstants;
-}
+    void LatticeAssembler::filterCandidateBasesByMeanRelativeDefect(uint32_t maxToTakeCount)
+    {
+        uint32_t toTakeCount = min(maxToTakeCount, (uint32_t)candidateLattices.size());
 
-void LatticeAssembler::setDeterminantRange(const Eigen::Vector2f& determinantRange)
-{
-    this->determinantRange = determinantRange;
-}
+        sortIndices.resize(candidateLattices.size());
+        iota(sortIndices.begin(), sortIndices.end(), 0);
+        nth_element(sortIndices.begin(), sortIndices.begin() + toTakeCount, sortIndices.end(), [&](uint32_t i, uint32_t j) {
+            return candidateLattices[i].assembledLatticeStatistics.meanRelativeDefect < candidateLattices[j].assembledLatticeStatistics.meanRelativeDefect;
+        });
 
-void LatticeAssembler::setDeterminantRange(float min, float max)
-{
-    this->determinantRange = Vector2f(min, max);
-}
+        sortIndices.resize(toTakeCount);
+        sort(sortIndices.begin(), sortIndices.end(), [&](uint32_t i, uint32_t j) {
+            return candidateLattices[i].assembledLatticeStatistics.meanRelativeDefect < candidateLattices[j].assembledLatticeStatistics.meanRelativeDefect;
+        });
 
-void LatticeAssembler::reset()
-{
-    candidateLattices.clear();
-    validLattices.clear();
-}
+        vector<candidateLattice_t> candidateLatticesFiltered;
+        candidateLatticesFiltered.resize(toTakeCount);
+        for (uint32_t i = 0; i < toTakeCount; ++i)
+        {
+            candidateLatticesFiltered[i] = candidateLattices[sortIndices[i]];
+        }
+
+        candidateLattices.swap(candidateLatticesFiltered);
+    }
+
+    void LatticeAssembler::setAccuracyConstants(const accuracyConstants_t& accuracyConstants)
+    {
+        this->accuracyConstants = accuracyConstants;
+    }
+
+    void LatticeAssembler::setDeterminantRange(const Eigen::Vector2f& determinantRange)
+    {
+        this->determinantRange = determinantRange;
+    }
+
+    void LatticeAssembler::setDeterminantRange(float min, float max)
+    {
+        this->determinantRange = Vector2f(min, max);
+    }
+
+    void LatticeAssembler::reset()
+    {
+        candidateLattices.clear();
+        validLattices.clear();
+    }
 
 //#define MEAN_SQUARED_DIST_REFINE
 #define MEAN_DIST_REFINE
-static void keepGoodReciprocalPeaks(Matrix3Xf& keptPeaks, Matrix3Xf& keptMillerIndices, vector<uint16_t>& pointOnLatticeIndices,
-                                    const Array<bool, 1, Dynamic>& goodPeaksFlags, const Matrix3Xf& allPeaks, const Matrix3Xf& allMillerIndices);
-void LatticeAssembler::refineLattice(Lattice& realSpaceLattice, vector<uint16_t>& pointOnLatticeIndices, const Matrix3Xf& pointsToFitInReciprocalSpace)
-{
-    Lattice& bestLattice = realSpaceLattice;
-
-    int maxIterationsCount = 5;
-    int iterationCount = 0;
-
-    Matrix3Xf factorsToReachNodes;
-    Matrix3Xf millerIndices;
-    Matrix3f gradient;
-    Array<float, 1, Dynamic> maxRelativeDefects;
-    Array<bool, 1, Dynamic> goodReciprocalPeaksFlags;
-    Matrix3Xf reciprocalPeaksUsedForFitting_1_per_A;
-    Matrix3Xf millerIndicesUsedForFitting;
-    while (1)
+    static void keepGoodReciprocalPeaks(Matrix3Xf& keptPeaks, Matrix3Xf& keptMillerIndices, vector<uint16_t>& pointOnLatticeIndices,
+                                        const Array<bool, 1, Dynamic>& goodPeaksFlags, const Matrix3Xf& allPeaks, const Matrix3Xf& allMillerIndices);
+    void LatticeAssembler::refineLattice(Lattice& realSpaceLattice, vector<uint16_t>& pointOnLatticeIndices, const Matrix3Xf& pointsToFitInReciprocalSpace)
     {
-        factorsToReachNodes = bestLattice.getBasis().transpose() * pointsToFitInReciprocalSpace;
-        millerIndices = factorsToReachNodes.array().round();
+        Lattice& bestLattice = realSpaceLattice;
 
-        maxRelativeDefects = (millerIndices - factorsToReachNodes).array().abs().colwise().maxCoeff();
+        int maxIterationsCount = 5;
+        int iterationCount = 0;
 
-        // tune!
-        goodReciprocalPeaksFlags = maxRelativeDefects < accuracyConstants.maxCloseToPointDeviation;
+        Matrix3Xf factorsToReachNodes;
+        Matrix3Xf millerIndices;
+        Matrix3f gradient;
+        Array<float, 1, Dynamic> maxRelativeDefects;
+        Array<bool, 1, Dynamic> goodReciprocalPeaksFlags;
+        Matrix3Xf reciprocalPeaksUsedForFitting_1_per_A;
+        Matrix3Xf millerIndicesUsedForFitting;
+        while (1)
+        {
+            factorsToReachNodes = bestLattice.getBasis().transpose() * pointsToFitInReciprocalSpace;
+            millerIndices = factorsToReachNodes.array().round();
 
-        int goodReciprocalPeaksCount = goodReciprocalPeaksFlags.cast<uint16_t>().sum();
-        if (goodReciprocalPeaksCount < 5) // if unstable
-            break;
+            maxRelativeDefects = (millerIndices - factorsToReachNodes).array().abs().colwise().maxCoeff();
 
-        reciprocalPeaksUsedForFitting_1_per_A.resize(3, goodReciprocalPeaksCount);
-        millerIndicesUsedForFitting.resize(3, goodReciprocalPeaksCount);
-        keepGoodReciprocalPeaks(reciprocalPeaksUsedForFitting_1_per_A, millerIndicesUsedForFitting, pointOnLatticeIndices, goodReciprocalPeaksFlags,
-                                pointsToFitInReciprocalSpace, millerIndices);
+            // tune!
+            goodReciprocalPeaksFlags = maxRelativeDefects < accuracyConstants.maxCloseToPointDeviation;
+
+            int goodReciprocalPeaksCount = goodReciprocalPeaksFlags.cast<uint16_t>().sum();
+            if (goodReciprocalPeaksCount < 5) // if unstable
+                break;
+
+            reciprocalPeaksUsedForFitting_1_per_A.resize(3, goodReciprocalPeaksCount);
+            millerIndicesUsedForFitting.resize(3, goodReciprocalPeaksCount);
+            keepGoodReciprocalPeaks(reciprocalPeaksUsedForFitting_1_per_A, millerIndicesUsedForFitting, pointOnLatticeIndices, goodReciprocalPeaksFlags,
+                                    pointsToFitInReciprocalSpace, millerIndices);
 
 #ifdef MEAN_DIST_REFINE
-        // gradient descent
-        Matrix3f refinedReciprocalBasis = bestLattice.getReciprocalLattice().getBasis();
-        float stepLength = refinedReciprocalBasis.maxCoeff() * 0.002;
-        for (int i = 0; i < 50; i++)
-        {
-            getGradient_reciprocalPeakMatch_meanDist(gradient, refinedReciprocalBasis, millerIndicesUsedForFitting, pointsToFitInReciprocalSpace);
-            float maxCoeff = gradient.cwiseAbs().maxCoeff();
-            if (maxCoeff < 1e-20)
+            // gradient descent
+            Matrix3f refinedReciprocalBasis = bestLattice.getReciprocalLattice().getBasis();
+            float stepLength = refinedReciprocalBasis.maxCoeff() * 0.002;
+            for (int i = 0; i < 50; i++)
             {
-                break;
-            }
-            gradient /= maxCoeff;
+                getGradient_reciprocalPeakMatch_meanDist(gradient, refinedReciprocalBasis, millerIndicesUsedForFitting, pointsToFitInReciprocalSpace);
+                float maxCoeff = gradient.cwiseAbs().maxCoeff();
+                if (maxCoeff < 1e-20)
+                {
+                    break;
+                }
+                gradient /= maxCoeff;
 
-            refinedReciprocalBasis = refinedReciprocalBasis - stepLength * gradient;
+                refinedReciprocalBasis = refinedReciprocalBasis - stepLength * gradient;
 
-            if (i >= 25)
-            {
-                stepLength *= 0.87;
+                if (i >= 25)
+                {
+                    stepLength *= 0.87;
+                }
             }
-        }
 #elif defined MEAN_SQUARED_DIST_REFINE
-        Matrix3f refinedReciprocalBasis;
-        refineReciprocalBasis_meanSquaredDist(refinedReciprocalBasis, factorsToReachNodes, pointsToFitInReciprocalSpace);
+            Matrix3f refinedReciprocalBasis;
+            refineReciprocalBasis_meanSquaredDist(refinedReciprocalBasis, factorsToReachNodes, pointsToFitInReciprocalSpace);
 #endif
 
-        Lattice refinedLattice = Lattice(refinedReciprocalBasis).getReciprocalLattice();
-        refinedLattice.minimize();
+            Lattice refinedLattice = Lattice(refinedReciprocalBasis).getReciprocalLattice();
+            refinedLattice.minimize();
 
-        if ((refinedLattice.getBasis() - bestLattice.getBasis()).isZero(1e-3))
-        {
-            return;
-        }
-        else if (iterationCount++ > maxIterationsCount)
-        {
-            bestLattice = refinedLattice;
-            return;
-        }
-        else
-        {
-            bestLattice = refinedLattice;
+            if ((refinedLattice.getBasis() - bestLattice.getBasis()).isZero(1e-3))
+            {
+                return;
+            }
+            else if (iterationCount++ > maxIterationsCount)
+            {
+                bestLattice = refinedLattice;
+                return;
+            }
+            else
+            {
+                bestLattice = refinedLattice;
+            }
         }
     }
-}
 
 
-void LatticeAssembler::refineLattice_peaksAndAngle(Lattice& realSpaceLattice, const Matrix3Xf& pointsToFitInReciprocalSpace)
-{
-    Lattice& bestLattice = realSpaceLattice;
-
-    int maxIterationsCount = 5;
-    int iterationCount = 0;
-
-    Matrix3Xf factorsToReachNodes;
-    Matrix3Xf millerIndices;
-    Matrix3f gradient;
-    Array<float, 1, Dynamic> maxRelativeDefects;
-    Array<bool, 1, Dynamic> goodReciprocalPeaksFlags;
-    Matrix3Xf reciprocalPeaksUsedForFitting_1_per_A;
-    Matrix3Xf millerIndicesUsedForFitting;
-    vector<uint16_t> pointOnLatticeIndices_junk;
-    while (1)
+    void LatticeAssembler::refineLattice_peaksAndAngle(Lattice& realSpaceLattice, const Matrix3Xf& pointsToFitInReciprocalSpace)
     {
-        factorsToReachNodes = bestLattice.getBasis().transpose() * pointsToFitInReciprocalSpace;
-        millerIndices = factorsToReachNodes.array().round();
+        Lattice& bestLattice = realSpaceLattice;
 
-        maxRelativeDefects = (millerIndices - factorsToReachNodes).array().abs().colwise().maxCoeff();
+        int maxIterationsCount = 5;
+        int iterationCount = 0;
 
-        // tune!
-        goodReciprocalPeaksFlags = maxRelativeDefects < accuracyConstants.maxCloseToPointDeviation;
-
-        int goodReciprocalPeaksCount = goodReciprocalPeaksFlags.cast<uint16_t>().sum();
-        if (goodReciprocalPeaksCount < 5) // if unstable
-            break;
-
-        reciprocalPeaksUsedForFitting_1_per_A.resize(3, goodReciprocalPeaksCount);
-        millerIndicesUsedForFitting.resize(3, goodReciprocalPeaksCount);
-        keepGoodReciprocalPeaks(reciprocalPeaksUsedForFitting_1_per_A, millerIndicesUsedForFitting, pointOnLatticeIndices_junk, goodReciprocalPeaksFlags,
-                                pointsToFitInReciprocalSpace, millerIndices);
-
-        Matrix3f refinedReciprocalBasis = bestLattice.getReciprocalLattice().getBasis();
-        refineReciprocalBasis_meanDist_peaksAndAngle(refinedReciprocalBasis, millerIndicesUsedForFitting, reciprocalPeaksUsedForFitting_1_per_A);
-
-        Lattice refinedLattice = Lattice(refinedReciprocalBasis).getReciprocalLattice();
-        refinedLattice.minimize();
-
-        if ((refinedLattice.getBasis() - bestLattice.getBasis()).isZero(1e-3))
+        Matrix3Xf factorsToReachNodes;
+        Matrix3Xf millerIndices;
+        Matrix3f gradient;
+        Array<float, 1, Dynamic> maxRelativeDefects;
+        Array<bool, 1, Dynamic> goodReciprocalPeaksFlags;
+        Matrix3Xf reciprocalPeaksUsedForFitting_1_per_A;
+        Matrix3Xf millerIndicesUsedForFitting;
+        vector<uint16_t> pointOnLatticeIndices_junk;
+        while (1)
         {
-            bestLattice.minimize();
-            return;
+            factorsToReachNodes = bestLattice.getBasis().transpose() * pointsToFitInReciprocalSpace;
+            millerIndices = factorsToReachNodes.array().round();
+
+            maxRelativeDefects = (millerIndices - factorsToReachNodes).array().abs().colwise().maxCoeff();
+
+            // tune!
+            goodReciprocalPeaksFlags = maxRelativeDefects < accuracyConstants.maxCloseToPointDeviation;
+
+            int goodReciprocalPeaksCount = goodReciprocalPeaksFlags.cast<uint16_t>().sum();
+            if (goodReciprocalPeaksCount < 5) // if unstable
+                break;
+
+            reciprocalPeaksUsedForFitting_1_per_A.resize(3, goodReciprocalPeaksCount);
+            millerIndicesUsedForFitting.resize(3, goodReciprocalPeaksCount);
+            keepGoodReciprocalPeaks(reciprocalPeaksUsedForFitting_1_per_A, millerIndicesUsedForFitting, pointOnLatticeIndices_junk, goodReciprocalPeaksFlags,
+                                    pointsToFitInReciprocalSpace, millerIndices);
+
+            Matrix3f refinedReciprocalBasis = bestLattice.getReciprocalLattice().getBasis();
+            refineReciprocalBasis_meanDist_peaksAndAngle(refinedReciprocalBasis, millerIndicesUsedForFitting, reciprocalPeaksUsedForFitting_1_per_A);
+
+            Lattice refinedLattice = Lattice(refinedReciprocalBasis).getReciprocalLattice();
+            refinedLattice.minimize();
+
+            if ((refinedLattice.getBasis() - bestLattice.getBasis()).isZero(1e-3))
+            {
+                bestLattice.minimize();
+                return;
+            }
+            else if (iterationCount++ > maxIterationsCount)
+            {
+                bestLattice = refinedLattice;
+                bestLattice.minimize();
+                return;
+            }
+            else
+            {
+                bestLattice = refinedLattice;
+            }
         }
-        else if (iterationCount++ > maxIterationsCount)
-        {
-            bestLattice = refinedLattice;
-            bestLattice.minimize();
-            return;
-        }
-        else
-        {
-            bestLattice = refinedLattice;
-        }
+        bestLattice.minimize();
     }
-    bestLattice.minimize();
-}
 
-void LatticeAssembler::refineLattice_peaksAndAngle_fixedBasisParameters(Lattice& realSpaceLattice, const Matrix3Xf& pointsToFitInReciprocalSpace)
-{
-    Lattice& bestLattice = realSpaceLattice;
-
-    int maxIterationsCount = 5;
-    int iterationCount = 0;
-
-    Matrix3Xf factorsToReachNodes;
-    Matrix3Xf millerIndices;
-    Matrix3f gradient;
-    Array<float, 1, Dynamic> maxRelativeDefects;
-    Array<bool, 1, Dynamic> goodReciprocalPeaksFlags;
-    Matrix3Xf reciprocalPeaksUsedForFitting_1_per_A;
-    Matrix3Xf millerIndicesUsedForFitting;
-    vector<uint16_t> pointOnLatticeIndices_junk;
-    while (1)
+    void LatticeAssembler::refineLattice_peaksAndAngle_fixedBasisParameters(Lattice& realSpaceLattice, const Matrix3Xf& pointsToFitInReciprocalSpace)
     {
-        factorsToReachNodes = bestLattice.getBasis().transpose() * pointsToFitInReciprocalSpace;
-        millerIndices = factorsToReachNodes.array().round();
+        Lattice& bestLattice = realSpaceLattice;
 
-        maxRelativeDefects = (millerIndices - factorsToReachNodes).array().abs().colwise().maxCoeff();
+        int maxIterationsCount = 5;
+        int iterationCount = 0;
 
-        // tune!
-        goodReciprocalPeaksFlags = maxRelativeDefects < accuracyConstants.maxCloseToPointDeviation;
-
-        int goodReciprocalPeaksCount = goodReciprocalPeaksFlags.cast<uint16_t>().sum();
-        if (goodReciprocalPeaksCount < 5) // if unstable
-            break;
-
-        reciprocalPeaksUsedForFitting_1_per_A.resize(3, goodReciprocalPeaksCount);
-        millerIndicesUsedForFitting.resize(3, goodReciprocalPeaksCount);
-        keepGoodReciprocalPeaks(reciprocalPeaksUsedForFitting_1_per_A, millerIndicesUsedForFitting, pointOnLatticeIndices_junk, goodReciprocalPeaksFlags,
-                                pointsToFitInReciprocalSpace, millerIndices);
-
-        Matrix3f refinedReciprocalBasis = bestLattice.getReciprocalLattice().getBasis();
-        refineReciprocalBasis_meanSquaredDist_fixedBasisParameters(refinedReciprocalBasis, millerIndicesUsedForFitting, reciprocalPeaksUsedForFitting_1_per_A,
-                                                                   knownSampleRealLattice_A.getReciprocalLattice().getBasis());
-        refineReciprocalBasis_meanDist_detectorAngleMatchFixedParameters(refinedReciprocalBasis, millerIndicesUsedForFitting,
-                                                                         reciprocalPeaksUsedForFitting_1_per_A);
-
-        Lattice refinedLattice = Lattice(refinedReciprocalBasis).getReciprocalLattice();
-
-        if ((refinedLattice.getBasis() - bestLattice.getBasis()).isZero(1e-3))
+        Matrix3Xf factorsToReachNodes;
+        Matrix3Xf millerIndices;
+        Matrix3f gradient;
+        Array<float, 1, Dynamic> maxRelativeDefects;
+        Array<bool, 1, Dynamic> goodReciprocalPeaksFlags;
+        Matrix3Xf reciprocalPeaksUsedForFitting_1_per_A;
+        Matrix3Xf millerIndicesUsedForFitting;
+        vector<uint16_t> pointOnLatticeIndices_junk;
+        while (1)
         {
-            return;
-        }
-        else if (iterationCount++ > maxIterationsCount)
-        {
-            bestLattice = refinedLattice;
-            return;
-        }
-        else
-        {
-            bestLattice = refinedLattice;
+            factorsToReachNodes = bestLattice.getBasis().transpose() * pointsToFitInReciprocalSpace;
+            millerIndices = factorsToReachNodes.array().round();
+
+            maxRelativeDefects = (millerIndices - factorsToReachNodes).array().abs().colwise().maxCoeff();
+
+            // tune!
+            goodReciprocalPeaksFlags = maxRelativeDefects < accuracyConstants.maxCloseToPointDeviation;
+
+            int goodReciprocalPeaksCount = goodReciprocalPeaksFlags.cast<uint16_t>().sum();
+            if (goodReciprocalPeaksCount < 5) // if unstable
+                break;
+
+            reciprocalPeaksUsedForFitting_1_per_A.resize(3, goodReciprocalPeaksCount);
+            millerIndicesUsedForFitting.resize(3, goodReciprocalPeaksCount);
+            keepGoodReciprocalPeaks(reciprocalPeaksUsedForFitting_1_per_A, millerIndicesUsedForFitting, pointOnLatticeIndices_junk, goodReciprocalPeaksFlags,
+                                    pointsToFitInReciprocalSpace, millerIndices);
+
+            Matrix3f refinedReciprocalBasis = bestLattice.getReciprocalLattice().getBasis();
+            refineReciprocalBasis_meanSquaredDist_fixedBasisParameters(refinedReciprocalBasis, millerIndicesUsedForFitting,
+                                                                       reciprocalPeaksUsedForFitting_1_per_A,
+                                                                       knownSampleRealLattice_A.getReciprocalLattice().getBasis());
+            refineReciprocalBasis_meanDist_detectorAngleMatchFixedParameters(refinedReciprocalBasis, millerIndicesUsedForFitting,
+                                                                             reciprocalPeaksUsedForFitting_1_per_A);
+
+            Lattice refinedLattice = Lattice(refinedReciprocalBasis).getReciprocalLattice();
+
+            if ((refinedLattice.getBasis() - bestLattice.getBasis()).isZero(1e-3))
+            {
+                return;
+            }
+            else if (iterationCount++ > maxIterationsCount)
+            {
+                bestLattice = refinedLattice;
+                return;
+            }
+            else
+            {
+                bestLattice = refinedLattice;
+            }
         }
     }
-}
 
-static void keepGoodReciprocalPeaks(Matrix3Xf& keptPeaks, Matrix3Xf& keptMillerIndices, vector<uint16_t>& pointOnLatticeIndices,
-                                    const Array<bool, 1, Dynamic>& goodPeaksFlags, const Matrix3Xf& allPeaks, const Matrix3Xf& allMillerIndices)
-{
-    pointOnLatticeIndices.clear();
-
-    int peeksKeptCount = 0;
-    for (int i = 0; i < goodPeaksFlags.size(); i++)
+    static void keepGoodReciprocalPeaks(Matrix3Xf& keptPeaks, Matrix3Xf& keptMillerIndices, vector<uint16_t>& pointOnLatticeIndices,
+                                        const Array<bool, 1, Dynamic>& goodPeaksFlags, const Matrix3Xf& allPeaks, const Matrix3Xf& allMillerIndices)
     {
-        if (goodPeaksFlags[i])
+        pointOnLatticeIndices.clear();
+
+        int peeksKeptCount = 0;
+        for (int i = 0; i < goodPeaksFlags.size(); i++)
         {
-            keptPeaks.col(peeksKeptCount) = allPeaks.col(i);
-            keptMillerIndices.col(peeksKeptCount) = allMillerIndices.col(i);
-            pointOnLatticeIndices.push_back(i);
-            peeksKeptCount++;
+            if (goodPeaksFlags[i])
+            {
+                keptPeaks.col(peeksKeptCount) = allPeaks.col(i);
+                keptMillerIndices.col(peeksKeptCount) = allMillerIndices.col(i);
+                pointOnLatticeIndices.push_back(i);
+                peeksKeptCount++;
+            }
         }
     }
-}
+} // namespace xgandalf

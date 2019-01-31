@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -29,16 +29,19 @@
 #include <Eigen/Dense>
 #include <ExperimentSettings.h>
 
-class DetectorToReciprocalSpaceTransform {
-public:
-    DetectorToReciprocalSpaceTransform(const ExperimentSettings& experimentSettings);
-        
-    //coordinate system same as reciprocal x-z
-    void computeReciprocalPeaksFromDetectorPeaks(Eigen::Matrix3Xf& reciprocalPeaks_A, const Eigen::Matrix2Xf& detectorPeaks_m );
-    
-private:
-    float reciprocal_lambda_1A;
-    float detectorDistance_m;
-};
+namespace xgandalf
+{
+    class DetectorToReciprocalSpaceTransform
+    {
+      public:
+        DetectorToReciprocalSpaceTransform(const ExperimentSettings& experimentSettings);
 
+        // coordinate system same as reciprocal x-z
+        void computeReciprocalPeaksFromDetectorPeaks(Eigen::Matrix3Xf& reciprocalPeaks_A, const Eigen::Matrix2Xf& detectorPeaks_m);
+
+      private:
+        float reciprocal_lambda_1A;
+        float detectorDistance_m;
+    };
+} // namespace xgandalf
 #endif /* DETECTORTORECIPROCALSPACETRANSFORM_H_ */

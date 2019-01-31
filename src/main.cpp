@@ -2,7 +2,7 @@
  * main.cpp
  *
  * SimpleMonochromaticDiffractionPatternPrediction.h
- * 
+ *
  * Copyright © 2019 Deutsches Elektronen-Synchrotron DESY,
  *                       a research centre of the Helmholtz Association.
  *
@@ -13,7 +13,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -44,6 +44,7 @@
 #include <sstream>
 #include <string>
 
+using namespace xgandalf;
 using namespace std;
 using namespace Eigen;
 
@@ -51,7 +52,7 @@ int main()
 {
     try
     {
-		// testPatternPrediction();
+        // testPatternPrediction();
         // test_filterSamplePointsForNorm();
         // test_indexerAutocorrPrefit();
         // test_indexerPlain();
@@ -61,15 +62,15 @@ int main()
         // test_gradientDescentRefinement();
         // test_mixedGradientDescentRefinement();
         // test_fixedBasisRefinement();
-		// test_fixedBasisRefinementKabsch();
-		test_hillClimbing();
+        // test_fixedBasisRefinementKabsch();
+        test_hillClimbing();
     }
     catch (exception& e)
     {
         cout << e.what();
     }
 
-	cout << endl << "done";
+    cout << endl << "done";
     getchar();
 
     return 0;

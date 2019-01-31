@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -29,20 +29,25 @@
 #include "SimpleMonochromaticProjection.h"
 #include <Eigen/Dense>
 
-class SimpleMonochromaticDiffractionPatternPrediction
+namespace xgandalf
 {
-  public:
-    SimpleMonochromaticDiffractionPatternPrediction(const ExperimentSettings& experimentSettings);
 
-    void getPeaksOnEwaldSphere(Eigen::Matrix3Xf& peaksOnEwaldSphere, Eigen::Matrix3Xi& millerIndices, const Lattice& lattice);
-    void predictPattern(Eigen::Matrix2Xf& predictedPeaks, Eigen::Matrix3Xi& millerIndices, Eigen::Matrix3Xf& projectionDirections, const Lattice& lattice);
+    class SimpleMonochromaticDiffractionPatternPrediction
+    {
+      public:
+        SimpleMonochromaticDiffractionPatternPrediction(const ExperimentSettings& experimentSettings);
 
-  private:
-	  SimpleMonochromaticProjection reciprocalToRealProjection;
+        void getPeaksOnEwaldSphere(Eigen::Matrix3Xf& peaksOnEwaldSphere, Eigen::Matrix3Xi& millerIndices, const Lattice& lattice);
+        void predictPattern(Eigen::Matrix2Xf& predictedPeaks, Eigen::Matrix3Xi& millerIndices, Eigen::Matrix3Xf& projectionDirections, const Lattice& lattice);
 
-    float maxResolutionAngle;
-    float reflectionRadius;
-    float reciprocalLambdaShort, reciprocalLambdaLong;
-    float reciprocalLambdaShort_extended_squared, reciprocalLambdaLong_extended_squared;
-    float detectorDistance;
-};
+      private:
+        SimpleMonochromaticProjection reciprocalToRealProjection;
+
+        float maxResolutionAngle;
+        float reflectionRadius;
+        float reciprocalLambdaShort, reciprocalLambdaLong;
+        float reciprocalLambdaShort_extended_squared, reciprocalLambdaLong_extended_squared;
+        float detectorDistance;
+    };
+
+} // namespace xgandalf

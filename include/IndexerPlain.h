@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -29,64 +29,65 @@
 #include "HillClimbingOptimizer.h"
 #include <IndexerBase.h>
 
-class IndexerPlain : public IndexerBase
+namespace xgandalf
 {
-  public:
-    enum class SamplingPitch
+    class IndexerPlain : public IndexerBase
     {
-        extremelyLoose,
-        loose,
-        standard,
-        dense,
-        extremelyDense,
+      public:
+        enum class SamplingPitch
+        {
+            extremelyLoose,
+            loose,
+            standard,
+            dense,
+            extremelyDense,
 
-        standardWithSeondaryMillerIndices,
-        denseWithSeondaryMillerIndices,
-        extremelyDenseWithSeondaryMillerIndices
+            standardWithSeondaryMillerIndices,
+            denseWithSeondaryMillerIndices,
+            extremelyDenseWithSeondaryMillerIndices
+        };
+
+        enum class GradientDescentIterationsCount
+        {
+            exremelyFew,
+            few,
+            standard,
+            many,
+            manyMany,
+            extremelyMany,
+
+            custom
+        };
+
+        IndexerPlain(const ExperimentSettings& experimentSettings);
+
+        void index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A);
+        void index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A, std::vector<int>& peakCountOnLattices);
+
+        void setSamplingPitch(SamplingPitch samplingPitch);
+        void setSamplingPitch(float unitPitch, bool coverSecondaryMillerIndices);
+        void setRefineWithExactLattice(bool flag);
+        void setMaxPeaksToUseForIndexing(int maxPeaksToUseForIndexing);
+
+        void setGradientDescentIterationsCount(GradientDescentIterationsCount gradientDescentIterationsCount);
+
+      private:
+        void precompute();
+        void reducePeakCount(Eigen::Matrix3Xf& reciprocalPeaks_1_per_A);
+
+        Eigen::Matrix3Xf precomputedSamplePoints;
+
+        HillClimbingOptimizer hillClimbingOptimizer;
+        SparsePeakFinder sparsePeakFinder;
+        InverseSpaceTransform inverseSpaceTransform;
+
+        float maxCloseToPointDeviation;
+        int maxPeaksToUseForIndexing;
+
+        HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_global;
+        HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_additionalGlobal;
+        HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_peaks;
+        LatticeAssembler::accuracyConstants_t accuracyConstants_LatticeAssembler;
     };
-
-    enum class GradientDescentIterationsCount
-    {
-        exremelyFew,
-        few,
-        standard,
-        many,
-        manyMany,
-        extremelyMany,
-
-        custom
-    };
-
-    IndexerPlain(const ExperimentSettings& experimentSettings);
-
-    void index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A);
-    void index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A,
-               std::vector<int>& peakCountOnLattices);
-
-    void setSamplingPitch(SamplingPitch samplingPitch);
-    void setSamplingPitch(float unitPitch, bool coverSecondaryMillerIndices);
-    void setRefineWithExactLattice(bool flag);
-    void setMaxPeaksToUseForIndexing(int maxPeaksToUseForIndexing);
-
-    void setGradientDescentIterationsCount(GradientDescentIterationsCount gradientDescentIterationsCount);
-
-  private:
-    void precompute();
-    void reducePeakCount(Eigen::Matrix3Xf& reciprocalPeaks_1_per_A);
-
-    Eigen::Matrix3Xf precomputedSamplePoints;
-
-    HillClimbingOptimizer hillClimbingOptimizer;
-    SparsePeakFinder sparsePeakFinder;
-    InverseSpaceTransform inverseSpaceTransform;
-
-    float maxCloseToPointDeviation;
-    int maxPeaksToUseForIndexing;
-
-    HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_global;
-    HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_additionalGlobal;
-    HillClimbingOptimizer::hillClimbingAccuracyConstants_t hillClimbing_accuracyConstants_peaks;
-    LatticeAssembler::accuracyConstants_t accuracyConstants_LatticeAssembler;
-};
-
+} // namespace xgandalf
 #endif /* INDEXERPLAIN_H_ */

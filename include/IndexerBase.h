@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -35,27 +35,29 @@
 #include "SparsePeakFinder.h"
 #include <Eigen/Dense>
 
-class IndexerBase
+namespace xgandalf
 {
-  public:
-    IndexerBase(const ExperimentSettings& experimentSettings);
+    class IndexerBase
+    {
+      public:
+        IndexerBase(const ExperimentSettings& experimentSettings);
 
-    virtual ~IndexerBase() = default;
+        virtual ~IndexerBase() = default;
 
-    virtual void index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A) = 0;
+        virtual void index(std::vector<Lattice>& assembledLattices, const Eigen::Matrix3Xf& reciprocalPeaks_1_per_A) = 0;
 
-  protected:
-    void keepSamplePointsWithHighEvaluation(Eigen::Matrix3Xf& samplePoints, Eigen::RowVectorXf& samplePointsEvaluation, float minEvaluation);
-    void keepSamplePointsWithHighestEvaluation(Eigen::Matrix3Xf& samplePoints, Eigen::RowVectorXf& samplePointsEvaluation,
-                                               uint32_t maxToTakeCount); // output is sorted
+      protected:
+        void keepSamplePointsWithHighEvaluation(Eigen::Matrix3Xf& samplePoints, Eigen::RowVectorXf& samplePointsEvaluation, float minEvaluation);
+        void keepSamplePointsWithHighestEvaluation(Eigen::Matrix3Xf& samplePoints, Eigen::RowVectorXf& samplePointsEvaluation,
+                                                   uint32_t maxToTakeCount); // output is sorted
 
-    ExperimentSettings experimentSettings;
-    SamplePointsGenerator samplePointsGenerator;
+        ExperimentSettings experimentSettings;
+        SamplePointsGenerator samplePointsGenerator;
 
-    LatticeAssembler latticeAssembler;
+        LatticeAssembler latticeAssembler;
 
-  private:
-    std::vector<uint32_t> sortIndices; // to avoid frequent reallocation
-};
-
+      private:
+        std::vector<uint32_t> sortIndices; // to avoid frequent reallocation
+    };
+} // namespace xgandalf
 #endif /* INDEXERBASE_H_ */

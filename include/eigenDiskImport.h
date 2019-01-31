@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -26,67 +26,73 @@
 #ifndef EIGENDISKIMPORT_H_
 #define EIGENDISKIMPORT_H_
 
-#include <Eigen/Dense>
-#include <iterator>
-#include <fstream>
-#include <vector>
-#include <algorithm>
 #include "BadInputException.h"
+#include <Eigen/Dense>
+#include <algorithm>
+#include <fstream>
+#include <iterator>
 #include <string.h>
+#include <vector>
 
-//matrix must be whitespace separated
-template< typename T >
-void loadEigenMatrixFromDisk(Eigen::DenseBase< T >& matrix, std::string path)
+namespace xgandalf
 {
-    std::ifstream file(path);
-    if (!file.is_open()) {
-        std::stringstream errStream;
-        errStream << "File " << path << " not found.";
-        throw BadInputException(errStream.str());
-    }
-
-    std::istream_iterator< typename T::RealScalar > startFile(file), end;
-    std::vector< typename T::RealScalar > numbers(startFile, end);
-
-    file.clear();
-    file.seekg(std::ios::beg);
-    std::string firstLine;
-    getline(file, firstLine);
-    std::istringstream iss(firstLine);
-    std::vector< typename T::RealScalar > firstLineNumbers(std::istream_iterator< typename T::RealScalar >(iss), end);
-
-    int cols = (int) firstLineNumbers.size();
-    int rows = (int) numbers.size() / cols;
-
-    bool constexpr checkDynamicRows = T::RowsAtCompileTime != Eigen::Dynamic;
-    bool constexpr checkDynamicCols = T::ColsAtCompileTime != Eigen::Dynamic;
-
-    if (checkDynamicRows)
+    // matrix must be whitespace separated
+    template <typename T>
+    void loadEigenMatrixFromDisk(Eigen::DenseBase<T>& matrix, std::string path)
     {
-      if (T::RowsAtCompileTime != rows) {
-        std::stringstream errStream;
-        errStream << "Matrix in file " << path << " contains wrong number of rows";
-        throw BadInputException(errStream.str());
-      }
-    }
-    if (checkDynamicCols)
-    {
-      if (T::ColsAtCompileTime != cols) {
-        std::stringstream errStream;
-        errStream << "Matrix in file " << path << " contains wrong number of columns";
-        throw BadInputException(errStream.str());
-      }
-    }
+        std::ifstream file(path);
+        if (!file.is_open())
+        {
+            std::stringstream errStream;
+            errStream << "File " << path << " not found.";
+            throw BadInputException(errStream.str());
+        }
 
-    if ((int) numbers.size() != rows * cols) {
-        std::stringstream errStream;
-        errStream << "Matrix in file " << path << " contains a non rectangular matrix";
-        throw BadInputException(errStream.str());
+        std::istream_iterator<typename T::RealScalar> startFile(file), end;
+        std::vector<typename T::RealScalar> numbers(startFile, end);
+
+        file.clear();
+        file.seekg(std::ios::beg);
+        std::string firstLine;
+        getline(file, firstLine);
+        std::istringstream iss(firstLine);
+        std::vector<typename T::RealScalar> firstLineNumbers(std::istream_iterator<typename T::RealScalar>(iss), end);
+
+        int cols = (int)firstLineNumbers.size();
+        int rows = (int)numbers.size() / cols;
+
+        bool constexpr checkDynamicRows = T::RowsAtCompileTime != Eigen::Dynamic;
+        bool constexpr checkDynamicCols = T::ColsAtCompileTime != Eigen::Dynamic;
+
+        if (checkDynamicRows)
+        {
+            if (T::RowsAtCompileTime != rows)
+            {
+                std::stringstream errStream;
+                errStream << "Matrix in file " << path << " contains wrong number of rows";
+                throw BadInputException(errStream.str());
+            }
+        }
+        if (checkDynamicCols)
+        {
+            if (T::ColsAtCompileTime != cols)
+            {
+                std::stringstream errStream;
+                errStream << "Matrix in file " << path << " contains wrong number of columns";
+                throw BadInputException(errStream.str());
+            }
+        }
+
+        if ((int)numbers.size() != rows * cols)
+        {
+            std::stringstream errStream;
+            errStream << "Matrix in file " << path << " contains a non rectangular matrix";
+            throw BadInputException(errStream.str());
+        }
+
+        Eigen::Array<typename T::RealScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> tmp =
+            Eigen::Map<Eigen::Array<typename T::RealScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(numbers.data(), rows, cols);
+        matrix = tmp;
     }
-
-    Eigen::Array< typename T::RealScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor >
-    tmp = Eigen::Map< Eigen::Array< typename T::RealScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor > >(numbers.data(), rows, cols);
-    matrix = tmp;
-}
-
+} // namespace xgandalf
 #endif /* EIGENDISKIMPORT_H_ */

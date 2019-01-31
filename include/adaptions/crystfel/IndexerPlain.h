@@ -30,6 +30,7 @@
 #include "indexerData.h"
 
 #ifdef __cplusplus
+namespace xgandalf {
 extern "C" {
 #endif
 
@@ -81,6 +82,7 @@ void backProjectDetectorPeaks(reciprocalPeaks_1_per_A_t* reciprocalPeaks_1_per_A
 
 
 #ifdef __cplusplus
+}
 }
 #endif
 

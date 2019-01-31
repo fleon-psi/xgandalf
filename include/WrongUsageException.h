@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -28,20 +28,24 @@
 
 #include <CustomException.h>
 
-//! A specialization of MyException.
-/*!
- * This exception is thrown whenever a function/method is used in a wrong way
- */
-class WrongUsageException: public CustomException {
-public:
-    WrongUsageException(const std::string& msg) :
-            CustomException(msg)
-    {
-    }
+namespace xgandalf
+{
 
-    virtual ~WrongUsageException() throw ()
+    //! A specialization of MyException.
+    /*!
+     * This exception is thrown whenever a function/method is used in a wrong way
+     */
+    class WrongUsageException : public CustomException
     {
-    }
-};
+      public:
+        WrongUsageException(const std::string& msg)
+            : CustomException(msg)
+        {
+        }
+
+        virtual ~WrongUsageException() throw() {}
+    };
+
+} // namespace xgandalf
 
 #endif /* WRONGUSAGEEXCEPTION_H_ */

@@ -1,6 +1,6 @@
 /*
  * ReciprocalToRealProjection.cpp
- * 
+ *
  * Copyright © 2019 Deutsches Elektronen-Synchrotron DESY,
  *                       a research centre of the Helmholtz Association.
  *
@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -25,10 +25,12 @@
 
 #include "ReciprocalToRealProjection.h"
 
-
-
-ReciprocalToRealProjection::ReciprocalToRealProjection(const ExperimentSettings& experimentSettings)
-	: experimentSettings(experimentSettings)
+namespace xgandalf
 {
-}
 
+    ReciprocalToRealProjection::ReciprocalToRealProjection(const ExperimentSettings& experimentSettings)
+        : experimentSettings(experimentSettings)
+    {
+    }
+
+} // namespace xgandalf

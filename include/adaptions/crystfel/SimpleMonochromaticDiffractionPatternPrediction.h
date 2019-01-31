@@ -1,6 +1,6 @@
-/* 
+/*
  * SimpleMonochromaticDiffractionPatternPrediction.h
- * 
+ *
  * Copyright © 2019 Deutsches Elektronen-Synchrotron DESY,
  *                       a research centre of the Helmholtz Association.
  *
@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -31,21 +31,25 @@
 #include "projectionData.h"
 
 #ifdef __cplusplus
-extern "C" {
+namespace xgandalf
+{
+    extern "C" {
 #endif
 
-typedef struct SimpleMonochromaticDiffractionPatternPrediction SimpleMonochromaticDiffractionPatternPrediction;
+    typedef struct SimpleMonochromaticDiffractionPatternPrediction SimpleMonochromaticDiffractionPatternPrediction;
 
-SimpleMonochromaticDiffractionPatternPrediction* SimpleMonochromaticDiffractionPatternPrediction_new(ExperimentSettings* experimentSettings);
-void SimpleMonochromaticDiffractionPatternPrediction_delete(SimpleMonochromaticDiffractionPatternPrediction* simpleMonochromaticDiffractionPatternPrediction);
+    SimpleMonochromaticDiffractionPatternPrediction* SimpleMonochromaticDiffractionPatternPrediction_new(ExperimentSettings* experimentSettings);
+    void
+    SimpleMonochromaticDiffractionPatternPrediction_delete(SimpleMonochromaticDiffractionPatternPrediction* simpleMonochromaticDiffractionPatternPrediction);
 
-void SMDPP_getPeaksOnEwaldSphere(SimpleMonochromaticDiffractionPatternPrediction* simpleMonochromaticDiffractionPatternPrediction,
-                                 reciprocalPeaks_1_per_A_t* reciprocalPeaks_1_per_A, Lattice_t lattice);
+    void SMDPP_getPeaksOnEwaldSphere(SimpleMonochromaticDiffractionPatternPrediction* simpleMonochromaticDiffractionPatternPrediction,
+                                     reciprocalPeaks_1_per_A_t* reciprocalPeaks_1_per_A, Lattice_t lattice);
 
-void SMDPP_predictPattern(SimpleMonochromaticDiffractionPatternPrediction* simpleMonochromaticDiffractionPatternPrediction, millerIndices_t* millerIndices,
-                          projectionDirections_t* projectionDirections, Lattice_t lattice);
+    void SMDPP_predictPattern(SimpleMonochromaticDiffractionPatternPrediction* simpleMonochromaticDiffractionPatternPrediction, millerIndices_t* millerIndices,
+                              projectionDirections_t* projectionDirections, Lattice_t lattice);
 
 #ifdef __cplusplus
+    }
 }
 #endif
 

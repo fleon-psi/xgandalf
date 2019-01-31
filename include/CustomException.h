@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -29,40 +29,42 @@
 #include <exception>
 #include <string>
 
-//! The Exception class from which every exception type in this project inherits from.
-/*!
- * This is the superclass for all the custom exception types used in this project.
- * This class itself inherits from std::exception.
- */
-class CustomException: public std::exception {
-public:
+namespace xgandalf
+{
+    //! The Exception class from which every exception type in this project inherits from.
     /*!
-     * The constructor taking a message as parameter.
-     * @param msg The message of the exception.
+     * This is the superclass for all the custom exception types used in this project.
+     * This class itself inherits from std::exception.
      */
-    CustomException(const std::string& msg) :
-            msg(msg)
+    class CustomException : public std::exception
     {
-    }
+      public:
+        /*!
+         * The constructor taking a message as parameter.
+         * @param msg The message of the exception.
+         */
+        CustomException(const std::string& msg)
+            : msg(msg)
+        {
+        }
 
-    /*!
-     * The virtual destructor.
-     */
-    virtual ~CustomException() throw ()
-    {
-    }
+        /*!
+         * The virtual destructor.
+         */
+        virtual ~CustomException() throw() {}
 
-    /*!
-     * Returns the message of the exception.
-     * @return
-     */
-    virtual const char* what() const throw ()
-    {
-        return msg.c_str();
-    }
+        /*!
+         * Returns the message of the exception.
+         * @return
+         */
+        virtual const char* what() const throw()
+        {
+            return msg.c_str();
+        }
 
-private:
-    std::string msg;
-};
+      private:
+        std::string msg;
+    };
 
+} // namespace xgandalf
 #endif /* CUSTOMEXCEPTION_H_ */

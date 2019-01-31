@@ -11,7 +11,7 @@
  *
  * XGANDALF is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
+ * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
  *
  * XGANDALF is distributed in the hope that it will be useful,
@@ -29,49 +29,51 @@
 #include <Eigen/Dense>
 #include <iostream>
 
-class Lattice
+namespace xgandalf
 {
-  public:
-    Lattice();
-    Lattice(const Eigen::Matrix3f& basis);
-    Lattice(const Eigen::Vector3f& a, const Eigen::Vector3f& b, const Eigen::Vector3f& c);
-
-    Lattice& minimize();
-
-    inline float det() const
+    class Lattice
     {
-        return basis.determinant();
-    }
+      public:
+        Lattice();
+        Lattice(const Eigen::Matrix3f& basis);
+        Lattice(const Eigen::Vector3f& a, const Eigen::Vector3f& b, const Eigen::Vector3f& c);
 
-    inline const Eigen::Matrix3f& getBasis() const
-    {
-        return basis;
-    }
+        Lattice& minimize();
 
-    inline Eigen::Vector3f getBasisVectorNorms() const
-    {
-        return basis.colwise().norm();
-    }
+        inline float det() const
+        {
+            return basis.determinant();
+        }
 
-    Eigen::Vector3f getBasisVectorAngles_deg() const;
-    Eigen::Vector3f getBasisVectorAnglesNormalized_deg() const;
+        inline const Eigen::Matrix3f& getBasis() const
+        {
+            return basis;
+        }
 
-    inline Lattice getReciprocalLattice() const
-    {
-        return Lattice(basis.transpose().inverse().eval());
-    }
+        inline Eigen::Vector3f getBasisVectorNorms() const
+        {
+            return basis.colwise().norm();
+        }
 
-    friend std::ostream& operator<<(std::ostream& os, const Lattice& lattice);
+        Eigen::Vector3f getBasisVectorAngles_deg() const;
+        Eigen::Vector3f getBasisVectorAnglesNormalized_deg() const;
 
-    void reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3f prototypeAngles_deg);
-    void reorder(const Lattice prototypeLattice);
-    void normalizeAngles();
+        inline Lattice getReciprocalLattice() const
+        {
+            return Lattice(basis.transpose().inverse().eval());
+        }
 
-  private:
-    Eigen::Matrix3f basis;
+        friend std::ostream& operator<<(std::ostream& os, const Lattice& lattice);
 
-  public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-};
+        void reorder(const Eigen::Vector3f prototypeNorms, const Eigen::Vector3f prototypeAngles_deg);
+        void reorder(const Lattice prototypeLattice);
+        void normalizeAngles();
 
+      private:
+        Eigen::Matrix3f basis;
+
+      public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    };
+} // namespace xgandalf
 #endif /* LATTICE_H_ */
