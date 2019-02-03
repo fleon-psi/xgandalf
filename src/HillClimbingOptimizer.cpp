@@ -173,7 +173,7 @@ namespace xgandalf
         RowVectorXf& closeToPointsFactor = closeToPointsCount;
         RowVectorXf& functionEvaluationFactor = inverseTransformEvaluation;
 
-        stepDirection = gradient.colwise().normalized();
+        stepDirection.colwise().normalize();
         //    cout << "stepDirection " << endl << stepDirection << endl << endl<< previousStepDirection << endl << endl;
 
         Array<float, 1, Dynamic> directionChange = (stepDirection.array() * previousStepDirection.array()).matrix().colwise().sum();
