@@ -25,7 +25,7 @@ endif()
  
 set(BOOST_ALL_NO_LIB 1)
 find_package(Boost 1.60.0)
-find_package(Eigen3 3.3.3 NO_MODULE)
+find_package(Eigen3 3.3.7 NO_MODULE)
 
 include_directories(include)
 
