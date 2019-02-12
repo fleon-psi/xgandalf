@@ -23,9 +23,19 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
         "MinSizeRel" "RelWithDebInfo")
 endif()
  
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+ 
+# user defined options for MKL
+option(MKL_USE_parallel "Use MKL parallel" False)
+option(MKL_USE_sdl "Single Dynamic Library or static/dynamic" False)
+set(BLA_STATIC True CACHE STRING "Use static linking instead of dynamic linking for MKL")
+set(MKL_USE_interface "lp64" CACHE STRING "for Intel(R)64 compatible arch: ilp64/lp64 or for ia32 arch: cdecl/stdcall")
+
+
 set(BOOST_ALL_NO_LIB 1)
 find_package(Boost 1.60.0)
 find_package(Eigen3 3.3.7 NO_MODULE)
+find_package(MKL) 
 
 include_directories(include)
 
@@ -92,6 +102,12 @@ else()
         DESTINATION include/eigen3
     )
 endif()
+
+if (MKL_FOUND)
+	target_compile_definitions(xgandalf PUBLIC ${MKL_DEFINITIONS} USE_MKL EIGEN_USE_MKL_ALL)
+	target_link_libraries(xgandalf PRIVATE ${MKL_LIBRARIES})
+	target_include_directories(xgandalf PRIVATE ${MKL_INCLUDE_DIR})
+endif(MKL_FOUND)
 
 # Test whether the compiler is Microsoft Visual C(++).
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
