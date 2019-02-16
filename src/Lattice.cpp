@@ -279,7 +279,7 @@ namespace xgandalf
 		2, 1, 2, 0, 1, 0;
 
 	Array<float, 6, 6> allPermutations;
-	auto& i = indexPermutations;
+	Array<int, 3, 6>& i = indexPermutations;
 	allPermutations <<
 		n[i(0, 0)], n[i(0, 1)], n[i(0, 2)], n[i(0, 3)], n[i(0, 4)], n[i(0, 5)],
 		n[i(1, 0)], n[i(1, 1)], n[i(1, 2)], n[i(1, 3)], n[i(1, 4)], n[i(1, 5)],
@@ -290,11 +290,12 @@ namespace xgandalf
         // clang-format on
 
         // find best permutation
-        auto rasiduals = ((allPermutations.colwise() - prototypeLatticeParameters).colwise() * prototypeLatticeParametersInverse).abs();
-        auto maxResiduals = rasiduals.colwise().maxCoeff();
-
         int bestPermutationIndex;
-        maxResiduals.minCoeff(&bestPermutationIndex);
+        ((allPermutations.colwise() - prototypeLatticeParameters).colwise() * prototypeLatticeParametersInverse)
+            .abs()
+            .colwise()
+            .maxCoeff()
+            .minCoeff(&bestPermutationIndex);
 
         Matrix3f reorderedBasis;
         reorderedBasis << basis.col(indexPermutations(0, bestPermutationIndex)), basis.col(indexPermutations(1, bestPermutationIndex)),

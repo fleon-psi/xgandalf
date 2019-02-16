@@ -73,7 +73,7 @@ namespace xgandalf
         discretizationVolume.resize(binCount);
 
         const uint32_t typicalMaxPointsPerBin = 50;
-        for (auto bin = discretizationVolume.begin(); bin != discretizationVolume.end(); ++bin)
+        for (vector<bin_t>::iterator bin = discretizationVolume.begin(); bin != discretizationVolume.end(); ++bin)
         {
             bin->reserve(typicalMaxPointsPerBin);
         }
@@ -116,8 +116,8 @@ namespace xgandalf
 
         fillDiscretizationVolume(points);
 
-        const auto end = usedBins.end();
-        for (auto bin_p = usedBins.begin(); bin_p != end; ++bin_p)
+        const set<bin_t*>::iterator end = usedBins.end();
+        for (set<bin_t*>::iterator bin_p = usedBins.begin(); bin_p != end; ++bin_p)
         {
             bin_t& bin = **bin_p;
             for (uint32_t i = 0; i < bin.size(); ++i)
@@ -208,7 +208,7 @@ namespace xgandalf
             bin_t& bin = discretizationVolume[index];
 
             bin.emplace_back();
-            auto& entry = bin.back();
+            binEntry_t& entry = bin.back();
             entry.point = Vector4f(point.x(), point.y(), point.z(), 0);
             entry.pointIndex = i;
             entry.visited = false;
@@ -221,8 +221,8 @@ namespace xgandalf
 
     void Dbscan::cleanUpDiscretizationVolume()
     {
-        const auto end = usedBins.end();
-        for (auto bin_p = usedBins.begin(); bin_p != end; bin_p++)
+        const set<bin_t*>::iterator end = usedBins.end();
+        for (set<bin_t*>::iterator bin_p = usedBins.begin(); bin_p != end; bin_p++)
         {
             (*bin_p)->clear();
         }

@@ -43,7 +43,6 @@ set(SOURCES src/Dbscan.cpp
             src/DetectorToReciprocalSpaceTransform.cpp
             src/ExperimentSettings.cpp
             src/HillClimbingOptimizer.cpp
-            src/IndexerAutocorrPrefit.cpp
 			src/IndexerBase.cpp
 			src/IndexerPlain.cpp
             src/InverseSpaceTransform.cpp

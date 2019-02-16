@@ -171,7 +171,7 @@ namespace xgandalf
                 radii[5] = (sampleRealBasis.col(2) + sampleRealBasis.col(0)).norm();
 
                 sort(radii.begin(), radii.end());
-                auto it = std::unique(radii.begin(), radii.end());
+                vector<float>::iterator it = std::unique(radii.begin(), radii.end());
                 radii.resize(std::distance(radii.begin(), it));
 
                 ArrayXf radii_array = Eigen::Map<ArrayXf>(radii.data(), radii.size(), 1);
@@ -277,7 +277,8 @@ namespace xgandalf
 
         peakCountOnLattices.clear();
         peakCountOnLattices.reserve(assembledLatticesStatistics.size());
-        for (auto assembledLatticeStatistics = assembledLatticesStatistics.cbegin(); assembledLatticeStatistics != assembledLatticesStatistics.cend();
+        for (vector<LatticeAssembler::assembledLatticeStatistics_t>::const_iterator assembledLatticeStatistics = assembledLatticesStatistics.cbegin();
+             assembledLatticeStatistics != assembledLatticesStatistics.cend();
              ++assembledLatticeStatistics)
         {
             peakCountOnLattices.push_back(assembledLatticeStatistics->occupiedLatticePointsCount);

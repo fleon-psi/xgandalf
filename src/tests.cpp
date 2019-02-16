@@ -30,7 +30,6 @@
 
 #include "Dbscan.h"
 #include "HillClimbingOptimizer.h"
-#include "IndexerAutocorrPrefit.h"
 #include "IndexerPlain.h"
 #include "InverseSpaceTransform.h"
 #include "Lattice.h"
@@ -221,8 +220,8 @@ namespace xgandalf
             }
         }
         chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-        auto duration = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
-        cout << endl << "duration: " << duration << "us" << endl;
+        //auto duration = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
+        //cout << endl << "duration: " << duration << "us" << endl;
 
         detectorPeakDirections = N.bottomRows(2).colwise().normalized().cast<double>();
         predictedPoints = (B * M).cast<double>();
@@ -271,8 +270,8 @@ namespace xgandalf
             }
         }
         chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-        auto duration = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
-        cout << endl << "duration: " << duration << "us" << endl;
+        //auto duration = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
+        //cout << endl << "duration: " << duration << "us" << endl;
 
         cout << "end error mean dist = " << (B * M - N).colwise().norm().sum() << endl;
         cout << endl << "B that minimizes the function: " << B << std::endl;
@@ -297,8 +296,8 @@ namespace xgandalf
             }
         }
         t2 = chrono::high_resolution_clock::now();
-        duration = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
-        cout << endl << "duration: " << duration << "us" << endl;
+        //duration = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
+        //cout << endl << "duration: " << duration << "us" << endl;
 
         cout << "end error mean squared dist = " << (B * M - N).colwise().squaredNorm().sum() << endl;
         cout << endl << "B that minimizes the function: " << B << std::endl;
@@ -307,8 +306,8 @@ namespace xgandalf
         t1 = chrono::high_resolution_clock::now();
         refineReciprocalBasis_meanSquaredDist(B, M, N);
         t2 = chrono::high_resolution_clock::now();
-        duration = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
-        cout << endl << "duration: " << duration << "us" << endl;
+        //duration = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
+        //cout << endl << "duration: " << duration << "us" << endl;
 
         cout << "end error mean squared dist = " << (B * M - N).colwise().squaredNorm().sum() << endl;
         cout << endl << "B that minimizes the function: " << B << std::endl;
@@ -487,75 +486,11 @@ namespace xgandalf
             filterSamplePointsForNorm(samplePoints[i], allowedNorms, 0.03);
         }
         chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-        auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
-        cout << "duration: " << duration << "ms" << endl << endl;
+        //auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+        //cout << "duration: " << duration << "ms" << endl << endl;
 
         ofstream out1("workfolder/samplePointsFiltered");
         out1 << samplePoints[0];
-    }
-
-    void test_indexerAutocorrPrefit()
-    {
-        ExperimentSettings experimentSettings = getExperimentSettingLys();
-
-        DetectorToReciprocalSpaceTransform detectorToReciprocalSpaceTransform(experimentSettings);
-        Matrix3Xf reciprocalPeaks_1_per_A;
-
-        IndexerAutocorrPrefit indexer(experimentSettings);
-
-        stringstream ss;
-        int runNumber = 0;
-        chrono::duration<int64_t, milli>::rep totalDuration(0);
-        try
-        {
-            while (1)
-            {
-                runNumber++;
-
-                Matrix2Xf detectorPeaks_m;
-                ss.str("");
-                ss.clear();
-                ss << "workfolder/detectorPeaks_m__run" << runNumber;
-                loadEigenMatrixFromDisk(detectorPeaks_m, ss.str());
-
-                cout << "runNumber " << runNumber << endl;
-
-                vector<Lattice> assembledLattices;
-
-                detectorToReciprocalSpaceTransform.computeReciprocalPeaksFromDetectorPeaks(reciprocalPeaks_1_per_A, detectorPeaks_m);
-
-                chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
-                indexer.index(assembledLattices, reciprocalPeaks_1_per_A);
-                chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-                auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
-                cout << "duration: " << duration << "ms" << endl << endl;
-                totalDuration += duration;
-
-                ss.str("");
-                ss.clear();
-                ss << "workfolder/lattices__run" << runNumber;
-                ofstream outfile(ss.str());
-                for (uint16_t i = 0; i < assembledLattices.size(); ++i)
-                {
-                    outfile << assembledLattices[i] << endl << endl;
-                }
-                outfile.close();
-            }
-        }
-        catch (CustomException& e)
-        {
-            cout << e.what();
-
-            cout << "custom exception caught" << endl;
-            cout << "no more files left" << endl << endl;
-            cout << "total duration: " << totalDuration << endl << endl;
-        }
-        catch (exception& e)
-        {
-            cout << e.what();
-
-            cout << "general exception caught" << endl;
-        }
     }
 
     void test_indexerPlain()
@@ -597,9 +532,9 @@ namespace xgandalf
                 chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
                 indexer.index(assembledLattices, reciprocalPeaks_1_per_A);
                 chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-                auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
-                cout << "duration: " << duration << "ms" << endl << endl;
-                totalDuration += duration;
+                //auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+                //cout << "duration: " << duration << "ms" << endl << endl;
+                //totalDuration += duration;
 
                 ss.str("");
                 ss.clear();
@@ -647,14 +582,14 @@ namespace xgandalf
         dbscan.computeClusters(clusters, points, minPoints, epsilon);
 
         chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-        auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
-        cout << "duration: " << duration << "ms" << endl << endl;
+        //auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+        //cout << "duration: " << duration << "ms" << endl << endl;
 
         RowVectorXf clusterIndex = RowVectorXf::Zero(points.cols());
         for (uint32_t i = 0; i < clusters.size(); ++i)
         {
-            const auto& cluster = clusters[i];
-            for (auto index = cluster.cbegin(); index != cluster.cend(); ++index)
+            const Dbscan::cluster_t& cluster = clusters[i];
+            for (vector<uint32_t>::const_iterator index = cluster.cbegin(); index != cluster.cend(); ++index)
             {
                 if (clusterIndex[*index] != 0)
                 {
@@ -685,8 +620,8 @@ namespace xgandalf
         //    getPointAutocorrelation(autocorrelationPoints, points, maxNormInAutocorrelation);
         getPointAutocorrelation(autocorrelationPoints, centerPointIndices, shiftedPointIndices, points, minNormInAutocorrelation, maxNormInAutocorrelation);
         chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-        auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
-        cout << "duration: " << duration << "ms" << endl << endl;
+        //auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+        //cout << "duration: " << duration << "ms" << endl << endl;
 
         ofstream out1("workfolder/autocorrelationPoints");
         out1 << autocorrelationPoints;
@@ -735,8 +670,8 @@ namespace xgandalf
                                           pointsToFitInReciprocalSpace);
 
         chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-        auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
-        cout << "duration: " << duration << "ms" << endl << endl;
+        //auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+        //cout << "duration: " << duration << "ms" << endl << endl;
 
         for (uint16_t i = 0; i < assembledLattices.size(); ++i)
         {
@@ -770,8 +705,8 @@ namespace xgandalf
         chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
         sparsePeakFinder.findPeaks_fast(pointPositions, pointValues);
         chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-        auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
-        cout << "duration: " << duration << "ms" << endl;
+        //auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+        //cout << "duration: " << duration << "ms" << endl;
 
         std::ofstream ofs("workfolder/peakPositions", std::ofstream::out);
         ofs << pointPositions.transpose().eval();
@@ -818,8 +753,8 @@ namespace xgandalf
         chrono::high_resolution_clock::time_point t1 = chrono::high_resolution_clock::now();
         optimizer.performOptimization(pointsToTransform, positionsToOptimize);
         chrono::high_resolution_clock::time_point t2 = chrono::high_resolution_clock::now();
-        auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
-        cout << "duration: " << duration << "ms" << endl;
+        //auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+        //cout << "duration: " << duration << "ms" << endl;
 
         std::ofstream ofs("workfolder/optimizedPoints", std::ofstream::out);
         ofs << positionsToOptimize.transpose().eval();

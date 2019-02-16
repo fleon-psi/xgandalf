@@ -175,9 +175,7 @@ namespace xgandalf
 
     static inline void function3(const ArrayXXf& x, ArrayXXf& functionEvaluation, ArrayXXf& slope)
     {
-        auto x_p4 = x.square().square();
-
-        functionEvaluation = (32.4645 * x_p4 - 16.2782 * x.square() + 1);
+        functionEvaluation = (32.4645 * x.square().square() - 16.2782 * x.square() + 1);
         slope = 20.711 * x.cube() - 5.19241 * x;
     }
 
@@ -479,8 +477,8 @@ namespace xgandalf
         const int typicalMaxClosePointsCount = 100;
         pointsCloseToEvaluationPositions_indices.resize(closeToPoint.cols(), vector<uint16_t>(typicalMaxClosePointsCount));
 
-        const auto end = pointsCloseToEvaluationPositions_indices.end();
-        for (auto it = pointsCloseToEvaluationPositions_indices.begin(); it < end; ++it)
+        const vector<vector<uint16_t>>::iterator end = pointsCloseToEvaluationPositions_indices.end();
+        for (vector<vector<uint16_t>>::iterator it = pointsCloseToEvaluationPositions_indices.begin(); it < end; ++it)
         {
             it->clear();
         }

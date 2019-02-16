@@ -120,7 +120,7 @@ namespace xgandalf
 
         filterCandidateLatticesByWeight(accuracyConstants.maxCountGlobalPassingWeightFilter);
 
-        for (auto candidateLattice = candidateLattices.begin(); candidateLattice != candidateLattices.end(); ++candidateLattice)
+        for (vector<candidateLattice_t>::iterator candidateLattice = candidateLattices.begin(); candidateLattice != candidateLattices.end(); ++candidateLattice)
         {
             candidateLattice->realSpaceLattice.minimize();
             candidateLattice->det = abs(candidateLattice->realSpaceLattice.det());
@@ -137,7 +137,7 @@ namespace xgandalf
 
         selectBestLattices(assembledLattices, assembledLatticesStatistics, finalCandidateLattices);
 
-        for (auto lattice = assembledLattices.begin(); lattice != assembledLattices.end(); ++lattice)
+        for (vector<Lattice>::iterator lattice = assembledLattices.begin(); lattice != assembledLattices.end(); ++lattice)
         {
             // cout << latticeParametersKnown << accuracyConstants.refineWithExactLattice;
             if (latticeParametersKnown)
@@ -170,7 +170,7 @@ void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, 
         return;
     }
 
-    finalCandidateLattices.sort([&](candidateLattice_t i, candidateLattice_t j) {return i.pointOnLatticeIndices.size() > j.pointOnLatticeIndices.size();}); //descending
+    finalCandidateLattices.sort(); //descending  TODO: check correct removal of lambda function
 
     float significantDetReductionFactor = 0.75f;
     float significantPointCountReductionFactor = 0.85f;
@@ -182,8 +182,8 @@ void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, 
     tmp_indices.reserve(4000); //just for speed
     combinedPointIndicesOnSelectedLattices.reserve(1000); //just for speed
 
-    auto bestCandidateLattice = finalCandidateLattices.begin();
-    auto nextCandidateLattice = finalCandidateLattices.begin();
+    list< candidateLattice_t >::iterator bestCandidateLattice = finalCandidateLattices.begin();
+    list< candidateLattice_t >::iterator nextCandidateLattice = finalCandidateLattices.begin();
     while (bestCandidateLattice != prev(finalCandidateLattices.end()) && bestCandidateLattice != finalCandidateLattices.end()) {
         tmp_indices.clear();
         set_union(combinedPointIndicesOnSelectedLattices.begin(), combinedPointIndicesOnSelectedLattices.end(),
@@ -220,7 +220,7 @@ void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, 
                                         < bestCandidateLattice->assembledLatticeStatistics.meanRelativeDefect * significantMeanRelativeDefectReductionFactor)
                         ) {
 
-                    auto temp = next(nextCandidateLattice);
+                    list< candidateLattice_t >::iterator temp = next(nextCandidateLattice);
                     finalCandidateLattices.splice(next(bestCandidateLattice), finalCandidateLattices, nextCandidateLattice);
                     bestCandidateLattice = finalCandidateLattices.erase(bestCandidateLattice);
                     nextCandidateLattice = temp;
@@ -235,7 +235,7 @@ void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, 
     }
 
     assembledLattices.reserve(finalCandidateLattices.size());
-    for (auto selectedCandidateLattice = finalCandidateLattices.begin(); selectedCandidateLattice != finalCandidateLattices.end(); 
+    for (list< candidateLattice_t >::iterator selectedCandidateLattice = finalCandidateLattices.begin(); selectedCandidateLattice != finalCandidateLattices.end(); 
 		++selectedCandidateLattice) {
         assembledLattices.push_back(selectedCandidateLattice->realSpaceLattice);
         assembledLatticesStatistics.push_back(selectedCandidateLattice->assembledLatticeStatistics);
@@ -300,8 +300,8 @@ void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, 
         }
 
         // needed for easier intersection computation later
-        const auto end = pointIndicesOnVector.end();
-        for (auto it = pointIndicesOnVector.begin(); it < end; ++it)
+        const vector<vector<uint16_t>>::iterator end = pointIndicesOnVector.end();
+        for (vector<vector<uint16_t>>::iterator it = pointIndicesOnVector.begin(); it < end; ++it)
         {
             sort(it->begin(), it->end());
         }
@@ -323,8 +323,9 @@ void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, 
                     }
 
                     vector<uint16_t> pointIndicesOnTwoVectors(max(pointIndicesOnVector[i].size(), pointIndicesOnVector[j].size()));
-                    auto it = set_intersection(pointIndicesOnVector[i].begin(), pointIndicesOnVector[i].end(), pointIndicesOnVector[j].begin(),
-                                               pointIndicesOnVector[j].end(), pointIndicesOnTwoVectors.begin());
+                    vector<uint16_t>::iterator it =
+                        set_intersection(pointIndicesOnVector[i].begin(), pointIndicesOnVector[i].end(), pointIndicesOnVector[j].begin(),
+                                         pointIndicesOnVector[j].end(), pointIndicesOnTwoVectors.begin());
                     uint16_t pointsOnBothVectorsCount = it - pointIndicesOnTwoVectors.begin();
                     if (pointsOnBothVectorsCount < accuracyConstants.minPointsOnLattice)
                     {
@@ -351,7 +352,7 @@ void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, 
                     }
 
                     candidateLattices.resize(candidateLattices.size() + 1);
-                    auto& newCandidateBasis = candidateLattices.back();
+                    candidateLattice_t& newCandidateBasis = candidateLattices.back();
                     newCandidateBasis.realSpaceLattice = latticeToCheck;
                     newCandidateBasis.weight = candidateVectorWeights[i] + candidateVectorWeights[j] + candidateVectorWeights[k];
                     newCandidateBasis.pointOnLatticeIndices.swap(pointIndicesOnLatticeToCheck);
@@ -364,7 +365,7 @@ void LatticeAssembler::selectBestLattices(vector< Lattice >& assembledLattices, 
     // clang-format off
 void LatticeAssembler::computeAssembledLatticeStatistics(candidateLattice_t& candidateLattice, const Matrix3Xf& pointsToFitInReciprocalSpace)
 {
-    auto& pointOnLatticeIndices = candidateLattice.pointOnLatticeIndices;
+    vector<uint16_t>& pointOnLatticeIndices = candidateLattice.pointOnLatticeIndices;
     Matrix3Xf currentPointsToFitInReciprocalSpace(3, pointOnLatticeIndices.size());
     for (uint32_t j = 0; j < pointOnLatticeIndices.size(); ++j) {
         currentPointsToFitInReciprocalSpace.col(j) = pointsToFitInReciprocalSpace.col(pointOnLatticeIndices[j]);
@@ -378,7 +379,7 @@ void LatticeAssembler::computeAssembledLatticeStatistics(candidateLattice_t& can
 
     candidateLattice.assembledLatticeStatistics.occupiedLatticePointsCount = countUniqueColumns(millerIndices);
 
-    auto predictedPoints = candidateLattice.realSpaceLattice.getBasis().transpose().inverse() * millerIndices;
+    Matrix3Xf predictedPoints = candidateLattice.realSpaceLattice.getBasis().transpose().inverse() * millerIndices;
 
 //    cout << predictedPoints << endl << endl;
 //    cout << (predictedPoints - currentPointsToFitInReciprocalSpace).eval() << endl << endl;
@@ -432,13 +433,11 @@ void LatticeAssembler::computeAssembledLatticeStatistics(candidateLattice_t& can
             a[2], a[1], a[2], a[0], a[1], a[0];
         // clang-format on
 
-        auto rasiduals = ((allPermutations.colwise() - knownLatticeParameters).colwise() * knownLatticeParametersInverse).abs(); // Array< bool, 6, 6 >
-
-        auto parametersValid = rasiduals < knownLatticeParametersTolerance; // Array< bool, 6, 6 >
-
-        auto permutationsValid = parametersValid.colwise().all(); // Array< bool, 1, 6 >
-
-        bool latticeValid = permutationsValid.any();
+        bool latticeValid =
+            (((allPermutations.colwise() - knownLatticeParameters).colwise() * knownLatticeParametersInverse).abs() < knownLatticeParametersTolerance)
+                .colwise()
+                .all()
+                .any();
 
         return latticeValid;
     }

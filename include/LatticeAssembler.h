@@ -96,7 +96,7 @@ namespace xgandalf
         accuracyConstants_t accuracyConstants;
 
         // internal
-        typedef struct
+        typedef struct candidateLattice_t
         {
             Lattice realSpaceLattice;
             float weight;
@@ -106,6 +106,11 @@ namespace xgandalf
             assembledLatticeStatistics_t assembledLatticeStatistics;
 
             float det;
+
+            bool operator<(struct candidateLattice_t& other)
+            {
+                return pointOnLatticeIndices.size() > other.pointOnLatticeIndices.size();
+            };
         } candidateLattice_t;
 
         std::vector<candidateLattice_t> candidateLattices;
