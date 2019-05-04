@@ -1,24 +1,25 @@
-/* Copyright © 2019 Deutsches Elektronen-Synchrotron DESY,
- *                       a research centre of the Helmholtz Association.
- *
- * Authors:
- *   2019      Yaroslav Gevorkov <yaroslav.gevorkov@desy.de>
- *
- * This file is part of XGANDALF.
- *
- * XGANDALF is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of 
- * the License, or (at your option) any later version.
- *
- * XGANDALF is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with XGANDALF.  If not, see <http://www.gnu.org/licenses/>.
- */
+# /* Copyright © 2019 Deutsches Elektronen-Synchrotron DESY,
+#  *                       a research centre of the Helmholtz Association.
+#  *
+#  * Authors:
+#  *   2019      Yaroslav Gevorkov <yaroslav.gevorkov@desy.de>
+#  *   2019      Valerio Mariani <valerio.mariani@desy.de>
+#  *
+#  * This file is part of XGANDALF.
+#  *
+#  * XGANDALF is free software: you can redistribute it and/or modify
+#  * it under the terms of the GNU Lesser General Public License as
+#  * published by the Free Software Foundation, either version 3 of 
+#  * the License, or (at your option) any later version.
+#  *
+#  * XGANDALF is distributed in the hope that it will be useful,
+#  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  * GNU Lesser General Public License for more details.
+#  *
+#  * You should have received a copy of the GNU Lesser General Public License
+#  * along with XGANDALF.  If not, see <http://www.gnu.org/licenses/>.
+#  */
 
 cdef extern from "adaptions/crystfel/Lattice.h":
     ctypedef struct Lattice_t:
@@ -35,7 +36,7 @@ cdef extern from "adaptions/crystfel/Lattice.h":
         float cz
 
 
-cdef extern from "adaptions/crystfel/ExperimentSettings.h":
+cdef extern from "adaptions/crystfel/ExperimentSettings.h" namespace "xgandalf":
     ctypedef struct ExperimentSettings:
         pass
 
@@ -64,6 +65,7 @@ cdef extern from "adaptions/crystfel/projectionData.h":
         float* coordinates_y;
         int peakCount;
 
+cdef extern from "adaptions/crystfel/projectionData.h":
     ctypedef struct projectionDirections_t:
         float* coordinates_x
         float* coordinates_y
@@ -85,20 +87,20 @@ cdef extern from "adaptions/crystfel/projectionData.h":
     void allocMillerIndices(millerIndices_t* millerIndices)
     void freeMillerIndices(millerIndices_t millerIndices)
 
-cdef extern from "adaptions/crystfel/SimpleDiffractionPatternPrediction.h":
-    ctypedef struct SimpleDiffractionPatternPrediction:
+cdef extern from "adaptions/crystfel/SimpleMonochromaticDiffractionPatternPrediction.h" namespace "xgandalf":
+    ctypedef struct SimpleMonochromaticDiffractionPatternPrediction:
         pass
 
-    SimpleDiffractionPatternPrediction* SimpleDiffractionPrediction_new(ExperimentSettings* experimentSettings)
-    void SimpleDiffractionPatternPrediction_delete(SimpleDiffractionPatternPrediction* simpleDiffractionPatternPrediction)
+    SimpleMonochromaticDiffractionPatternPrediction* SimpleMonochromaticDiffractionPatternPrediction_new(ExperimentSettings* experimentSettings)
+    void SimpleMonochromaticDiffractionPatternPrediction_delete(SimpleMonochromaticDiffractionPatternPrediction* simpleDiffractionPatternPrediction)
 
-    void SDPP_getPeaksOnEwaldSphere(SimpleDiffractionPatternPrediction* simpleDiffractionPatternPrediction, reciprocalPeaks_1_per_A_t* reciprocalPeaks_1_per_A,
+    void SMDPP_getPeaksOnEwaldSphere(SimpleMonochromaticDiffractionPatternPrediction* simpleMonochromaticDiffractionPatternPrediction, reciprocalPeaks_1_per_A_t* reciprocalPeaks_1_per_A,
                                Lattice_t lattice)
-    void SDPP_predictPattern(SimpleDiffractionPatternPrediction* simpleDiffractionPatternPrediction, millerIndices_t* millerIndices,
+    void SMDPP_predictPattern(SimpleMonochromaticDiffractionPatternPrediction* simpleMonochromaticDiffractionPatternPrediction, millerIndices_t* millerIndices,
                         projectionDirections_t* projectionDirections, Lattice_t lattice)
 
 
-cdef extern from "adaptions/crystfel/IndexerPlain.h":
+cdef extern from "adaptions/crystfel/IndexerPlain.h" namespace "xgandalf":
     ctypedef enum samplingPitch_t:
         SAMPLING_PITCH_extremelyLoose = 0
         SAMPLING_PITCH_loose = 1
@@ -144,10 +146,3 @@ cdef extern from "adaptions/crystfel/IndexerPlain.h":
 
     void reorderLattice(const Lattice_t* prototype, Lattice_t* lattice)
     void reduceLattice(Lattice_t* lattice)
-
-
-
-
-
-
-
