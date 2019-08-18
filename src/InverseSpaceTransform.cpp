@@ -177,15 +177,15 @@ namespace xgandalf
     {
         auto x_p4 = x.square().square();
 
-        functionEvaluation = (32.4645 * x_p4 - 16.2782 * x.square() + 1);
-        slope = 20.711 * x.cube() - 5.19241 * x;
+        functionEvaluation = (32 * x_p4 - 16 * x.square() + 1);
+        slope = 128 * x.cube() - 32 * x;
     }
 
     // amplitude from 2, slope from 3
     static inline void function4(const ArrayXXf& x, ArrayXXf& functionEvaluation, ArrayXXf& slope)
     {
         functionEvaluation = (-4 * abs(x) + 1);
-        slope = 20.711 * x.cube() - 5.19241 * x;
+        slope = 128 * x.cube() - 32 * x;
     }
 
     static inline void function5(const ArrayXXf& x, ArrayXXf& functionEvaluation, ArrayXXf& slope)

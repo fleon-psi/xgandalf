@@ -1,0 +1,6 @@
+[color]
+     ui = true
+[color "diff"]
+     whitespace = blue reverse
+[apply]
+     whitespace = fix
