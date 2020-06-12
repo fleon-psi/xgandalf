@@ -16,6 +16,7 @@ use -DCMAKE_INSTALL_PREFIX=<install path>
 
 Typical usecase on Linux with GCC:
 > mkdir cmakeBuild
+> cd cmakeBuild
 > cmake ..
 > make 
 > make install
