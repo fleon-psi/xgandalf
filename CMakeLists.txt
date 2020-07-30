@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-project(xgandalf)
+project(xgandalf VERSION 1.0)
 
 include(GNUInstallDirs)
 
@@ -126,8 +126,8 @@ set_target_properties(xgandalf PROPERTIES
 
 
 install(TARGETS xgandalf 
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION lib
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 install(
@@ -148,3 +148,8 @@ install(
     PATTERN "*"
 	PATTERN "*.m" EXCLUDE
 )
+
+# xgandalf.pc
+configure_file(xgandalf.pc.in xgandalf.pc)
+install(FILES ${CMAKE_BINARY_DIR}/xgandalf.pc
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
