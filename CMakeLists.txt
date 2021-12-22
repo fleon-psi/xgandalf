@@ -73,7 +73,7 @@ set(SOURCES_test src/main.cpp
 if(XGANDALF_BUILD_EXECUTABLE)
 	add_executable(xgandalf ${SOURCES} ${SOURCES_test})
 else(XGANDALF_BUILD_EXECUTABLE)
-	add_library(xgandalf SHARED ${SOURCES})
+	add_library(xgandalf STATIC ${SOURCES})
 endif(XGANDALF_BUILD_EXECUTABLE)
 
 target_include_directories(xgandalf PUBLIC include)
