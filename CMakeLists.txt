@@ -35,9 +35,7 @@ set(MKL_USE_interface "lp64" CACHE STRING "for Intel(R)64 compatible arch: ilp64
 set(BOOST_ALL_NO_LIB 1)
 find_package(Boost 1.60.0)
 find_package(Eigen3 3.3.7 NO_MODULE)
-find_package(MKL) 
-
-include_directories(include)
+find_package(MKL)
 
 set(SOURCES src/Dbscan.cpp
             src/DetectorToReciprocalSpaceTransform.cpp
@@ -78,6 +76,7 @@ else(XGANDALF_BUILD_EXECUTABLE)
 	add_library(xgandalf SHARED ${SOURCES})
 endif(XGANDALF_BUILD_EXECUTABLE)
 
+target_include_directories(xgandalf PUBLIC include)
 
 if(Boost_FOUND)
 	target_include_directories(xgandalf SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
