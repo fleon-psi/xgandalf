@@ -5,13 +5,7 @@ include(GNUInstallDirs)
 
 option(XGANDALF_BUILD_EXECUTABLE "Build the test executable for xgandalf" OFF)
 option(USE_INSTALLED_PRECOMUTED_DATA "Use the installation path for getting the precomputed data 
-                                       (as oposite to the source location)" ON)
-
-if(USE_INSTALLED_PRECOMUTED_DATA)
-  add_definitions(-DPRECOMPUTED_DATA_DIR=${CMAKE_INSTALL_FULL_DATADIR}/xgandalf/precomputedSamplePoints)
-else(USE_INSTALLED_PRECOMUTED_DATA)
-  add_definitions(-DPRECOMPUTED_DATA_DIR=${PROJECT_SOURCE_DIR}/precomputedSamplePoints)
-endif(USE_INSTALLED_PRECOMUTED_DATA)
+                                       (as oposite to the source location)" OFF)
 
  
 # Set a default build type if none was specified
@@ -69,7 +63,7 @@ set(SOURCES src/Dbscan.cpp
 set(SOURCES_test src/main.cpp
 				 src/tests.cpp
 )
- 
+
 if(XGANDALF_BUILD_EXECUTABLE)
 	add_executable(xgandalf ${SOURCES} ${SOURCES_test})
 else(XGANDALF_BUILD_EXECUTABLE)
@@ -77,6 +71,12 @@ else(XGANDALF_BUILD_EXECUTABLE)
 endif(XGANDALF_BUILD_EXECUTABLE)
 
 target_include_directories(xgandalf PUBLIC include)
+
+if(USE_INSTALLED_PRECOMUTED_DATA)
+	target_compile_definitions(xgandalf PRIVATE -DPRECOMPUTED_DATA_DIR=${CMAKE_INSTALL_FULL_DATADIR}/xgandalf/precomputedSamplePoints)
+else(USE_INSTALLED_PRECOMUTED_DATA)
+	target_compile_definitions(xgandalf PRIVATE -DPRECOMPUTED_DATA_DIR=${PROJECT_SOURCE_DIR}/precomputedSamplePoints)
+endif(USE_INSTALLED_PRECOMUTED_DATA)
 
 if(Boost_FOUND)
 	target_include_directories(xgandalf SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
