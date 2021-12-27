@@ -3,7 +3,7 @@
  *
  * SimpleMonochromaticDiffractionPatternPrediction.h
  *
- * Copyright © 2019 Deutsches Elektronen-Synchrotron DESY,
+ * Copyright ï¿½ 2019 Deutsches Elektronen-Synchrotron DESY,
  *                       a research centre of the Helmholtz Association.
  *
  * Authors:
@@ -137,6 +137,7 @@ namespace xgandalf
     {
         Vector3f minA(0, 0, 0); // initialization not required, but if not done, compiler issues warning
 
+        int iteration_count = 0;
         bool terminationFlag = false;
         while (terminationFlag == false)
         {
@@ -147,7 +148,7 @@ namespace xgandalf
             float minALengthSquared;
             getMinA(basis, minA, minALengthSquared);
 
-            if (minALengthSquared >= basis.col(2).squaredNorm())
+            if ((minALengthSquared >= basis.col(2).squaredNorm()) || (iteration_count > 20))
             {
                 terminationFlag = true;
             }
@@ -155,6 +156,7 @@ namespace xgandalf
             {
                 basis.col(2) = minA;
             }
+            iteration_count++;
         }
 
         sortColumnsByNorm_ascending(basis);
@@ -346,7 +348,7 @@ namespace xgandalf
             }
         }
 
-        // not possible to have all < 90°, get the combination with smallest sum
+        // not possible to have all < 90ï¿½, get the combination with smallest sum
         float smallestSum = 3 * 180;
         for (int l = -1; l <= 1; l += 2)
         {
