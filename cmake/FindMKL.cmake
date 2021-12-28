@@ -98,9 +98,11 @@ if (NOT MKL_ROOT_DIR)
     endif()
 else()
     set(MKL_INCLUDE_DIR ${MKL_ROOT_DIR}/include)
-
     # set arguments to call the MKL provided tool for linking
     set(MKL_LINK_TOOL ${MKL_ROOT_DIR}/tools/mkl_link_tool)
+    if (NOT EXISTS "${MKL_LINK_TOOL}")
+        set(MKL_LINK_TOOL ${MKL_ROOT_DIR}/bin/intel64/mkl_link_tool)
+    endif()
 
     if (WIN32)
         set(MKL_LINK_TOOL ${MKL_LINK_TOOL}.exe)
@@ -255,6 +257,7 @@ else()
         string(REGEX REPLACE "\n" "" MKL_LIBS ${MKL_LIBS})
         if (MKL_LINK_TOOL_ARGUMENTS MATCHES "static")
             string(REPLACE "$(MKLROOT)" "${MKL_ROOT_DIR}" MKL_LIBRARIES ${MKL_LIBS})
+            string(REPLACE "\${MKLROOT}" "${MKL_ROOT_DIR}" MKL_LIBRARIES ${MKL_LIBS})
             # hack for lin with libiomp5.a
             if (APPLE)
                 string(REPLACE "-liomp5" "${MKL_ROOT_DIR}/../compiler/lib/libiomp5.a" MKL_LIBRARIES ${MKL_LIBRARIES})
