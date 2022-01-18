@@ -150,5 +150,5 @@ install(
 
 # xgandalf.pc
 configure_file(xgandalf.pc.in xgandalf.pc)
-install(FILES ${CMAKE_BINARY_DIR}/xgandalf.pc
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/xgandalf.pc
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
